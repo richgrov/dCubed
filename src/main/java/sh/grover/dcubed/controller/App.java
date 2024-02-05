@@ -17,21 +17,26 @@ public class App implements IController {
     private final IView view;
     private final WebcamCapture capture = new WebcamCapture(1);
     private final MatOfByte imageEncodeTarget = new MatOfByte();
+    private final Mat matTarget = new Mat();
     private final AtomicBoolean running = new AtomicBoolean(true);
+
+    private final CubeSegmenter cubeSegmenter = new CubeSegmenter();
 
     public App(IView view) {
         this.view = view;
     }
 
     public void run() {
+        var mat = new Mat();
         while (this.running.get()) {
-            var mat = new Mat();
             if (!this.capture.capture(mat)) {
                 break;
             }
 
+            this.cubeSegmenter.segmentFaces(mat, this.matTarget);
+
             try {
-                this.view.displayImage(toBufferedImage(mat));
+                this.view.displayImage(toBufferedImage(this.matTarget));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
