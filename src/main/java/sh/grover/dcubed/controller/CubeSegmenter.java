@@ -18,26 +18,34 @@ public class CubeSegmenter {
     private final List<MatOfPoint> contourPoints = new ArrayList<>();
     private final List<MatOfPoint> filteredContours = new ArrayList<>();
 
-    public void segmentFaces(Mat in, Mat out) {
-        var img = this.segmentCube(in);
-        img.copyTo(out);
+    public Point[] segmentFaces(Mat input) {
+        var contour = this.segmentCube(input);
+        if (contour == null) {
+            return null;
+        }
+        return contour.toArray();
     }
 
-    private Mat segmentCube(Mat input) {
+    private MatOfPoint segmentCube(Mat input) {
         var foreground = this.segmentForeground(input);
-        this.contour(foreground);
-        Imgproc.drawContours(input, this.filteredContours, -1, CONTOUR_COLOR1, 3);
-        return input;
+        var contours = this.contour(foreground);
+        if (contours.size() != 1) {
+            return null;
+        }
+
+        Imgproc.drawContours(input, contours, -1, CONTOUR_COLOR1, 3);
+        return contours.getFirst();
     }
 
     private Mat segmentForeground(Mat input) {
-        Imgproc.cvtColor(input, this.hsv, Imgproc.COLOR_BGR2HSV);
-        Core.inRange(this.hsv, new Scalar(0, 0, 50), new Scalar(255, 255, 255), this.foregroundSegment);
+        Imgproc.cvtColor(input, this.hsv, Imgproc.COLOR_BGR2HLS);
+        Core.inRange(this.hsv, new Scalar(0, 0, 0), new Scalar(255, 50, 150), this.foregroundSegment);
+        Core.bitwise_not(this.foregroundSegment, this.foregroundSegment);
         Imgproc.medianBlur(this.foregroundSegment, this.blurredForeground, 11);
         return this.blurredForeground;
     }
 
-    private void contour(Mat input) {
+    private List<MatOfPoint> contour(Mat input) {
         this.contourPoints.clear();
         Imgproc.findContours(input, this.contourPoints, this.hierarchyUnused, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
@@ -63,5 +71,7 @@ public class CubeSegmenter {
 
             this.filteredContours.add(new MatOfPoint(smoothPoints));
         }
+
+        return this.filteredContours;
     }
 }

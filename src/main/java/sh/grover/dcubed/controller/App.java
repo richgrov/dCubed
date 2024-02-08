@@ -17,7 +17,6 @@ public class App implements IController {
     private final IView view;
     private final WebcamCapture capture = new WebcamCapture(1);
     private final MatOfByte imageEncodeTarget = new MatOfByte();
-    private final Mat matTarget = new Mat();
     private final AtomicBoolean running = new AtomicBoolean(true);
 
     private final CubeSegmenter cubeSegmenter = new CubeSegmenter();
@@ -33,10 +32,10 @@ public class App implements IController {
                 break;
             }
 
-            this.cubeSegmenter.segmentFaces(mat, this.matTarget);
+            var segmentedCube = this.cubeSegmenter.segmentFaces(mat);
 
             try {
-                this.view.displayImage(toBufferedImage(this.matTarget));
+                this.view.displayImage(toBufferedImage(mat));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
