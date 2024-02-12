@@ -43,46 +43,26 @@ public class Cube {
     private static final SideConnection[][] SIDE_CONNECTIONS = {
             // white
             {
-                    new SideConnection(1, 6, 5, 4),
-                    new SideConnection(2, 6, 5, 4),
-                    new SideConnection(4, 6, 5, 4),
-                    new SideConnection(5, 6, 5, 4)
+                    SideConnection.bottomOf(RED),
+                    SideConnection.bottomOf(GREEN),
+                    SideConnection.bottomOf(ORANGE),
+                    SideConnection.bottomOf(BLUE),
             },
             // red
-            {
-                    new SideConnection(1, 6, 5, 4),
-                    new SideConnection(2, 6, 5, 4),
-                    new SideConnection(4, 6, 5, 4),
-                    new SideConnection(5, 6, 5, 4)
-            },
+            createSideFaceSideConnections(BLUE, GREEN),
             // orange
-            {
-                    new SideConnection(1, 6, 5, 4),
-                    new SideConnection(2, 6, 5, 4),
-                    new SideConnection(4, 6, 5, 4),
-                    new SideConnection(5, 6, 5, 4)
-            },
+            createSideFaceSideConnections(GREEN, BLUE),
             // yellow
             {
-                    new SideConnection(1, 6, 5, 4),
-                    new SideConnection(2, 6, 5, 4),
-                    new SideConnection(4, 6, 5, 4),
-                    new SideConnection(5, 6, 5, 4)
+                    SideConnection.topOf(RED),
+                    SideConnection.topOf(BLUE),
+                    SideConnection.topOf(ORANGE),
+                    SideConnection.topOf(GREEN),
             },
             // green
-            {
-                    new SideConnection(1, 6, 5, 4),
-                    new SideConnection(2, 6, 5, 4),
-                    new SideConnection(4, 6, 5, 4),
-                    new SideConnection(5, 6, 5, 4)
-            },
+            createSideFaceSideConnections(RED, ORANGE),
             // blue
-            {
-                    new SideConnection(1, 6, 5, 4),
-                    new SideConnection(2, 6, 5, 4),
-                    new SideConnection(4, 6, 5, 4),
-                    new SideConnection(5, 6, 5, 4)
-            }
+            createSideFaceSideConnections(ORANGE, RED),
     };
 
     /** Order matches the order of specified side colors */
@@ -97,5 +77,35 @@ public class Cube {
         faces[face] = Long.rotateLeft(faces[face], 16);
     }
 
-    private record SideConnection(int side, int... faces) {}
+    /**
+     * @param side The side touching the side in question
+     * @param faces The faces of that side, ordered as if the side in question
+     *              was rotated clockwise
+     */
+    private record SideConnection(int side, int... faces) {
+        static SideConnection bottomOf(int side) {
+            return new SideConnection(side, 6, 5, 4);
+        }
+
+        static SideConnection leftOf(int side) {
+            return new SideConnection(side, 0, 7, 6);
+        }
+
+        static SideConnection topOf(int side) {
+            return new SideConnection(side, 2, 1, 0);
+        }
+
+        static SideConnection rightOf(int side) {
+            return new SideConnection(side, 4, 3, 2);
+        }
+    }
+
+    private static SideConnection[] createSideFaceSideConnections(int leftSide, int rightSide) {
+        return new SideConnection[]{
+                SideConnection.bottomOf(YELLOW),
+                SideConnection.leftOf(rightSide),
+                SideConnection.topOf(WHITE),
+                SideConnection.rightOf(leftSide),
+        };
+    }
 }
