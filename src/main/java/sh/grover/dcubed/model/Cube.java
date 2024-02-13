@@ -1,5 +1,7 @@
 package sh.grover.dcubed.model;
 
+import sh.grover.dcubed.util.ArrayUtil;
+
 /**
  * A Rubik's cube contains 6 sides. Each side comprises 9 faces: 8 side
  * faces and one center face. Since there can only be one of each color for
@@ -66,15 +68,46 @@ public class Cube {
     };
 
     /** Order matches the order of specified side colors */
-    private final long[] faces = new long[6];
+    private final long[] sides = new long[6];
 
-    public void rotateClockwise(int face) {
-        faces[face] = Long.rotateRight(faces[face], 16);
-
+    public void rotateClockwise(int side) {
+        sides[side] = Long.rotateRight(sides[side], 16);
+        this.rotateTouchingSides(side, 1);
     }
 
-    public void rotateCounterClockwise(int face) {
-        faces[face] = Long.rotateLeft(faces[face], 16);
+    public void rotateCounterClockwise(int side) {
+        sides[side] = Long.rotateLeft(sides[side], 16);
+        this.rotateTouchingSides(side, -1);
+    }
+
+    private void rotateTouchingSides(int side, int rotateDirection) {
+        var touchingFaces = new byte[4 * 3];
+
+        var connectingSides = SIDE_CONNECTIONS[side];
+        for (var iSide = 0; iSide < connectingSides.length; iSide++) {
+            var connection = connectingSides[iSide];
+            touchingFaces[iSide * 4] = this.getFaceColor(connection.side(), connection.faces[0]);
+            touchingFaces[iSide * 4 + 1] = this.getFaceColor(connection.side(), connection.faces[1]);
+            touchingFaces[iSide * 4 + 2] = this.getFaceColor(connection.side(), connection.faces[2]);
+        }
+
+        for (var iSide = 0; iSide < connectingSides.length; iSide++) {
+            var connection = ArrayUtil.loopedIndex(connectingSides, iSide + rotateDirection);
+            this.setFaceColor(connection.side(), connection.faces()[0], touchingFaces[iSide * 4]);
+            this.setFaceColor(connection.side(), connection.faces()[1], touchingFaces[iSide * 4 + 1]);
+            this.setFaceColor(connection.side(), connection.faces()[2], touchingFaces[iSide * 4 + 2]);
+        }
+    }
+
+    private byte getFaceColor(int side, int faceIndex) {
+        var shifted = this.sides[side] >>> ((7 - faceIndex) * 8);
+        return (byte) (shifted & 0xFF);
+    }
+
+    private void setFaceColor(int side, int faceIndex, byte color) {
+        var shiftAmount = (7 - faceIndex) * 8;
+        var sideWithFaceCleared = this.sides[side] & ~(0xFFL << shiftAmount);
+        this.sides[side] = sideWithFaceCleared & (long) color << shiftAmount;
     }
 
     /**
