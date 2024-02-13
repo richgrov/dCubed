@@ -63,7 +63,7 @@ public class Cube {
     /** Order matches the order of specified side colors */
     private final long[] sides = new long[6];
 
-    public Cube(Side[] sides) {
+    public Cube(Side... sides) {
         if (sides.length != 6) {
             throw new IllegalArgumentException("cube must be created with exactly 6 sides");
         }

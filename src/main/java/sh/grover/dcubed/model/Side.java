@@ -14,6 +14,16 @@ public class Side {
         this.colors = colors;
     }
 
+    public static Side all(FaceColor color) {
+        var faces = new FaceColor[8];
+        Arrays.fill(faces, color);
+        return new Side(faces);
+    }
+
+    public static Side checker(FaceColor corner, FaceColor side) {
+        return new Side(corner, side, corner, side, corner, side, corner, side);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
