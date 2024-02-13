@@ -70,6 +70,16 @@ public class Cube {
     /** Order matches the order of specified side colors */
     private final long[] sides = new long[6];
 
+    public Cube(Side[] sides) {
+        if (sides.length != 6) {
+            throw new IllegalArgumentException("cube must be created with exactly 6 sides");
+        }
+
+        for (var iSide = 0; iSide < sides.length; iSide++) {
+            this.sides[iSide] = packSide(sides[iSide].colors);
+        }
+    }
+
     public void rotateClockwise(int side) {
         sides[side] = Long.rotateRight(sides[side], 16);
         this.rotateTouchingSides(side, 1);
@@ -78,6 +88,17 @@ public class Cube {
     public void rotateCounterClockwise(int side) {
         sides[side] = Long.rotateLeft(sides[side], 16);
         this.rotateTouchingSides(side, -1);
+    }
+
+    public Side[] getSides() {
+        var outSides = new Side[6];
+
+        for (var iSide = 0; iSide < 6; iSide++) {
+            var unpacked = unpackSide(this.sides[iSide]);
+            outSides[iSide] = new Side(unpacked);
+        }
+
+        return outSides;
     }
 
     private void rotateTouchingSides(int side, int rotateDirection) {
@@ -140,5 +161,24 @@ public class Cube {
                 SideConnection.topOf(WHITE),
                 SideConnection.rightOf(leftSide),
         };
+    }
+
+    private static long packSide(FaceColor[] colors) {
+        var encodedSide = 0L;
+        for (var iColor = 0; iColor < 8; iColor++) {
+            var color = (long) colors[iColor].ordinal();
+            encodedSide |= color << ((7 - iColor) * 8);
+        }
+
+        return encodedSide;
+    }
+
+    private static FaceColor[] unpackSide(long side) {
+        var faceColors = new FaceColor[8];
+        for (var iFace = 0; iFace < 8; iFace++) {
+            var colorIndex = (side >>> ((7 - iFace) * 8)) & 0xFF;
+            faceColors[iFace] = FaceColor.values()[(int) colorIndex];
+        }
+        return faceColors;
     }
 }
