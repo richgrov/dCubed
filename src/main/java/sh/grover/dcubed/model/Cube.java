@@ -82,12 +82,14 @@ public class Cube {
 
     public void rotateClockwise(int side) {
         sides[side] = Long.rotateRight(sides[side], 16);
-        this.rotateTouchingSides(side, 1);
+        var touchingFaces = this.getTouchingFaces(side);
+        this.applyColorsToTouchingFaces(side, 1, touchingFaces);
     }
 
     public void rotateCounterClockwise(int side) {
         sides[side] = Long.rotateLeft(sides[side], 16);
-        this.rotateTouchingSides(side, -1);
+        var touchingFaces = this.getTouchingFaces(side);
+        this.applyColorsToTouchingFaces(side, -1, touchingFaces);
     }
 
     public Side[] getSides() {
@@ -101,22 +103,31 @@ public class Cube {
         return outSides;
     }
 
-    private void rotateTouchingSides(int side, int rotateDirection) {
+    /**
+     * Gets the 12 faces (4 sides * 3 faces per side) that touch a side of a Rubik's cube.
+     * @return The color IDs of all the faces.
+     */
+    private byte[] getTouchingFaces(int side) {
         var touchingFaces = new byte[4 * 3];
 
         var connectingSides = SIDE_CONNECTIONS[side];
         for (var iSide = 0; iSide < connectingSides.length; iSide++) {
             var connection = connectingSides[iSide];
-            touchingFaces[iSide * 4] = this.getFaceColor(connection.side(), connection.faces[0]);
-            touchingFaces[iSide * 4 + 1] = this.getFaceColor(connection.side(), connection.faces[1]);
-            touchingFaces[iSide * 4 + 2] = this.getFaceColor(connection.side(), connection.faces[2]);
+            touchingFaces[iSide * 3] = this.getFaceColor(connection.side(), connection.faces[0]);
+            touchingFaces[iSide * 3 + 1] = this.getFaceColor(connection.side(), connection.faces[1]);
+            touchingFaces[iSide * 3 + 2] = this.getFaceColor(connection.side(), connection.faces[2]);
         }
 
+        return touchingFaces;
+    }
+
+    private void applyColorsToTouchingFaces(int side, int sideOrderOffset, byte[] faceColors) {
+        var connectingSides = SIDE_CONNECTIONS[side];
         for (var iSide = 0; iSide < connectingSides.length; iSide++) {
-            var connection = ArrayUtil.loopedIndex(connectingSides, iSide + rotateDirection);
-            this.setFaceColor(connection.side(), connection.faces()[0], touchingFaces[iSide * 4]);
-            this.setFaceColor(connection.side(), connection.faces()[1], touchingFaces[iSide * 4 + 1]);
-            this.setFaceColor(connection.side(), connection.faces()[2], touchingFaces[iSide * 4 + 2]);
+            var connection = ArrayUtil.loopedIndex(connectingSides, iSide + sideOrderOffset);
+            this.setFaceColor(connection.side(), connection.faces()[0], faceColors[iSide * 3]);
+            this.setFaceColor(connection.side(), connection.faces()[1], faceColors[iSide * 3 + 1]);
+            this.setFaceColor(connection.side(), connection.faces()[2], faceColors[iSide * 3 + 2]);
         }
     }
 
@@ -128,7 +139,7 @@ public class Cube {
     private void setFaceColor(int side, int faceIndex, byte color) {
         var shiftAmount = (7 - faceIndex) * 8;
         var sideWithFaceCleared = this.sides[side] & ~(0xFFL << shiftAmount);
-        this.sides[side] = sideWithFaceCleared & (long) color << shiftAmount;
+        this.sides[side] = sideWithFaceCleared | ((long) color << shiftAmount);
     }
 
     /**
