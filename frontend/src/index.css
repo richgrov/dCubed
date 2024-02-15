@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind utilities;
+
+:root {
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+@font-face {
+  font-family: "CalSans";
+  src: url("CalSans-SemiBold.ttf") format("truetype");
+  font-weight: bolder;
+  font-style: normal;
+}
+
+.text-stroke-black {
+  -webkit-text-stroke: 2px black;
+}
