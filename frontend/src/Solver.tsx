@@ -3,8 +3,8 @@ import Button from "./Button";
 
 export default function Solver() {
   return (
-    <div className="flex flex-col items-center">
-      <h1 className="py-20 text-5xl">Step 1: Scan Cube</h1>
+    <div className="flex flex-col items-center gap-20 py-20">
+      <h1 className="text-5xl">Step 1: Scan Cube</h1>
       <div className="aspect-video w-3/5 rounded-2xl border-4 border-black">
         <InputSetup />
       </div>
