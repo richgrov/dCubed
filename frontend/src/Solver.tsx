@@ -1,5 +1,6 @@
 import { MouseEvent } from "react";
 import Button from "./Button";
+import { useDropzone } from "react-dropzone";
 
 export default function Solver() {
   return (
@@ -13,15 +14,21 @@ export default function Solver() {
 }
 
 function InputSetup() {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone();
   const handleUpload = (e: MouseEvent) => {};
   const handleCamera = (e: MouseEvent) => {};
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-5">
-      <h1 className="text-3xl">Upload or Drop Photo Here</h1>
-      <div className="flex gap-10">
-        <Button onClick={handleUpload}>Upload Photo</Button>
-        <Button onClick={handleCamera}>Use Camera</Button>
+    <div className="flex h-full flex-col items-center">
+      <div
+        {...getRootProps()}
+        className="flex w-full flex-1 cursor-pointer items-center justify-center border-b-4 border-dashed border-black"
+      >
+        <input {...getInputProps()} />
+        <h1 className="text-3xl">Click to Upload or Drop Photo Here</h1>
+      </div>
+      <div className="p-5">
+        <Button onClick={handleCamera}>Use Camera Instead</Button>
       </div>
     </div>
   );
