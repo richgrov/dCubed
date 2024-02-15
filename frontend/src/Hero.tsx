@@ -3,8 +3,8 @@ import cube from "./assets/cube.png";
 
 export default function Hero() {
   return (
-    <div className="flex justify-center bg-amber-400 bg-[url('dots.png')] bg-contain bg-right bg-no-repeat py-48">
-      <div className="flex flex-col gap-10 font-['CalSans']">
+    <div className="flex justify-center border-b-4 border-b-black bg-amber-400 bg-[url('dots.png')] bg-contain bg-right bg-no-repeat py-48">
+      <div className="flex flex-col gap-10">
         <div>
           <h1 className="text-stroke-black text-7xl text-transparent">
             Solve your Rubik's Cube

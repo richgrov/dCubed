@@ -1,14 +1,12 @@
 import Hero from "./Hero";
+import Solver from "./Solver";
 
 export default function App() {
   return (
     <>
       <Hero />
       <div>
-        <canvas />
-      </div>
-      <div>
-        <div></div>
+        <Solver />
       </div>
     </>
   );
