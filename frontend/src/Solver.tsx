@@ -1,9 +1,21 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import Button from "./Button";
 import { useDropzone } from "react-dropzone";
 
 export default function Solver() {
-  const onPhoto = useCallback((file: File) => {}, []);
+  const [sessionId, setSessionId] = useState<string | undefined>(undefined);
+
+  const onPhoto = useCallback(async (file: File) => {
+    const formData = new FormData();
+    formData.append("photo", file);
+
+    let url = import.meta.env.VITE_BACKEND_URL + "/scan-photo";
+    if (typeof sessionId !== "undefined") {
+      url += new URLSearchParams({ session: sessionId });
+    }
+
+    const reponse = await fetch(url, { method: "POST", body: formData });
+  }, []);
 
   return (
     <div className="flex flex-col items-center gap-20 py-20">
