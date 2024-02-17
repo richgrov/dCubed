@@ -38,26 +38,46 @@ public class Cube {
     private static final SideConnection[][] SIDE_CONNECTIONS = {
             // white
             {
-                    SideConnection.bottomOf(FaceColor.RED),
-                    SideConnection.bottomOf(FaceColor.GREEN),
-                    SideConnection.bottomOf(FaceColor.ORANGE),
-                    SideConnection.bottomOf(FaceColor.BLUE),
+                SideConnection.bottomOf(FaceColor.RED),
+                SideConnection.bottomOf(FaceColor.GREEN),
+                SideConnection.bottomOf(FaceColor.ORANGE),
+                SideConnection.bottomOf(FaceColor.BLUE),
             },
             // red
-            createSideFaceSideConnections(FaceColor.BLUE, FaceColor.GREEN),
+            {
+                SideConnection.leftOf(FaceColor.YELLOW),
+                SideConnection.leftOf(FaceColor.GREEN),
+                SideConnection.leftOf(FaceColor.WHITE),
+                SideConnection.rightOf(FaceColor.BLUE),
+            },
             // orange
-            createSideFaceSideConnections(FaceColor.GREEN, FaceColor.BLUE),
+            {
+                SideConnection.rightOf(FaceColor.YELLOW),
+                SideConnection.leftOf(FaceColor.BLUE),
+                SideConnection.rightOf(FaceColor.WHITE),
+                SideConnection.rightOf(FaceColor.GREEN),
+            },
             // yellow
             {
-                    SideConnection.topOf(FaceColor.RED),
-                    SideConnection.topOf(FaceColor.BLUE),
-                    SideConnection.topOf(FaceColor.ORANGE),
-                    SideConnection.topOf(FaceColor.GREEN),
+                SideConnection.topOf(FaceColor.RED),
+                SideConnection.topOf(FaceColor.BLUE),
+                SideConnection.topOf(FaceColor.ORANGE),
+                SideConnection.topOf(FaceColor.GREEN),
             },
             // green
-            createSideFaceSideConnections(FaceColor.RED, FaceColor.ORANGE),
+            {
+                SideConnection.bottomOf(FaceColor.YELLOW),
+                SideConnection.leftOf(FaceColor.ORANGE),
+                SideConnection.topOf(FaceColor.WHITE),
+                SideConnection.rightOf(FaceColor.RED),
+            },
             // blue
-            createSideFaceSideConnections(FaceColor.ORANGE, FaceColor.RED),
+            {
+                SideConnection.topOf(FaceColor.YELLOW),
+                SideConnection.leftOf(FaceColor.RED),
+                SideConnection.bottomOf(FaceColor.WHITE),
+                SideConnection.rightOf(FaceColor.ORANGE),
+            },
     };
 
     /** Order matches the order of specified side colors */
@@ -158,15 +178,6 @@ public class Cube {
         static SideConnection rightOf(FaceColor side) {
             return new SideConnection(side.ordinal(), 4, 3, 2);
         }
-    }
-
-    private static SideConnection[] createSideFaceSideConnections(FaceColor leftSide, FaceColor rightSide) {
-        return new SideConnection[]{
-                SideConnection.bottomOf(FaceColor.YELLOW),
-                SideConnection.leftOf(rightSide),
-                SideConnection.topOf(FaceColor.WHITE),
-                SideConnection.rightOf(leftSide),
-        };
     }
 
     private static long packSide(FaceColor[] colors) {

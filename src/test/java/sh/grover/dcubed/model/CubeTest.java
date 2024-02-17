@@ -70,6 +70,49 @@ class CubeTest {
         assertArrayEquals(expected, cube.getSides());
     }
 
+    @Test
+    public void testScrambleUnscramble() {
+        var expectedSolved = new Side[] {
+            Side.all(FaceColor.WHITE),
+            Side.all(FaceColor.RED),
+            Side.all(FaceColor.ORANGE),
+            Side.all(FaceColor.YELLOW),
+            Side.all(FaceColor.GREEN),
+            Side.all(FaceColor.BLUE)
+        };
+        var cube = new Cube(expectedSolved);
+
+        cube.rotateClockwise(FaceColor.WHITE);
+        cube.rotateCounterClockwise(FaceColor.ORANGE);
+        cube.rotateClockwise(FaceColor.BLUE);
+        cube.rotateClockwise(FaceColor.RED);
+        cube.rotateCounterClockwise(FaceColor.BLUE);
+        cube.rotateClockwise(FaceColor.WHITE);
+        cube.rotateCounterClockwise(FaceColor.YELLOW);
+        cube.rotateCounterClockwise(FaceColor.GREEN);
+
+        var expectedScrambled = new Side[] {
+                new Side(FaceColor.WHITE, FaceColor.RED, FaceColor.ORANGE, FaceColor.WHITE, FaceColor.GREEN, FaceColor.GREEN, FaceColor.RED, FaceColor.WHITE),
+                new Side(FaceColor.RED, FaceColor.WHITE, FaceColor.WHITE, FaceColor.BLUE, FaceColor.BLUE, FaceColor.ORANGE, FaceColor.WHITE, FaceColor.RED),
+                new Side(FaceColor.GREEN, FaceColor.GREEN, FaceColor.YELLOW, FaceColor.GREEN, FaceColor.YELLOW, FaceColor.RED, FaceColor.WHITE, FaceColor.GREEN),
+                new Side(FaceColor.YELLOW, FaceColor.BLUE, FaceColor.BLUE, FaceColor.YELLOW, FaceColor.YELLOW, FaceColor.ORANGE, FaceColor.GREEN, FaceColor.BLUE),
+                new Side(FaceColor.ORANGE, FaceColor.YELLOW, FaceColor.RED, FaceColor.RED, FaceColor.BLUE, FaceColor.YELLOW, FaceColor.RED, FaceColor.YELLOW),
+                new Side(FaceColor.ORANGE, FaceColor.ORANGE, FaceColor.BLUE, FaceColor.BLUE, FaceColor.GREEN, FaceColor.ORANGE, FaceColor.ORANGE, FaceColor.WHITE),
+        };
+        assertArrayEquals(expectedScrambled, cube.getSides());
+
+        cube.rotateClockwise(FaceColor.GREEN);
+        cube.rotateClockwise(FaceColor.YELLOW);
+        cube.rotateCounterClockwise(FaceColor.WHITE);
+        cube.rotateClockwise(FaceColor.BLUE);
+        cube.rotateCounterClockwise(FaceColor.RED);
+        cube.rotateCounterClockwise(FaceColor.BLUE);
+        cube.rotateClockwise(FaceColor.ORANGE);
+        cube.rotateCounterClockwise(FaceColor.WHITE);
+
+        assertArrayEquals(expectedSolved, cube.getSides());
+    }
+
     private static Side sideWithBottomColor(FaceColor sideColor, FaceColor bottomColor) {
         return new Side(
                 sideColor, sideColor, sideColor, sideColor,
