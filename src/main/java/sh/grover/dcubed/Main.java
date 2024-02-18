@@ -1,29 +1,15 @@
 package sh.grover.dcubed;
 
 import nu.pattern.OpenCV;
-import sh.grover.dcubed.controller.App;
-import sh.grover.dcubed.view.Window;
-
-import javax.swing.*;
+import sh.grover.dcubed.controller.SolverSessions;
+import sh.grover.dcubed.controller.vision.MockColorIdentifier;
+import sh.grover.dcubed.router.WebServer;
 
 public class Main {
     public static void main(String[] args) {
         OpenCV.loadLocally();
-        SwingUtilities.invokeLater(Main::start);
-    }
-
-    private static void start() {
-        var view = new Window();
-
-        new Thread(() -> {
-            var controller = new App(view);
-            view.setController(controller);
-            try {
-                controller.run();
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
-            controller.dispose();
-        }).start();
+        var colorIdentifier = new MockColorIdentifier();
+        var solverSessions = new SolverSessions(colorIdentifier);
+        new WebServer(solverSessions);
     }
 }
