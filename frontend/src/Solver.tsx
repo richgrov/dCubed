@@ -1,27 +1,53 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Button from "./Button";
 import { useDropzone } from "react-dropzone";
 
-export default function Solver() {
-  const [sessionId, setSessionId] = useState<string | undefined>(undefined);
+import loadingAnimation from "./assets/loading.gif";
 
-  const onPhoto = useCallback(async (file: File) => {
+export default function Solver() {
+  const sessionId = useRef<string | undefined>(undefined);
+  const [loading, setLoading] = useState(false);
+
+  const onPhoto = async (file: File) => {
+    setLoading(true);
+
     const formData = new FormData();
     formData.append("photo", file);
 
     let url = import.meta.env.VITE_BACKEND_URL + "/scan-photo";
-    if (typeof sessionId !== "undefined") {
-      url += new URLSearchParams({ session: sessionId });
+    if (typeof sessionId.current !== "undefined") {
+      url += "?" + new URLSearchParams({ session: sessionId.current });
     }
 
-    const reponse = await fetch(url, { method: "POST", body: formData });
-  }, []);
+    try {
+      const response = await fetch(url, { method: "POST", body: formData });
+      if (response.status !== 200) {
+        return;
+      }
+
+      const responseData = await response.json();
+      sessionId.current = responseData.sessionId;
+
+      if (responseData.unscannedFaces.length === 0) {
+        alert("done!");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center gap-20 py-20">
       <h1 className="text-5xl">Step 1: Scan Cube</h1>
-      <div className="aspect-video w-3/5 rounded-2xl border-4 border-black">
+      <div className="relative aspect-video w-3/5 rounded-2xl border-4 border-black">
         <InputSetup onPhoto={onPhoto} />
+        {loading ? (
+          <div className="rounded-1xl absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center bg-[rgba(0,_0,_0,_0.5)]">
+            <img src={loadingAnimation} alt="Loading Animation" />
+          </div>
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );
