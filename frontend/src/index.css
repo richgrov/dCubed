@@ -10,7 +10,9 @@
 
 @font-face {
   font-family: "CalSans";
-  src: url("CalSans-SemiBold.ttf") format("truetype");
+  src:
+    url("calsans-semibold.woff2") format("woff2"),
+    url("calsans-semibold.woff") format("woff");
   font-weight: bolder;
   font-style: normal;
 }
