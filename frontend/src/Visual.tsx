@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/Addons.js";
 
 export default function Visual() {
   const wrapperEl = useRef<HTMLDivElement>(null);
@@ -11,15 +12,22 @@ export default function Visual() {
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasEl.current!,
     });
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    camera.position.set(0, 5, 0);
+    controls.update();
+
     let running = true;
 
     function loop() {
+      controls.update();
       renderer.render(scene, camera);
 
       if (running) {
         window.requestAnimationFrame(loop);
       }
     }
+    window.requestAnimationFrame(loop);
 
     new ResizeObserver(() => {
       const width = wrapperEl.current!.clientWidth;
@@ -29,8 +37,6 @@ export default function Visual() {
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     }).observe(wrapperEl.current!);
-
-    window.requestAnimationFrame(loop);
 
     return () => {
       running = false;
