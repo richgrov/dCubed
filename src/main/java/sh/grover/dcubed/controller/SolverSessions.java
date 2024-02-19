@@ -25,7 +25,7 @@ public class SolverSessions {
 
         var sessionId = UUID.randomUUID();
         this.sessions.put(sessionId, session);
-        return new ScanResult(sessionId, session.unscannedSides());
+        return new ScanResult(sessionId, session.sides());
     }
 
     public ScanResult addPhoto(UUID sessionId, Mat photo) throws IllegalArgumentException {
@@ -39,6 +39,6 @@ public class SolverSessions {
             session.addSide(side);
         }
 
-        return new ScanResult(sessionId, session.unscannedSides());
+        return new ScanResult(sessionId, session.sides());
     }
 }

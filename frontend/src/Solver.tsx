@@ -28,7 +28,7 @@ export default function Solver() {
       const responseData = await response.json();
       sessionId.current = responseData.sessionId;
 
-      if (responseData.unscannedFaces.length === 0) {
+      if (Object.keys(responseData.sides).length === 6) {
         alert("done!");
       }
     } finally {
