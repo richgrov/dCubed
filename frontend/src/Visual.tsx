@@ -26,8 +26,7 @@ export default function Visual() {
       const height = wrapperEl.current!.clientHeight;
 
       camera.aspect = width / height;
-      canvasEl.current!.width = width;
-      canvasEl.current!.height = height;
+      renderer.setSize(width, height);
     }).observe(wrapperEl.current!);
 
     window.requestAnimationFrame(loop);
