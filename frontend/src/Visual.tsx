@@ -196,7 +196,7 @@ class CubeScene extends THREE.Scene {
     const rotate = new THREE.Matrix4().makeRotationAxis(rotAxis, rot);
     const matrix = new THREE.Matrix4();
 
-    const centerFace = this.generateFace(COLORS[color]);
+    const centerFace = this.generateFace(COLORS[color as keyof typeof COLORS]);
     centerFace.matrixAutoUpdate = false;
 
     matrix.makeTranslation(-1.5, 0, 0);
@@ -206,7 +206,7 @@ class CubeScene extends THREE.Scene {
 
     const faceColors = this.sides[color];
     for (let i = 0; i < SIDE_OFFSETS.length; i++) {
-      const color = COLORS[faceColors[i]];
+      const color = COLORS[faceColors[i] as keyof typeof COLORS];
       const face = this.generateFace(color);
 
       matrix.makeTranslation(-1.5, SIDE_OFFSETS[i][1], SIDE_OFFSETS[i][0]);
