@@ -22,7 +22,7 @@ public class Side {
         this.encoded = encoded;
     }
 
-    private FaceColor[] toColors() {
+    public FaceColor[] toColors() {
         var faceColors = new FaceColor[8];
         for (var iFace = 0; iFace < 8; iFace++) {
             var colorIndex = (this.encoded >>> ((7 - iFace) * 8)) & 0xFF;
