@@ -2,6 +2,8 @@ package sh.grover.dcubed.model;
 
 import sh.grover.dcubed.util.ArrayUtil;
 
+import java.util.Arrays;
+
 /**
  * A Rubik's cube contains 6 sides. Each side comprises 9 faces: 8 side
  * faces and one center face. Since there can only be one of each color for
@@ -80,6 +82,38 @@ public class Cube {
             },
     };
 
+    /**
+     * Indices of all side pieces that connect to another side piece.
+     * E.g. {@code ADJACENT_CONNECTIONS[WHITE][RED]} gets the index of the white face that touches
+     * the red side. Indices for sides that do not touch are -1.
+     */
+    private static final int[][] EDGE_PIECE_CONNECTIONS = new int[6][6];
+
+    static {
+        for (var side : FaceColor.values()) {
+            EDGE_PIECE_CONNECTIONS[side.ordinal()] = new int[]{-1, -1, -1, -1, -1, -1};
+
+            for (var connection : SIDE_CONNECTIONS[side.ordinal()]) {
+                var backConnection = getConnection(connection.side, side.ordinal());
+                //noinspection DataFlowIssue
+                EDGE_PIECE_CONNECTIONS[side.ordinal()][connection.side] = backConnection.faces[1];
+            }
+        }
+
+        for (var i = 0; i < EDGE_PIECE_CONNECTIONS.length; i++) {
+            System.out.println(Arrays.toString(EDGE_PIECE_CONNECTIONS[i]));
+        }
+    }
+
+    private static SideConnection getConnection(int side, int touching) {
+        for (var connected : SIDE_CONNECTIONS[side]) {
+            if (connected.side() == touching) {
+                return connected;
+            }
+        }
+        return null;
+    }
+
     public static SideConnection[] getConnections(FaceColor color) {
         return SIDE_CONNECTIONS[color.ordinal()];
     }
@@ -119,6 +153,19 @@ public class Cube {
         }
 
         return outSides;
+    }
+
+    /**
+     * Gets the edge piece color of a side relative to a connecting side.
+     * @param side The side of the face color to sample.
+     * @param adjacentSide The side that connects to {@code side}, which indicates exactly which edge piece to get
+     * @return The color of that edge piece
+     */
+    public FaceColor getColorOfEdgePiece(FaceColor side, FaceColor adjacentSide) {
+        var faceColors = new Side(this.sides[side.ordinal()]).toColors();
+
+        var adjacentIndex = EDGE_PIECE_CONNECTIONS[side.ordinal()][adjacentSide.ordinal()];
+        return faceColors[adjacentIndex];
     }
 
     /**
