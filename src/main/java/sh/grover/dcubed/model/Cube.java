@@ -80,6 +80,10 @@ public class Cube {
             },
     };
 
+    public static SideConnection[] getConnections(FaceColor color) {
+        return SIDE_CONNECTIONS[color.ordinal()];
+    }
+
     /** Order matches the order of specified side colors */
     private final long[] sides = new long[6];
 
@@ -161,7 +165,7 @@ public class Cube {
      * @param faces The faces of that side, ordered as if the side in question
      *              was rotated clockwise
      */
-    private record SideConnection(int side, int... faces) {
+    public record SideConnection(int side, int... faces) {
         static SideConnection bottomOf(FaceColor side) {
             return new SideConnection(side.ordinal(), 6, 5, 4);
         }
