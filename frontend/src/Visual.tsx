@@ -22,9 +22,15 @@ export default function Visual(props: VisualProps) {
     controls.update();
 
     let running = true;
+    let time = Date.now();
 
     function loop() {
+      const now = Date.now();
+      const delta = now - time;
+      time = now;
+
       controls.update();
+      scene.update(delta);
       renderer.render(scene, camera);
 
       if (running) {
@@ -63,6 +69,52 @@ const COLORS = {
   BLUE: 0x0000ff,
 };
 
+type RotationInfo = {
+  boundaryAxis: THREE.Vector3;
+  boundaryRotation: number;
+  rotationAxis: THREE.Vector3;
+};
+
+const axisX = new THREE.Vector3(1, 0, 0);
+const axisNegX = new THREE.Vector3(-1, 0, 0);
+const axisY = new THREE.Vector3(0, 1, 0);
+const axisNegY = new THREE.Vector3(0, -1, 0);
+const axisZ = new THREE.Vector3(0, 0, 1);
+const axisNegZ = new THREE.Vector3(0, 0, -1);
+
+const ROTATIONS: Record<string, RotationInfo> = {
+  WHITE: {
+    boundaryAxis: axisZ,
+    boundaryRotation: Math.PI / -2,
+    rotationAxis: axisY,
+  },
+  RED: {
+    boundaryAxis: axisY,
+    boundaryRotation: Math.PI / 2,
+    rotationAxis: axisZ,
+  },
+  ORANGE: {
+    boundaryAxis: axisY,
+    boundaryRotation: Math.PI * 1.5,
+    rotationAxis: axisNegZ,
+  },
+  YELLOW: {
+    boundaryAxis: axisZ,
+    boundaryRotation: Math.PI / 2,
+    rotationAxis: axisNegY,
+  },
+  GREEN: {
+    boundaryAxis: axisY,
+    boundaryRotation: Math.PI,
+    rotationAxis: axisX,
+  },
+  BLUE: {
+    boundaryAxis: axisY,
+    boundaryRotation: 0,
+    rotationAxis: axisNegX,
+  },
+};
+
 const SIDE_OFFSETS = [
   [-1, 1],
   [0, 1],
@@ -75,50 +127,108 @@ const SIDE_OFFSETS = [
 ];
 
 class CubeScene extends THREE.Scene {
+  private rotatingFaces = new Array<THREE.Object3D>();
+  private rotatingFaceMatrices = new Array<THREE.Matrix4>();
+  private currentRotation: string | undefined = undefined;
+  private rotationProgress = 0;
+  private rotationDirection = 0;
+  private rotationCollision = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 4, 4),
+    new THREE.MeshBasicMaterial({ color: 0xffffff })
+  );
+
   constructor(private sides: Record<string, string[]>) {
     super();
+    this.rotationCollision.matrixAutoUpdate = false;
 
-    const green = this.generateSide("GREEN");
-    this.add(green);
-
-    const orange = this.generateSide("ORANGE");
-    orange.rotateY(Math.PI / 2);
-    this.add(orange);
-
-    const blue = this.generateSide("BLUE");
-    blue.rotateY(Math.PI);
-    this.add(blue);
-
-    const red = this.generateSide("RED");
-    red.rotateY(Math.PI * 1.5);
-    this.add(red);
-
-    const white = this.generateSide("WHITE");
-    white.rotateZ(Math.PI / 2);
-    this.add(white);
-
-    const yellow = this.generateSide("YELLOW");
-    yellow.rotateZ(Math.PI / -2);
-    this.add(yellow);
+    this.addSide("GREEN", axisY, 0);
+    this.addSide("ORANGE", axisY, Math.PI / 2);
+    this.addSide("BLUE", axisY, Math.PI);
+    this.addSide("RED", axisY, Math.PI * 1.5);
+    this.addSide("WHITE", axisZ, Math.PI / 2);
+    this.addSide("YELLOW", axisZ, Math.PI / -2);
   }
 
-  generateSide(color: string) {
-    const group = new THREE.Group();
-
-    const centerFace = this.generateFace(COLORS[color]);
-    centerFace.position.setX(-1.5);
-    group.add(centerFace);
-
-    const faces = this.sides[color];
-    for (let i = 0; i < SIDE_OFFSETS.length; i++) {
-      const color = COLORS[faces[i]];
-      const face = this.generateFace(color);
-      face.position.x = -1.5;
-      face.position.y = SIDE_OFFSETS[i][1];
-      face.position.z = SIDE_OFFSETS[i][0];
-      group.add(face);
+  update(delta: number) {
+    if (typeof this.currentRotation === "undefined") {
+      return;
     }
-    return group;
+
+    const rotationAxis = ROTATIONS[this.currentRotation].rotationAxis;
+    this.rotationProgress = Math.min(this.rotationProgress + delta / 500, 1);
+
+    const rotation =
+      THREE.MathUtils.lerp(0, Math.PI / 2, this.rotationProgress) *
+      this.rotationDirection;
+
+    const matrix = new THREE.Matrix4();
+    const rotate = new THREE.Matrix4().makeRotationAxis(
+      rotationAxis,
+      rotation * this.rotationDirection
+    );
+
+    for (let iFace = 0; iFace < this.rotatingFaces.length; iFace++) {
+      const face = this.rotatingFaces[iFace];
+      matrix.copy(this.rotatingFaceMatrices[iFace]);
+      matrix.multiplyMatrices(rotate, matrix);
+      face.matrix.copy(matrix);
+    }
+
+    if (this.rotationProgress === 1) {
+      this.currentRotation = undefined;
+      this.rotationProgress = 0;
+    }
+  }
+
+  addSide(color: string, rotAxis: THREE.Vector3, rot: number) {
+    const rotate = new THREE.Matrix4().makeRotationAxis(rotAxis, rot);
+    const matrix = new THREE.Matrix4();
+
+    const centerFace = this.generateFace(COLORS[color as keyof typeof COLORS]);
+    centerFace.matrixAutoUpdate = false;
+
+    matrix.makeTranslation(-1.5, 0, 0);
+    matrix.multiplyMatrices(rotate, matrix);
+    centerFace.matrix.copy(matrix);
+    this.add(centerFace);
+
+    const faceColors = this.sides[color];
+    for (let i = 0; i < SIDE_OFFSETS.length; i++) {
+      const color = COLORS[faceColors[i] as keyof typeof COLORS];
+      const face = this.generateFace(color);
+
+      matrix.makeTranslation(-1.5, SIDE_OFFSETS[i][1], SIDE_OFFSETS[i][0]);
+      matrix.multiplyMatrices(rotate, matrix);
+      face.matrix.copy(matrix);
+      this.add(face);
+    }
+  }
+
+  rotateSide(sideColor: string, clockwise: boolean) {
+    const rotationInfo = ROTATIONS[sideColor];
+    this.currentRotation = sideColor;
+    this.rotationDirection = clockwise ? 1 : -1;
+
+    const translate = new THREE.Matrix4().makeTranslation(
+      new THREE.Vector3(1.5, 0, 0)
+    );
+    const rotate = new THREE.Matrix4().makeRotationAxis(
+      rotationInfo.boundaryAxis,
+      rotationInfo.boundaryRotation
+    );
+    this.rotationCollision.matrix.copy(rotate.multiply(translate));
+
+    const collision = new THREE.Box3().setFromObject(this.rotationCollision);
+
+    this.rotatingFaces = new Array();
+    this.rotatingFaceMatrices = new Array();
+    for (const child of this.children) {
+      const bounds = new THREE.Box3().setFromObject(child);
+      if (collision.intersectsBox(bounds)) {
+        this.rotatingFaces.push(child);
+        this.rotatingFaceMatrices.push(child.matrix.clone());
+      }
+    }
   }
 
   generateFace(color: number) {
@@ -134,6 +244,11 @@ class CubeScene extends THREE.Scene {
     geometry.setIndex(new THREE.Uint16BufferAttribute([0, 1, 2, 3, 1, 0], 1));
     geometry.computeVertexNormals();
 
-    return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color }));
+    const mesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshBasicMaterial({ color })
+    );
+    mesh.matrixAutoUpdate = false;
+    return mesh;
   }
 }
