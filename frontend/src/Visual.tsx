@@ -78,31 +78,15 @@ class CubeScene extends THREE.Scene {
   constructor(private sides: Record<string, string[]>) {
     super();
 
-    const green = this.generateSide("GREEN");
-    this.add(green);
-
-    const orange = this.generateSide("ORANGE");
-    orange.rotateY(Math.PI / 2);
-    this.add(orange);
-
-    const blue = this.generateSide("BLUE");
-    blue.rotateY(Math.PI);
-    this.add(blue);
-
-    const red = this.generateSide("RED");
-    red.rotateY(Math.PI * 1.5);
-    this.add(red);
-
-    const white = this.generateSide("WHITE");
-    white.rotateZ(Math.PI / 2);
-    this.add(white);
-
-    const yellow = this.generateSide("YELLOW");
-    yellow.rotateZ(Math.PI / -2);
-    this.add(yellow);
+    this.addSide("GREEN");
+    this.addSide("ORANGE", Math.PI / 2);
+    this.addSide("BLUE", Math.PI);
+    this.addSide("RED", Math.PI * 1.5);
+    this.addSide("WHITE", 0, Math.PI / 2);
+    this.addSide("YELLOW", 0, Math.PI / -2);
   }
 
-  generateSide(color: string) {
+  addSide(color: string, yRot: number = 0, zRot: number = 0) {
     const group = new THREE.Group();
 
     const centerFace = this.generateFace(COLORS[color]);
@@ -118,7 +102,18 @@ class CubeScene extends THREE.Scene {
       face.position.z = SIDE_OFFSETS[i][0];
       group.add(face);
     }
-    return group;
+
+    group.rotateY(yRot);
+    group.rotateZ(zRot);
+
+    const pos = new THREE.Vector3();
+    const childrenCopy = group.children.slice();
+    for (const child of childrenCopy) {
+      child.getWorldPosition(pos);
+      child.position.copy(pos);
+      child.rotation.copy(group.rotation);
+      this.add(child);
+    }
   }
 
   generateFace(color: number) {
