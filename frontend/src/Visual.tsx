@@ -22,9 +22,15 @@ export default function Visual(props: VisualProps) {
     controls.update();
 
     let running = true;
+    let time = Date.now();
 
     function loop() {
+      const now = Date.now();
+      const delta = now - time;
+      time = now;
+
       controls.update();
+      scene.update(delta);
       renderer.render(scene, camera);
 
       if (running) {
@@ -123,6 +129,8 @@ const SIDE_OFFSETS = [
 class CubeScene extends THREE.Scene {
   private rotationGroup = new THREE.Group();
   private currentRotation: string | undefined = undefined;
+  private rotationProgress = 0;
+  private rotationDirection = 0;
   private rotationCollision = new THREE.Mesh(
     new THREE.BoxGeometry(1, 4, 4),
     new THREE.MeshBasicMaterial({ color: 0xffffff })
@@ -132,7 +140,6 @@ class CubeScene extends THREE.Scene {
     super();
     this.rotationCollision.matrixAutoUpdate = false;
     this.add(this.rotationGroup);
-    this.add(this.rotationCollision);
 
     this.addSide("GREEN");
     this.addSide("ORANGE", Math.PI / 2);
@@ -140,6 +147,49 @@ class CubeScene extends THREE.Scene {
     this.addSide("RED", Math.PI * 1.5);
     this.addSide("WHITE", 0, Math.PI / 2);
     this.addSide("YELLOW", 0, Math.PI / -2);
+  }
+
+  update(delta: number) {
+    if (typeof this.currentRotation === "undefined") {
+      return;
+    }
+
+    const rotationAxis = ROTATIONS[this.currentRotation].rotationAxis;
+    const rotationStep = delta / 500;
+    const targetRotation = Math.PI / 2;
+    const distanceFromTarget = Math.max(
+      targetRotation - this.rotationProgress,
+      0
+    ); // max 0 to avoid possible microscopic floating point errors
+
+    if (distanceFromTarget === 0) {
+      this.currentRotation = undefined;
+      this.rotationProgress = 0;
+
+      const pos = new THREE.Vector3();
+      const childrenCopy = this.rotationGroup.children.slice();
+      for (const child of childrenCopy) {
+        child.getWorldPosition(pos);
+        child.position.copy(pos);
+        const quat = new THREE.Quaternion();
+        child.getWorldQuaternion(quat);
+        child.setRotationFromQuaternion(quat);
+        this.add(child);
+      }
+
+      this.rotationGroup.clear();
+      this.rotationGroup.rotation.set(0, 0, 0);
+      return;
+    }
+
+    const rotation = Math.min(rotationStep, distanceFromTarget);
+
+    this.rotationGroup.rotateOnAxis(
+      rotationAxis,
+      rotation * this.rotationDirection
+    );
+
+    this.rotationProgress += rotation;
   }
 
   addSide(color: string, yRot: number = 0, zRot: number = 0) {
@@ -172,9 +222,10 @@ class CubeScene extends THREE.Scene {
     }
   }
 
-  rotateSide(sideColor: string) {
+  rotateSide(sideColor: string, clockwise: boolean) {
     const rotationInfo = ROTATIONS[sideColor];
     this.currentRotation = sideColor;
+    this.rotationDirection = clockwise ? 1 : -1;
 
     const translate = new THREE.Matrix4().makeTranslation(
       new THREE.Vector3(1.5, 0, 0)
@@ -200,7 +251,6 @@ class CubeScene extends THREE.Scene {
     }
 
     this.rotationGroup.add(...facesToRotate);
-    this.rotationGroup.rotateOnAxis(rotationInfo.rotationAxis, Math.PI / 4);
   }
 
   generateFace(color: number) {
