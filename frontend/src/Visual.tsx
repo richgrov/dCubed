@@ -127,7 +127,8 @@ const SIDE_OFFSETS = [
 ];
 
 class CubeScene extends THREE.Scene {
-  private rotationGroup = new THREE.Group();
+  private rotatingFaces = new Array<THREE.Object3D>();
+  private rotatingFaceMatrices = new Array<THREE.Matrix4>();
   private currentRotation: string | undefined = undefined;
   private rotationProgress = 0;
   private rotationDirection = 0;
@@ -139,7 +140,6 @@ class CubeScene extends THREE.Scene {
   constructor(private sides: Record<string, string[]>) {
     super();
     this.rotationCollision.matrixAutoUpdate = false;
-    this.add(this.rotationGroup);
 
     this.addSide("GREEN", axisY, 0);
     this.addSide("ORANGE", axisY, Math.PI / 2);
@@ -155,41 +155,29 @@ class CubeScene extends THREE.Scene {
     }
 
     const rotationAxis = ROTATIONS[this.currentRotation].rotationAxis;
-    const rotationStep = delta / 500;
-    const targetRotation = Math.PI / 2;
-    const distanceFromTarget = Math.max(
-      targetRotation - this.rotationProgress,
-      0
-    ); // max 0 to avoid possible microscopic floating point errors
+    this.rotationProgress = Math.min(this.rotationProgress + delta / 500, 1);
 
-    if (distanceFromTarget === 0) {
-      this.currentRotation = undefined;
-      this.rotationProgress = 0;
+    const rotation =
+      THREE.MathUtils.lerp(0, Math.PI / 2, this.rotationProgress) *
+      this.rotationDirection;
 
-      const pos = new THREE.Vector3();
-      const childrenCopy = this.rotationGroup.children.slice();
-      for (const child of childrenCopy) {
-        child.getWorldPosition(pos);
-        child.position.copy(pos);
-        const quat = new THREE.Quaternion();
-        child.getWorldQuaternion(quat);
-        child.setRotationFromQuaternion(quat);
-        this.add(child);
-      }
-
-      this.rotationGroup.clear();
-      this.rotationGroup.rotation.set(0, 0, 0);
-      return;
-    }
-
-    const rotation = Math.min(rotationStep, distanceFromTarget);
-
-    this.rotationGroup.rotateOnAxis(
+    const matrix = new THREE.Matrix4();
+    const rotate = new THREE.Matrix4().makeRotationAxis(
       rotationAxis,
       rotation * this.rotationDirection
     );
 
-    this.rotationProgress += rotation;
+    for (let iFace = 0; iFace < this.rotatingFaces.length; iFace++) {
+      const face = this.rotatingFaces[iFace];
+      matrix.copy(this.rotatingFaceMatrices[iFace]);
+      matrix.multiplyMatrices(rotate, matrix);
+      face.matrix.copy(matrix);
+    }
+
+    if (this.rotationProgress === 1) {
+      this.currentRotation = undefined;
+      this.rotationProgress = 0;
+    }
   }
 
   addSide(color: string, rotAxis: THREE.Vector3, rot: number) {
@@ -232,19 +220,15 @@ class CubeScene extends THREE.Scene {
 
     const collision = new THREE.Box3().setFromObject(this.rotationCollision);
 
-    const facesToRotate = new Array<THREE.Object3D>();
+    this.rotatingFaces = new Array();
+    this.rotatingFaceMatrices = new Array();
     for (const child of this.children) {
-      if (child === this.rotationGroup) {
-        continue;
-      }
-
       const bounds = new THREE.Box3().setFromObject(child);
       if (collision.intersectsBox(bounds)) {
-        facesToRotate.push(child);
+        this.rotatingFaces.push(child);
+        this.rotatingFaceMatrices.push(child.matrix.clone());
       }
     }
-
-    this.rotationGroup.add(...facesToRotate);
   }
 
   generateFace(color: number) {
