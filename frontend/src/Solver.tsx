@@ -38,68 +38,14 @@ export default function Solver() {
     }
   };
 
-  const scan = {
-    WHITE: [
-      "WHITE",
-      "RED",
-      "ORANGE",
-      "WHITE",
-      "GREEN",
-      "GREEN",
-      "RED",
-      "WHITE",
-    ],
-    RED: ["RED", "WHITE", "WHITE", "BLUE", "BLUE", "ORANGE", "WHITE", "RED"],
-    ORANGE: [
-      "GREEN",
-      "GREEN",
-      "YELLOW",
-      "GREEN",
-      "YELLOW",
-      "RED",
-      "WHITE",
-      "GREEN",
-    ],
-    YELLOW: [
-      "YELLOW",
-      "BLUE",
-      "BLUE",
-      "YELLOW",
-      "YELLOW",
-      "ORANGE",
-      "GREEN",
-      "BLUE",
-    ],
-    GREEN: [
-      "ORANGE",
-      "YELLOW",
-      "RED",
-      "RED",
-      "BLUE",
-      "YELLOW",
-      "RED",
-      "YELLOW",
-    ],
-    BLUE: [
-      "ORANGE",
-      "ORANGE",
-      "BLUE",
-      "BLUE",
-      "GREEN",
-      "ORANGE",
-      "ORANGE",
-      "WHITE",
-    ],
-  };
-
   return (
     <div className="flex flex-col items-center gap-20 py-20">
       <h1 className="text-5xl">Step 1: Scan Cube</h1>
       <div className="relative aspect-video w-3/5 rounded-2xl border-4 border-black">
-        {typeof sides !== /* condition temporarily backwards */ "undefined" ? (
-          <InputSetup onPhoto={onPhoto} />
+        {typeof sides !== "undefined" ? (
+          <Visual sides={sides} />
         ) : (
-          <Visual sides={scan} />
+          <InputSetup onPhoto={onPhoto} />
         )}
         {loading ? (
           <div className="rounded-1xl absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center bg-[rgba(0,_0,_0,_0.5)]">
