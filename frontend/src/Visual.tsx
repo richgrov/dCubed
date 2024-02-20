@@ -141,12 +141,12 @@ class CubeScene extends THREE.Scene {
     this.rotationCollision.matrixAutoUpdate = false;
     this.add(this.rotationGroup);
 
-    this.addSide("GREEN");
-    this.addSide("ORANGE", Math.PI / 2);
-    this.addSide("BLUE", Math.PI);
-    this.addSide("RED", Math.PI * 1.5);
-    this.addSide("WHITE", 0, Math.PI / 2);
-    this.addSide("YELLOW", 0, Math.PI / -2);
+    this.addSide("GREEN", axisY, 0);
+    this.addSide("ORANGE", axisY, Math.PI / 2);
+    this.addSide("BLUE", axisY, Math.PI);
+    this.addSide("RED", axisY, Math.PI * 1.5);
+    this.addSide("WHITE", axisZ, Math.PI / 2);
+    this.addSide("YELLOW", axisZ, Math.PI / -2);
   }
 
   update(delta: number) {
@@ -192,33 +192,27 @@ class CubeScene extends THREE.Scene {
     this.rotationProgress += rotation;
   }
 
-  addSide(color: string, yRot: number = 0, zRot: number = 0) {
-    const group = new THREE.Group();
+  addSide(color: string, rotAxis: THREE.Vector3, rot: number) {
+    const rotate = new THREE.Matrix4().makeRotationAxis(rotAxis, rot);
+    const matrix = new THREE.Matrix4();
 
     const centerFace = this.generateFace(COLORS[color]);
-    centerFace.position.setX(-1.5);
-    group.add(centerFace);
+    centerFace.matrixAutoUpdate = false;
 
-    const faces = this.sides[color];
+    matrix.makeTranslation(-1.5, 0, 0);
+    matrix.multiplyMatrices(rotate, matrix);
+    centerFace.matrix.copy(matrix);
+    this.add(centerFace);
+
+    const faceColors = this.sides[color];
     for (let i = 0; i < SIDE_OFFSETS.length; i++) {
-      const color = COLORS[faces[i]];
+      const color = COLORS[faceColors[i]];
       const face = this.generateFace(color);
-      face.position.x = -1.5;
-      face.position.y = SIDE_OFFSETS[i][1];
-      face.position.z = SIDE_OFFSETS[i][0];
-      group.add(face);
-    }
 
-    group.rotateY(yRot);
-    group.rotateZ(zRot);
-
-    const pos = new THREE.Vector3();
-    const childrenCopy = group.children.slice();
-    for (const child of childrenCopy) {
-      child.getWorldPosition(pos);
-      child.position.copy(pos);
-      child.rotation.copy(group.rotation);
-      this.add(child);
+      matrix.makeTranslation(-1.5, SIDE_OFFSETS[i][1], SIDE_OFFSETS[i][0]);
+      matrix.multiplyMatrices(rotate, matrix);
+      face.matrix.copy(matrix);
+      this.add(face);
     }
   }
 
@@ -266,6 +260,11 @@ class CubeScene extends THREE.Scene {
     geometry.setIndex(new THREE.Uint16BufferAttribute([0, 1, 2, 3, 1, 0], 1));
     geometry.computeVertexNormals();
 
-    return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color }));
+    const mesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshBasicMaterial({ color })
+    );
+    mesh.matrixAutoUpdate = false;
+    return mesh;
   }
 }
