@@ -186,10 +186,7 @@ class CubeScene extends THREE.Scene {
       this.rotationDirection;
 
     const matrix = new THREE.Matrix4();
-    const rotate = new THREE.Matrix4().makeRotationAxis(
-      rotationAxis,
-      rotation * this.rotationDirection
-    );
+    const rotate = new THREE.Matrix4().makeRotationAxis(rotationAxis, rotation);
 
     for (let iFace = 0; iFace < this.rotatingFaces.length; iFace++) {
       const face = this.rotatingFaces[iFace];
