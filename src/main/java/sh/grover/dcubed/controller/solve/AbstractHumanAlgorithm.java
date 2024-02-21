@@ -23,6 +23,8 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
             { 99,  1, -1, 99,  2,  0 },
     };
 
+    private boolean[] inWhiteCross = new boolean[6];
+
     private static int sideDistance(int side1, int side2) {
         var distance = SIDE_DISTANCES[side1][side2];
         if (distance == 99) {
@@ -92,12 +94,14 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
             var connectedEdge = sides[connection.side()].toColors()[connectedEdgeIndex];
             var distance = sideDistance(connection.side(), connectedEdge);
             if (distance == 0) {
+                this.inWhiteCross[connection.side()] = true;
                 continue;
             }
 
             this.rotate(connection.side(), 2);
             this.rotate(FaceColor.YELLOW, -distance);
             this.rotate(connectedEdge, 2);
+            this.inWhiteCross[connectedEdge] = true;
         }
     }
 
