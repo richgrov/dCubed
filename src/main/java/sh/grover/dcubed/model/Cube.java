@@ -2,8 +2,6 @@ package sh.grover.dcubed.model;
 
 import sh.grover.dcubed.util.ArrayUtil;
 
-import java.util.Arrays;
-
 /**
  * A Rubik's cube contains 6 sides. Each side comprises 9 faces: 8 side
  * faces and one center face. Since there can only be one of each color for
@@ -98,10 +96,6 @@ public class Cube {
                 //noinspection DataFlowIssue
                 EDGE_PIECE_CONNECTIONS[side][connection.side] = backConnection.faces[1];
             }
-        }
-
-        for (var i = 0; i < EDGE_PIECE_CONNECTIONS.length; i++) {
-            System.out.println(Arrays.toString(EDGE_PIECE_CONNECTIONS[i]));
         }
     }
 

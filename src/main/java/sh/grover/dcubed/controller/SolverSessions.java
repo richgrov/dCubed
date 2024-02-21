@@ -1,7 +1,7 @@
 package sh.grover.dcubed.controller;
 
 import org.opencv.core.Mat;
-import sh.grover.dcubed.controller.solve.LayeredHumanAlgorithm;
+import sh.grover.dcubed.controller.solve.WhiteCrossStep;
 import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.controller.vision.IColorIdentifier;
 import sh.grover.dcubed.model.Cube;
@@ -60,7 +60,8 @@ public class SolverSessions {
                 new Side(sides[FaceColor.BLUE])
         );
 
-        var algorithm = new LayeredHumanAlgorithm();
-        return algorithm.solve(cube);
+        var algorithm = new WhiteCrossStep(cube);
+        algorithm.solve();
+        return algorithm.moves();
     }
 }

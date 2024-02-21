@@ -4,18 +4,15 @@ import cube from "./assets/cube.png";
 export default function Hero() {
   return (
     <div className="flex justify-center border-b-4 border-b-black bg-amber-400 bg-[url('dots.png')] bg-contain bg-right bg-no-repeat py-48">
-      <div className="flex flex-col gap-10">
-        <div>
-          <h1 className="text-stroke-black text-7xl text-transparent">
-            Solve your Rubik's Cube
-          </h1>
-          <h1 className="text-7xl">With Only 2 Photos</h1>
-        </div>
-        <div>
-          <p className="inline rounded-full border-2 border-black p-5">
-            No sign-up necessary.
-          </p>
-        </div>
+      <div className="max-w-[40%]">
+        <h1 className="text-stroke-black mb-10 text-7xl text-transparent">
+          Learn to Solve
+          <span className="text-stroke-none text-black"> Your </span>
+          Rubik's Cube
+        </h1>
+        <p className="inline rounded-full border-2 border-black p-5 text-xl">
+          Skip the tutorials and get tailored instructions from your photos.
+        </p>
       </div>
 
       <div className="relative self-center p-2">
