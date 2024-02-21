@@ -7,13 +7,13 @@ export default function Hero() {
       <div className="flex flex-col gap-10">
         <div>
           <h1 className="text-stroke-black text-7xl text-transparent">
-            Solve your Rubik's Cube
+            Learn to Solve Your Cube
           </h1>
           <h1 className="text-7xl">With Only 2 Photos</h1>
         </div>
         <div>
-          <p className="inline rounded-full border-2 border-black p-5">
-            No sign-up necessary.
+          <p className="inline rounded-full border-2 border-black p-5 text-xl">
+            Skip the tutorials and get tailored instructions based on your cube.
           </p>
         </div>
       </div>
