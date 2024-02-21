@@ -50,7 +50,7 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
     private void rotateWhiteSide() {
         var sides = this.cube.getSides();
 
-        var distanceVote = new int[3];
+        var distanceVote = new int[4];
 
         var whiteConnections = Cube.getConnections(FaceColor.WHITE);
         for (var iConn = 0; iConn < whiteConnections.length; iConn++) {
