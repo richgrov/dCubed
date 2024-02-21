@@ -39,12 +39,13 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
     public void whiteCross() {
         this.rotateWhiteSideBest();
         this.ensureWhiteEdgesCorrect();
-        
+
         var i = 0;
         while (!this.whiteCrossComplete()) {
             this.rotateSideTopWhiteEdges();
             this.rotateSideSideWhiteEdges();
-            i++;
+            this.rotateSideBottomWhiteEdges();
+
             if (i++ == 4) {
                 throw new IllegalStateException("couldn't form white cross");
             }
@@ -157,32 +158,71 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
                 var rotation = ROTATE[direction];
                 var oppositeRotation = ROTATE[(direction + 1) % ROTATE.length];
 
-                if (colors[side] == FaceColor.WHITE) {
-                    var connectedSideColor =
-                            Cube.getAdjacentSideFromConnectedSideWithOffset(FaceColor.YELLOW, connection.side(), rotation)
-                                    .side();
+                if (colors[side] != FaceColor.WHITE) {
+                    continue;
+                }
 
-                    var edgeColor = sides[connectedSideColor].toColors()[oppositeSide];
+                var connectedSideColor =
+                        Cube.getAdjacentSideFromConnectedSideWithOffset(FaceColor.YELLOW, connection.side(), rotation)
+                                .side();
 
-                    if (connectedSideColor == edgeColor) {
+                var edgeColor = sides[connectedSideColor].toColors()[oppositeSide];
+
+                if (connectedSideColor == edgeColor) {
+                    this.rotate(connectedSideColor, rotation);
+                } else {
+                    this.rotate(connectedSideColor, oppositeRotation);
+
+                    var distance = sideDistance(edgeColor, connectedSideColor);
+                    this.rotate(FaceColor.YELLOW, distance);
+
+                    if (this.inWhiteCross[connectedSideColor]) {
                         this.rotate(connectedSideColor, rotation);
-                    } else {
-                        this.rotate(connectedSideColor, oppositeRotation);
-
-                        var distance = sideDistance(edgeColor, connectedSideColor);
-                        this.rotate(FaceColor.YELLOW, distance);
-
-                        if (this.inWhiteCross[connectedSideColor]) {
-                            this.rotate(connectedSideColor, rotation);
-                        }
-                        this.rotate(edgeColor, 2);
                     }
+                    this.rotate(edgeColor, 2);
+                }
 
-                    if (direction == 0) {
-                        this.clockwise(FaceColor.BLUE);
-                    }
+                if (direction == 0) {
+                    this.clockwise(FaceColor.BLUE);
                 }
             }
+        }
+    }
+
+    private void rotateSideBottomWhiteEdges() {
+        for (var connection : Cube.getConnections(FaceColor.WHITE)) {
+            var sides = this.cube.getSides();
+            var centerBottom = sides[connection.side()].toColors()[5];
+            if (centerBottom != FaceColor.WHITE) {
+                continue;
+            }
+
+            var targetColor = this.cube.getColorOfEdgePiece(FaceColor.WHITE, connection.side());
+
+            var sideToLeft = Cube.getAdjacentSideFromConnectedSideWithOffset(FaceColor.YELLOW, connection.side(), 1)
+                    .side();
+
+            var sideToRight = Cube.getAdjacentSideFromConnectedSideWithOffset(FaceColor.YELLOW, connection.side(), -1)
+                    .side();
+
+            if (targetColor == sideToLeft) {
+                this.clockwise(connection.side());
+                this.counterClockwise(sideToLeft);
+                continue;
+            } else if (targetColor == sideToRight) {
+                this.counterClockwise(connection.side());
+                this.clockwise(sideToRight);
+                continue;
+            }
+
+            this.clockwise(connection.side());
+            this.counterClockwise(sideToLeft);
+            var distance = sideDistance(targetColor, sideToLeft);
+            this.rotate(FaceColor.YELLOW, distance);
+            if (this.inWhiteCross[sideToLeft]) {
+                this.clockwise(sideToLeft);
+            }
+            this.rotate(targetColor, 2);
         }
     }
 
