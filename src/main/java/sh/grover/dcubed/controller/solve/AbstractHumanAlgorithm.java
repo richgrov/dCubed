@@ -39,7 +39,16 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
     public void whiteCross() {
         this.rotateWhiteSideBest();
         this.ensureWhiteEdgesCorrect();
-        this.rotateSideTopWhiteEdges();
+        
+        var i = 0;
+        while (!this.whiteCrossComplete()) {
+            this.rotateSideTopWhiteEdges();
+            this.rotateSideSideWhiteEdges();
+            i++;
+            if (i++ == 4) {
+                throw new IllegalStateException("couldn't form white cross");
+            }
+        }
     }
 
     protected void clockwise(int color) {
@@ -132,6 +141,59 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
             }
             this.inWhiteCross[targetSide] = true;
         }
+    }
+
+    private void rotateSideSideWhiteEdges() {
+        final var SIDES = new int[] { 7, 3 }; // left, right
+        final var ROTATE = new int[] { 1, -1 };
+
+        for (var connection : Cube.getConnections(FaceColor.WHITE)) {
+            for (var direction = 0; direction < 2; direction++) {
+                var sides = this.cube.getSides();
+                var colors = sides[connection.side()].toColors();
+
+                var side = SIDES[direction];
+                var oppositeSide = SIDES[(direction + 1) % SIDES.length];
+                var rotation = ROTATE[direction];
+                var oppositeRotation = ROTATE[(direction + 1) % ROTATE.length];
+
+                if (colors[side] == FaceColor.WHITE) {
+                    var connectedSideColor =
+                            Cube.getAdjacentSideFromConnectedSideWithOffset(FaceColor.YELLOW, connection.side(), rotation)
+                                    .side();
+
+                    var edgeColor = sides[connectedSideColor].toColors()[oppositeSide];
+
+                    if (connectedSideColor == edgeColor) {
+                        this.rotate(connectedSideColor, rotation);
+                    } else {
+                        this.rotate(connectedSideColor, oppositeRotation);
+
+                        var distance = sideDistance(edgeColor, connectedSideColor);
+                        this.rotate(FaceColor.YELLOW, distance);
+
+                        if (this.inWhiteCross[connectedSideColor]) {
+                            this.rotate(connectedSideColor, rotation);
+                        }
+                        this.rotate(edgeColor, 2);
+                    }
+
+                    if (direction == 0) {
+                        this.clockwise(FaceColor.BLUE);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean whiteCrossComplete() {
+        var sides = new int[] { FaceColor.RED, FaceColor.ORANGE, FaceColor.GREEN, FaceColor.BLUE };
+        for (var side : sides) {
+            if (!this.inWhiteCross[side]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
