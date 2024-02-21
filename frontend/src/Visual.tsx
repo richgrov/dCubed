@@ -64,8 +64,11 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
   }, []);
 
   return (
-    <div ref={wrapperEl} className="h-full w-full">
-      <canvas ref={canvasEl}></canvas>
+    <div className="flex h-full">
+      <div ref={wrapperEl} className="min-w-0 flex-[4]">
+        <canvas ref={canvasEl}></canvas>
+      </div>
+      <div className="flex-[1]"></div>
     </div>
   );
 }
