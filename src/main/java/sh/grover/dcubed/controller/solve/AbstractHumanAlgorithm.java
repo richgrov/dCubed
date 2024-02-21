@@ -11,7 +11,8 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
 
     /**
      * The distance of a side to another side. E.g. [RED][ORANGE] returns 2 because they are
-     * opposite to each other. This only accounts for sides touching the white side.
+     * opposite to each other. This only accounts for sides touching the white side. It can also
+     * work for the yellow side indexing the faces backwards.
      */
     private static final int[][] SIDE_DISTANCES = new int[][] {
             { 99, 99, 99, 99, 99, 99 },
