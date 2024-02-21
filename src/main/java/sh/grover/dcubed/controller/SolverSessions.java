@@ -1,7 +1,6 @@
 package sh.grover.dcubed.controller;
 
 import org.opencv.core.Mat;
-import sh.grover.dcubed.controller.solve.LayeredHumanAlgorithm;
 import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.controller.vision.IColorIdentifier;
 import sh.grover.dcubed.model.Cube;

@@ -2,12 +2,8 @@ package sh.grover.dcubed.controller.solve;
 
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
-import sh.grover.dcubed.model.Move;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
+public class WhiteCrossStep extends AbstractSolveStep {
 
     /**
      * The distance of a side to another side. E.g. [RED][ORANGE] returns 2 because they are
@@ -23,7 +19,7 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
             { 99,  1, -1, 99,  2,  0 },
     };
 
-    private boolean[] inWhiteCross = new boolean[6];
+    private final boolean[] inWhiteCross = new boolean[6];
 
     private static int sideDistance(int side1, int side2) {
         var distance = SIDE_DISTANCES[side1][side2];
@@ -33,10 +29,12 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
         return distance;
     }
 
-    protected Cube cube;
-    protected final List<Move> moves = new ArrayList<>();
+    public WhiteCrossStep(Cube cube) {
+        super(cube);
+    }
 
-    public void whiteCross() {
+    @Override
+    public void solve() {
         this.rotateWhiteSideBest();
         this.ensureWhiteEdgesCorrect();
 
@@ -50,16 +48,6 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
                 throw new IllegalStateException("couldn't form white cross");
             }
         }
-    }
-
-    protected void clockwise(int color) {
-        this.moves.add(new Move(color, true));
-        this.cube.rotateClockwise(color);
-    }
-
-    protected void counterClockwise(int color) {
-        this.moves.add(new Move(color, false));
-        this.cube.rotateCounterClockwise(color);
     }
 
     private void rotateWhiteSideBest() {
