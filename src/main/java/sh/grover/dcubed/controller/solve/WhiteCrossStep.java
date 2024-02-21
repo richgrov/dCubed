@@ -169,10 +169,6 @@ public class WhiteCrossStep extends AbstractSolveStep {
                     }
                     this.rotate(edgeColor, 2);
                 }
-
-                if (direction == 0) {
-                    this.clockwise(FaceColor.BLUE);
-                }
             }
         }
     }
