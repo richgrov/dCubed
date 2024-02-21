@@ -169,6 +169,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
                     }
                     this.rotate(edgeColor, 2);
                 }
+                this.inWhiteCross[edgeColor] = true;
             }
         }
     }
@@ -192,10 +193,12 @@ public class WhiteCrossStep extends AbstractSolveStep {
             if (targetColor == sideToLeft) {
                 this.clockwise(connection.side());
                 this.counterClockwise(sideToLeft);
+                this.inWhiteCross[targetColor] = true;
                 continue;
             } else if (targetColor == sideToRight) {
                 this.counterClockwise(connection.side());
                 this.clockwise(sideToRight);
+                this.inWhiteCross[targetColor] = true;
                 continue;
             }
 
@@ -207,6 +210,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
                 this.clockwise(sideToLeft);
             }
             this.rotate(targetColor, 2);
+            this.inWhiteCross[targetColor] = true;
         }
     }
 
