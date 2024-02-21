@@ -223,19 +223,4 @@ public class WhiteCrossStep extends AbstractSolveStep {
         }
         return true;
     }
-
-    /**
-     * Rotates a side by a specified number of times and direction
-     * @param color The color of the side to rotate
-     * @param turns The number of times to rotate. If positive, clockwise. Otherwise, counter-clockwise
-     */
-    private void rotate(int color, int turns) {
-        for (var turn = 0; turn < Math.abs(turns); turn++) {
-            if (turns < 0) {
-                this.counterClockwise(color);
-            } else {
-                this.clockwise(color);
-            }
-        }
-    }
 }
