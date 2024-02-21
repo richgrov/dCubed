@@ -44,7 +44,7 @@ export default function Solver() {
   return (
     <div className="flex flex-col items-center gap-20 py-20">
       <h1 className="text-5xl">Step 1: Scan Cube</h1>
-      <div className="relative aspect-video w-3/5 rounded-2xl border-4 border-black">
+      <div className="relative h-[80vh] w-4/5 rounded-2xl border-4 border-black">
         {typeof cubeInfo !== "undefined" ? (
           <Visual cubeInfo={cubeInfo} />
         ) : (
