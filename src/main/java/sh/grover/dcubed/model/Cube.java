@@ -133,7 +133,7 @@ public class Cube {
                 return ArrayUtil.loopedIndex(connected, iConn + offset);
             }
         }
-        return null;
+        throw new IllegalArgumentException(baseSide + " not connected to " + connectedSide);
     }
 
     public static SideConnection[] getConnections(int color) {
