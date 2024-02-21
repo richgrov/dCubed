@@ -1,9 +1,15 @@
 package sh.grover.dcubed.controller;
 
 import org.opencv.core.Mat;
+import sh.grover.dcubed.controller.solve.LayeredHumanAlgorithm;
+import sh.grover.dcubed.controller.solve.Move;
 import sh.grover.dcubed.controller.vision.IColorIdentifier;
+import sh.grover.dcubed.model.Cube;
+import sh.grover.dcubed.model.FaceColor;
 import sh.grover.dcubed.model.ScanResult;
+import sh.grover.dcubed.model.Side;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,5 +46,21 @@ public class SolverSessions {
         }
 
         return new ScanResult(sessionId, session.sides());
+    }
+
+    public List<Move> solve(UUID sessionId) {
+        var session = this.sessions.get(sessionId);
+        var sides = session.sides();
+        var cube = new Cube(
+                new Side(sides.get(FaceColor.WHITE)),
+                new Side(sides.get(FaceColor.RED)),
+                new Side(sides.get(FaceColor.ORANGE)),
+                new Side(sides.get(FaceColor.YELLOW)),
+                new Side(sides.get(FaceColor.GREEN)),
+                new Side(sides.get(FaceColor.BLUE))
+        );
+
+        var algorithm = new LayeredHumanAlgorithm();
+        return algorithm.solve(cube);
     }
 }

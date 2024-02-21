@@ -7,11 +7,10 @@ import java.util.List;
 public class LayeredHumanAlgorithm extends AbstractHumanAlgorithm {
 
     @Override
-    public List<Move> solve(Cube cube) {
-        synchronized (this) {
-            this.cube = cube;
-            this.whiteCross();
-        }
-        return null;
+    public synchronized List<Move> solve(Cube cube) {
+        this.moves.clear();
+        this.cube = cube;
+        this.whiteCross();
+        return this.moves;
     }
 }

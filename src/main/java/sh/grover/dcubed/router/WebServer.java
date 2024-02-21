@@ -22,6 +22,7 @@ public class WebServer {
 
         Javalin.create(config -> config.jetty.multipartConfig.maxTotalRequestSize(1, SizeUnit.MB))
                 .post("/scan-photo", this::scanPhoto)
+                .post("/solve", this::solve)
                 .start();
     }
 
@@ -63,6 +64,29 @@ public class WebServer {
         }
 
         ctx.json(scanResult);
+    }
+
+    private void solve(Context ctx) {
+        if (true) {
+            ctx.header("Access-Control-Allow-Origin", "*");
+        }
+
+        var sessionStr = ctx.queryParam("session");
+        if (sessionStr == null) {
+            ctx.status(400).json("invalid session");
+            return;
+        }
+
+        UUID session;
+        try {
+            session = UUID.fromString(sessionStr);
+        } catch (IllegalArgumentException e) {
+            ctx.status(400).json("invalid session");
+            return;
+        }
+
+        var solves = this.solverSessions.solve(session);
+        ctx.json(solves);
     }
 
     private static Mat readImage(InputStream stream, int flags) throws IOException {

@@ -31,7 +31,7 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
     }
 
     protected Cube cube;
-    private final List<Move> moves = new ArrayList<>();
+    protected final List<Move> moves = new ArrayList<>();
 
     public void whiteCross() {
         this.rotateWhiteSide();
