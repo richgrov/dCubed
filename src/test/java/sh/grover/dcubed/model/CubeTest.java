@@ -113,7 +113,7 @@ class CubeTest {
         assertArrayEquals(expectedSolved, cube.getSides());
     }
 
-    private static Side sideWithBottomColor(FaceColor sideColor, FaceColor bottomColor) {
+    private static Side sideWithBottomColor(int sideColor, int bottomColor) {
         return new Side(
                 sideColor, sideColor, sideColor, sideColor,
                 bottomColor, bottomColor, bottomColor, sideColor

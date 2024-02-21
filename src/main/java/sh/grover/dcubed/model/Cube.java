@@ -91,12 +91,12 @@ public class Cube {
 
     static {
         for (var side : FaceColor.values()) {
-            EDGE_PIECE_CONNECTIONS[side.ordinal()] = new int[]{-1, -1, -1, -1, -1, -1};
+            EDGE_PIECE_CONNECTIONS[side] = new int[]{-1, -1, -1, -1, -1, -1};
 
-            for (var connection : SIDE_CONNECTIONS[side.ordinal()]) {
-                var backConnection = getConnection(connection.side, side.ordinal());
+            for (var connection : SIDE_CONNECTIONS[side]) {
+                var backConnection = getConnection(connection.side, side);
                 //noinspection DataFlowIssue
-                EDGE_PIECE_CONNECTIONS[side.ordinal()][connection.side] = backConnection.faces[1];
+                EDGE_PIECE_CONNECTIONS[side][connection.side] = backConnection.faces[1];
             }
         }
 
@@ -114,8 +114,9 @@ public class Cube {
         return null;
     }
 
-    public static SideConnection[] getConnections(FaceColor color) {
-        return SIDE_CONNECTIONS[color.ordinal()];
+    public static SideConnection[] getConnections(int color) {
+        FaceColor.requireValid(color);
+        return SIDE_CONNECTIONS[color];
     }
 
     /** Order matches the order of specified side colors */
@@ -131,18 +132,20 @@ public class Cube {
         }
     }
 
-    public void rotateClockwise(FaceColor side) {
-        var sideId = side.ordinal();
-        sides[sideId] = Long.rotateRight(sides[sideId], 16);
-        var touchingFaces = this.getTouchingFaces(sideId);
-        this.applyColorsToTouchingFaces(sideId, 1, touchingFaces);
+    public void rotateClockwise(int side) {
+        FaceColor.requireValid(side);
+
+        sides[side] = Long.rotateRight(sides[side], 16);
+        var touchingFaces = this.getTouchingFaces(side);
+        this.applyColorsToTouchingFaces(side, 1, touchingFaces);
     }
 
-    public void rotateCounterClockwise(FaceColor side) {
-        var sideId = side.ordinal();
-        sides[sideId] = Long.rotateLeft(sides[sideId], 16);
-        var touchingFaces = this.getTouchingFaces(sideId);
-        this.applyColorsToTouchingFaces(sideId, -1, touchingFaces);
+    public void rotateCounterClockwise(int side) {
+        FaceColor.requireValid(side);
+
+        sides[side] = Long.rotateLeft(sides[side], 16);
+        var touchingFaces = this.getTouchingFaces(side);
+        this.applyColorsToTouchingFaces(side, -1, touchingFaces);
     }
 
     public Side[] getSides() {
@@ -161,10 +164,12 @@ public class Cube {
      * @param adjacentSide The side that connects to {@code side}, which indicates exactly which edge piece to get
      * @return The color of that edge piece
      */
-    public FaceColor getColorOfEdgePiece(FaceColor side, FaceColor adjacentSide) {
-        var faceColors = new Side(this.sides[side.ordinal()]).toColors();
+    public int getColorOfEdgePiece(int side, int adjacentSide) {
+        FaceColor.requireValid(side);
+        FaceColor.requireValid(adjacentSide);
 
-        var adjacentIndex = EDGE_PIECE_CONNECTIONS[side.ordinal()][adjacentSide.ordinal()];
+        var faceColors = new Side(this.sides[side]).toColors();
+        var adjacentIndex = EDGE_PIECE_CONNECTIONS[side][adjacentSide];
         return faceColors[adjacentIndex];
     }
 
@@ -213,20 +218,25 @@ public class Cube {
      *              was rotated clockwise
      */
     public record SideConnection(int side, int... faces) {
-        static SideConnection bottomOf(FaceColor side) {
-            return new SideConnection(side.ordinal(), 6, 5, 4);
+
+        public SideConnection {
+            FaceColor.requireValid(side);
         }
 
-        static SideConnection leftOf(FaceColor side) {
-            return new SideConnection(side.ordinal(), 0, 7, 6);
+        static SideConnection bottomOf(int side) {
+            return new SideConnection(side, 6, 5, 4);
         }
 
-        static SideConnection topOf(FaceColor side) {
-            return new SideConnection(side.ordinal(), 2, 1, 0);
+        static SideConnection leftOf(int side) {
+            return new SideConnection(side, 0, 7, 6);
         }
 
-        static SideConnection rightOf(FaceColor side) {
-            return new SideConnection(side.ordinal(), 4, 3, 2);
+        static SideConnection topOf(int side) {
+            return new SideConnection(side, 2, 1, 0);
+        }
+
+        static SideConnection rightOf(int side) {
+            return new SideConnection(side, 4, 3, 2);
         }
     }
 }

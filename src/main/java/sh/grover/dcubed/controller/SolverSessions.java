@@ -2,7 +2,7 @@ package sh.grover.dcubed.controller;
 
 import org.opencv.core.Mat;
 import sh.grover.dcubed.controller.solve.LayeredHumanAlgorithm;
-import sh.grover.dcubed.controller.solve.Move;
+import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.controller.vision.IColorIdentifier;
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
@@ -52,12 +52,12 @@ public class SolverSessions {
         var session = this.sessions.get(sessionId);
         var sides = session.sides();
         var cube = new Cube(
-                new Side(sides.get(FaceColor.WHITE)),
-                new Side(sides.get(FaceColor.RED)),
-                new Side(sides.get(FaceColor.ORANGE)),
-                new Side(sides.get(FaceColor.YELLOW)),
-                new Side(sides.get(FaceColor.GREEN)),
-                new Side(sides.get(FaceColor.BLUE))
+                new Side(sides[FaceColor.WHITE]),
+                new Side(sides[FaceColor.RED]),
+                new Side(sides[FaceColor.ORANGE]),
+                new Side(sides[FaceColor.YELLOW]),
+                new Side(sides[FaceColor.GREEN]),
+                new Side(sides[FaceColor.BLUE])
         );
 
         var algorithm = new LayeredHumanAlgorithm();

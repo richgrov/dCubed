@@ -1,21 +1,28 @@
 package sh.grover.dcubed.controller;
 
 import sh.grover.dcubed.controller.vision.ScannedSide;
-import sh.grover.dcubed.model.FaceColor;
 
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.Arrays;
 
 public class SolveSession {
 
-    private final Map<FaceColor, FaceColor[]> sides = new EnumMap<>(FaceColor.class);
+    private final int[][] sides = new int[6][];
 
     public void addSide(ScannedSide side) {
-        this.sides.put(side.sideColor(), side.faces());
+        this.sides[side.sideColor()] = side.faces();
     }
 
-    public Map<FaceColor, FaceColor[]> sides() {
-        return Collections.unmodifiableMap(this.sides);
+    public int[][] sides() {
+        return Arrays.stream(sides)
+                .map(faces -> {
+                    if (faces == null) {
+                        return null;
+                    }
+
+                    var copy = new int[faces.length];
+                    System.arraycopy(faces, 0, copy, 0, faces.length);
+                    return copy;
+                })
+                .toArray(int[][]::new);
     }
 }

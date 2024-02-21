@@ -2,6 +2,7 @@ package sh.grover.dcubed.controller.solve;
 
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
+import sh.grover.dcubed.model.Move;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +30,9 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
         return distance;
     }
 
-    private static Cube.SideConnection getConnectingInfo(FaceColor side, FaceColor touching) {
+    private static Cube.SideConnection getConnectingInfo(int side, int touching) {
         for (var connected : Cube.getConnections(side)) {
-            if (connected.side() == touching.ordinal()) {
+            if (connected.side() == touching) {
                 return connected;
             }
         }
@@ -45,12 +46,12 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
         this.rotateWhiteSideBest();
     }
 
-    public void clockwise(FaceColor color) {
+    protected void clockwise(int color) {
         this.moves.add(new Move(color, true));
         this.cube.rotateClockwise(color);
     }
 
-    public void counterClockwise(FaceColor color) {
+    protected void counterClockwise(int color) {
         this.moves.add(new Move(color, false));
         this.cube.rotateCounterClockwise(color);
     }
@@ -72,7 +73,7 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
                 continue;
             }
 
-            var distance = sideDistance(touch.side(), touchingEdgeColor.ordinal());
+            var distance = sideDistance(touch.side(), touchingEdgeColor);
             distanceVote[distance + 1]++; // distances are [-1, 2], so +1 to normalize that to [0, 3]
         }
 

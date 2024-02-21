@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SideTest {
 
-    private static final FaceColor[] COLORS = {
+    private static final int[] COLORS = {
             FaceColor.WHITE, FaceColor.RED, FaceColor.ORANGE, FaceColor.YELLOW,
             FaceColor.GREEN, FaceColor.BLUE, FaceColor.WHITE, FaceColor.RED,
     };
