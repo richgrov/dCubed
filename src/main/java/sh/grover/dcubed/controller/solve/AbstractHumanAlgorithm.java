@@ -30,15 +30,6 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
         return distance;
     }
 
-    private static Cube.SideConnection getConnectingInfo(int side, int touching) {
-        for (var connected : Cube.getConnections(side)) {
-            if (connected.side() == touching) {
-                return connected;
-            }
-        }
-        return null;
-    }
-
     protected Cube cube;
     protected final List<Move> moves = new ArrayList<>();
 
@@ -61,17 +52,14 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
 
         var distanceVote = new int[4];
 
-        var whiteConnections = Cube.getConnections(FaceColor.WHITE);
-        for (var iConn = 0; iConn < whiteConnections.length; iConn++) {
-            var touch = whiteConnections[iConn];
-
-            var sideColor = touch.side();
-            var touchingEdgeIndex = touch.faces()[1];
-            var touchingEdgeColor = sides[sideColor].toColors()[touchingEdgeIndex];
-            var whiteSideEdge = cube.getColorOfEdgePiece(FaceColor.WHITE, FaceColor.values()[sideColor]);
+        for (var touch : Cube.getConnections(FaceColor.WHITE)) {
+            var whiteSideEdge = cube.getColorOfEdgePiece(FaceColor.WHITE, touch.side());
             if (whiteSideEdge != FaceColor.WHITE) {
                 continue;
             }
+
+            var touchingEdgeIndex = touch.faces()[1];
+            var touchingEdgeColor = sides[touch.side()].toColors()[touchingEdgeIndex];
 
             var distance = sideDistance(touch.side(), touchingEdgeColor);
             distanceVote[distance + 1]++; // distances are [-1, 2], so +1 to normalize that to [0, 3]
@@ -87,11 +75,20 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
             }
         }
 
-        for (var move = 0; move < Math.abs(bestMove); move++) {
-            if (bestMove < 0) {
-                this.counterClockwise(FaceColor.WHITE);
+        this.rotate(FaceColor.WHITE, bestMove);
+    }
+
+    /**
+     * Rotates a side by a specified number of times and direction
+     * @param color The color of the side to rotate
+     * @param turns The number of times to rotate. If positive, clockwise. Otherwise, counter-clockwise
+     */
+    private void rotate(int color, int turns) {
+        for (var turn = 0; turn < Math.abs(turns); turn++) {
+            if (turns < 0) {
+                this.counterClockwise(color);
             } else {
-                this.clockwise(FaceColor.WHITE);
+                this.clockwise(color);
             }
         }
     }
