@@ -39,6 +39,7 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
     public void whiteCross() {
         this.rotateWhiteSideBest();
         this.ensureWhiteEdgesCorrect();
+        this.rotateSideTopWhiteEdges();
     }
 
     protected void clockwise(int color) {
@@ -102,6 +103,34 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
             this.rotate(FaceColor.YELLOW, -distance);
             this.rotate(connectedEdge, 2);
             this.inWhiteCross[connectedEdge] = true;
+        }
+    }
+
+    private void rotateSideTopWhiteEdges() {
+        for (var connection : Cube.getConnections(FaceColor.WHITE)) {
+            var sides = this.cube.getSides();
+            var centerTop = sides[connection.side()].toColors()[1];
+            if (centerTop != FaceColor.WHITE) {
+                continue;
+            }
+
+            var targetSide = this.cube.getColorOfEdgePiece(FaceColor.YELLOW, connection.side());
+            var distance = sideDistance(targetSide, connection.side()); // sides are backwards because we're on yellow
+            var connectedSide = connection.side();
+            if (distance == 0 || distance == 2) {
+                this.rotate(FaceColor.YELLOW, 1);
+                distance--;
+                connectedSide = Cube.getAdjacentSideFromConnectedSideWithOffset(FaceColor.YELLOW, connectedSide, 1).side();
+            }
+
+            var rotationDirection = distance < 0 ? 1 : -1;
+
+            this.rotate(connectedSide, rotationDirection);
+            this.rotate(targetSide, -rotationDirection);
+            if (this.inWhiteCross[connectedSide]) {
+                this.rotate(connectedSide, -rotationDirection);
+            }
+            this.inWhiteCross[targetSide] = true;
         }
     }
 

@@ -114,6 +114,28 @@ public class Cube {
         return null;
     }
 
+    /**
+     * Gets the side adjacent from an offset of another side relative to rotation around a base side. For example, with
+     * base side YELLOW, connected side RED and offset 1, this would start at the RED side and rotate along the YELLOW
+     * side clockwise once, because the offset is 1, and find the BLUE side.
+     * @param baseSide The side to base the offset rotation around.
+     * @param connectedSide The side connected to the base side to start at.
+     * @param offset The rotation direction. If negative, assuming rotating counter-clockwise.
+     * @return The {@link SideConnection} or {@code null} if none was found.
+     */
+    public static SideConnection getAdjacentSideFromConnectedSideWithOffset(int baseSide, int connectedSide, int offset) {
+        FaceColor.requireValid(baseSide);
+        FaceColor.requireValid(connectedSide);
+
+        var connected = SIDE_CONNECTIONS[baseSide];
+        for (var iConn = 0; iConn < connected.length; iConn++) {
+            if (connected[iConn].side() == connectedSide) {
+                return ArrayUtil.loopedIndex(connected, iConn + offset);
+            }
+        }
+        return null;
+    }
+
     public static SideConnection[] getConnections(int color) {
         FaceColor.requireValid(color);
         return SIDE_CONNECTIONS[color];
