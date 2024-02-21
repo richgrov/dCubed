@@ -3,12 +3,12 @@ import Button from "./Button";
 import { useDropzone } from "react-dropzone";
 
 import loadingAnimation from "./assets/loading.gif";
-import Visual from "./Visual";
+import Visual, { CubeInfo } from "./Visual";
 
 export default function Solver() {
   const sessionId = useRef<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
-  const [sides, setSides] = useState<{} | undefined>(undefined);
+  const [cubeInfo, setCubeInfo] = useState<CubeInfo | undefined>(undefined);
 
   const onPhoto = async (file: File) => {
     setLoading(true);
@@ -31,7 +31,10 @@ export default function Solver() {
       sessionId.current = responseData.sessionId;
 
       if (Object.keys(responseData.sides).length === 6) {
-        setSides(responseData.sides);
+        setCubeInfo({
+          sides: responseData.sides,
+          session: sessionId.current!,
+        });
       }
     } finally {
       setLoading(false);
@@ -42,8 +45,8 @@ export default function Solver() {
     <div className="flex flex-col items-center gap-20 py-20">
       <h1 className="text-5xl">Step 1: Scan Cube</h1>
       <div className="relative aspect-video w-3/5 rounded-2xl border-4 border-black">
-        {typeof sides !== "undefined" ? (
-          <Visual sides={sides} />
+        {typeof cubeInfo !== "undefined" ? (
+          <Visual cubeInfo={cubeInfo} />
         ) : (
           <InputSetup onPhoto={onPhoto} />
         )}

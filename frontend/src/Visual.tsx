@@ -2,16 +2,17 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 
-export type VisualProps = {
+export type CubeInfo = {
   sides: Record<string, string[]>;
+  session: string;
 };
 
-export default function Visual(props: VisualProps) {
+export default function Visual(props: { cubeInfo: CubeInfo }) {
   const wrapperEl = useRef<HTMLDivElement>(null);
   const canvasEl = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const scene = new CubeScene(props.sides);
+    const scene = new CubeScene(props.cubeInfo.sides);
     const camera = new THREE.PerspectiveCamera(70, 16 / 9, 0.01, 10);
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasEl.current!,
@@ -47,6 +48,15 @@ export default function Visual(props: VisualProps) {
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     }).observe(wrapperEl.current!);
+
+    let url =
+      import.meta.env.VITE_BACKEND_URL +
+      "/solve?" +
+      new URLSearchParams({ session: props.cubeInfo.session });
+
+    fetch(url, { method: "POST" })
+      .then((r) => r.json())
+      .then((json) => (scene.moves = json));
 
     return () => {
       running = false;
@@ -126,6 +136,11 @@ const SIDE_OFFSETS = [
   [-1, 0],
 ];
 
+type Move = {
+  side: string;
+  clockwise: boolean;
+};
+
 class CubeScene extends THREE.Scene {
   private rotatingFaces = new Array<THREE.Object3D>();
   private rotatingFaceMatrices = new Array<THREE.Matrix4>();
@@ -136,6 +151,9 @@ class CubeScene extends THREE.Scene {
     new THREE.BoxGeometry(1, 4, 4),
     new THREE.MeshBasicMaterial({ color: 0xffffff })
   );
+
+  public moves = new Array<Move>();
+  private currentMove = 0;
 
   constructor(private sides: Record<string, string[]>) {
     super();
@@ -151,6 +169,12 @@ class CubeScene extends THREE.Scene {
 
   update(delta: number) {
     if (typeof this.currentRotation === "undefined") {
+      if (this.currentMove >= this.moves.length) {
+        return;
+      }
+
+      const move = this.moves[this.currentMove];
+      this.rotateSide(move.side, move.clockwise);
       return;
     }
 
@@ -177,6 +201,7 @@ class CubeScene extends THREE.Scene {
     if (this.rotationProgress === 1) {
       this.currentRotation = undefined;
       this.rotationProgress = 0;
+      this.currentMove++;
     }
   }
 
