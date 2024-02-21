@@ -21,6 +21,14 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
             { 99,  1, -1, 99,  2,  0 },
     };
 
+    private static int sideDistance(int side1, int side2) {
+        var distance = SIDE_DISTANCES[side1][side2];
+        if (distance == 99) {
+            throw new IndexOutOfBoundsException();
+        }
+        return distance;
+    }
+
     private static Cube.SideConnection getConnectingInfo(FaceColor side, FaceColor touching) {
         for (var connected : Cube.getConnections(side)) {
             if (connected.side() == touching.ordinal()) {
@@ -34,7 +42,7 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
     protected final List<Move> moves = new ArrayList<>();
 
     public void whiteCross() {
-        this.rotateWhiteSide();
+        this.rotateWhiteSideBest();
     }
 
     public void clockwise(FaceColor color) {
@@ -47,7 +55,7 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
         this.cube.rotateCounterClockwise(color);
     }
 
-    private void rotateWhiteSide() {
+    private void rotateWhiteSideBest() {
         var sides = this.cube.getSides();
 
         var distanceVote = new int[4];
@@ -55,20 +63,17 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
         var whiteConnections = Cube.getConnections(FaceColor.WHITE);
         for (var iConn = 0; iConn < whiteConnections.length; iConn++) {
             var touch = whiteConnections[iConn];
+
             var sideColor = touch.side();
             var touchingEdgeIndex = touch.faces()[1];
             var touchingEdgeColor = sides[sideColor].toColors()[touchingEdgeIndex];
-            var whiteEdge = cube.getColorOfEdgePiece(FaceColor.WHITE, FaceColor.values()[sideColor]);
-            if (whiteEdge != FaceColor.WHITE) {
+            var whiteSideEdge = cube.getColorOfEdgePiece(FaceColor.WHITE, FaceColor.values()[sideColor]);
+            if (whiteSideEdge != FaceColor.WHITE) {
                 continue;
             }
 
-            var distance = SIDE_DISTANCES[touch.side()][touchingEdgeColor.ordinal()];
-            if (distance == 99) {
-                throw new IndexOutOfBoundsException();
-            }
-
-            distanceVote[distance + 1]++;
+            var distance = sideDistance(touch.side(), touchingEdgeColor.ordinal());
+            distanceVote[distance + 1]++; // distances are [-1, 2], so +1 to normalize that to [0, 3]
         }
 
         var highestVotes = 0;
@@ -77,7 +82,7 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
             var numVotes = distanceVote[iDist];
             if (numVotes > highestVotes) {
                 highestVotes = numVotes;
-                bestMove = iDist - 1;
+                bestMove = iDist - 1; // -1 to undo the normalization above
             }
         }
 
