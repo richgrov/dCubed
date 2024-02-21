@@ -96,7 +96,7 @@ const ROTATIONS: Record<string, RotationInfo> = {
   WHITE: {
     boundaryAxis: axisZ,
     boundaryRotation: Math.PI / -2,
-    rotationAxis: axisY,
+    rotationAxis: axisNegY,
   },
   RED: {
     boundaryAxis: axisY,
