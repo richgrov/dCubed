@@ -7,13 +7,15 @@ public class Side {
 
     private long encoded = 0;
 
-    public Side(FaceColor... colors) {
+    public Side(int... colors) {
         if (colors.length != 8) {
             throw new IllegalArgumentException("side must comprise exactly 8 colors");
         }
 
         for (var iColor = 0; iColor < 8; iColor++) {
-            var color = (long) colors[iColor].ordinal();
+            FaceColor.requireValid(colors[iColor]);
+
+            var color = (long) colors[iColor];
             this.encoded |= color << ((7 - iColor) * 8);
         }
     }
@@ -22,8 +24,8 @@ public class Side {
         this.encoded = encoded;
     }
 
-    public FaceColor[] toColors() {
-        var faceColors = new FaceColor[8];
+    public int[] toColors() {
+        var faceColors = new int[8];
         for (var iFace = 0; iFace < 8; iFace++) {
             var colorIndex = (this.encoded >>> ((7 - iFace) * 8)) & 0xFF;
             faceColors[iFace] = FaceColor.values()[(int) colorIndex];
@@ -35,13 +37,13 @@ public class Side {
         return this.encoded;
     }
 
-    public static Side all(FaceColor color) {
-        var faces = new FaceColor[8];
+    public static Side all(int color) {
+        var faces = new int[8];
         Arrays.fill(faces, color);
         return new Side(faces);
     }
 
-    public static Side checker(FaceColor corner, FaceColor side) {
+    public static Side checker(int corner, int side) {
         return new Side(corner, side, corner, side, corner, side, corner, side);
     }
 
