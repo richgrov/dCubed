@@ -25,7 +25,7 @@ public abstract class AbstractHumanAlgorithm implements ISolvingAlgorithm {
     private static int sideDistance(int side1, int side2) {
         var distance = SIDE_DISTANCES[side1][side2];
         if (distance == 99) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("can't find distance between " + side1 + " and " + side2);
         }
         return distance;
     }
