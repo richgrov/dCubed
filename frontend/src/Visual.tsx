@@ -30,10 +30,21 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
   const [paused, setPaused] = useState(true);
 
   function tryPlayNextAnimation() {
+    if (!scene.current.isAnimationDone()) {
+      return;
+    }
+
     const moves = moveState.current;
     if (moves.currentMove + 1 < moves.moves.length) {
       const { side, clockwise } = moves.moves[++moves.currentMove];
-      scene.current.rotateSide(side, clockwise);
+      scene.current.rotateSide(side, clockwise).then(() => {
+        setPaused((updatedPause) => {
+          if (!updatedPause) {
+            tryPlayNextAnimation();
+          }
+          return updatedPause;
+        });
+      });
     }
   }
 
@@ -49,10 +60,7 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
       const delta = now - time;
       time = now;
 
-      const animationDone = scene.current!.update(delta);
-      if (animationDone && !paused) {
-        tryPlayNextAnimation();
-      }
+      scene.current!.update(delta);
       scene.current!.render();
 
       if (running) {
@@ -86,7 +94,7 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
 
   function onPause() {
     setPaused((wasPaused) => {
-      if (wasPaused && scene.current.isAnimationDone()) {
+      if (wasPaused) {
         tryPlayNextAnimation();
       }
 
@@ -197,6 +205,7 @@ class CubeScene {
   private rotationProgress = 1;
   private rotationAxis = new THREE.Vector3();
   private rotationDirection = 0;
+  private completionHandler: (() => void) | undefined;
 
   private rotationCollision = new THREE.Mesh(
     new THREE.BoxGeometry(1, 4, 4),
@@ -227,10 +236,7 @@ class CubeScene {
     this.controls.update();
   }
 
-  /**
-   * @returns If animation is complete
-   */
-  update(delta: number): boolean {
+  update(delta: number) {
     this.controls!.update();
 
     this.rotationProgress = Math.min(this.rotationProgress + delta / 500, 1);
@@ -252,7 +258,15 @@ class CubeScene {
       face.matrix.copy(matrix);
     }
 
-    return this.isAnimationDone();
+    if (
+      this.isAnimationDone() &&
+      typeof this.completionHandler !== "undefined"
+    ) {
+      // store in temporary variable andclear immediately to reduce odds of infinite recursion
+      const completionHandler = this.completionHandler;
+      this.completionHandler = undefined;
+      completionHandler();
+    }
   }
 
   render() {
@@ -293,7 +307,11 @@ class CubeScene {
     }
   }
 
-  rotateSide(sideColor: string, clockwise: boolean) {
+  rotateSide(sideColor: string, clockwise: boolean): Promise<void> {
+    if (this.rotationProgress !== 1) {
+      throw new Error("rotation not done");
+    }
+
     this.rotationProgress = 0;
     const rotationInfo = ROTATIONS[sideColor];
     this.rotationAxis = rotationInfo.rotationAxis;
@@ -319,6 +337,10 @@ class CubeScene {
         this.rotatingFaceMatrices.push(child.matrix.clone());
       }
     }
+
+    return new Promise((resolve) => {
+      this.completionHandler = resolve;
+    });
   }
 
   generateFace(color: number) {
