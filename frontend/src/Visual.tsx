@@ -47,6 +47,13 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
     });
     observer.observe(wrapper);
 
+    return () => {
+      running = false;
+      observer.unobserve(wrapper);
+    };
+  });
+
+  useEffect(() => {
     let url =
       import.meta.env.VITE_BACKEND_URL +
       "/solve?" +
@@ -55,12 +62,7 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
     fetch(url, { method: "POST" })
       .then((r) => r.json())
       .then((json) => (scene.current!.moves = json));
-
-    return () => {
-      running = false;
-      observer.unobserve(wrapper);
-    };
-  });
+  }, []);
 
   function onPause() {
     setPaused((pause) => {
