@@ -1,9 +1,11 @@
 import { ReactNode, MouseEventHandler } from "react";
 
-export default function Button(props: {
+export type ButtonProps = {
   onClick: MouseEventHandler;
   children: ReactNode;
-}) {
+};
+
+export function Button(props: ButtonProps) {
   return (
     <button
       onClick={props.onClick}

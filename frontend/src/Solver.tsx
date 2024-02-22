@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import Button from "./Button";
+import { Button } from "./Button";
 import { useDropzone } from "react-dropzone";
 
 import loadingAnimation from "./assets/loading.gif";
