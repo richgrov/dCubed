@@ -1,7 +1,12 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
-import { PlayIcon, ForwardIcon, BackwardIcon } from "@heroicons/react/16/solid";
+import {
+  PlayIcon,
+  ForwardIcon,
+  BackwardIcon,
+  PauseIcon,
+} from "@heroicons/react/16/solid";
 import { IconButton } from "./Button";
 
 export type CubeInfo = {
@@ -13,6 +18,7 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
   const wrapperEl = useRef<HTMLDivElement>(null);
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const scene = useRef<CubeScene | undefined>(undefined);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     scene.current = new CubeScene(props.cubeInfo.sides, canvasEl.current!);
@@ -63,8 +69,12 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
           <IconButton onClick={() => {}}>
             <BackwardIcon className="w-10" />
           </IconButton>
-          <IconButton onClick={() => {}}>
-            <PlayIcon className="w-10" />
+          <IconButton onClick={() => setPaused((pause) => !pause)}>
+            {paused ? (
+              <PauseIcon className="w-10" />
+            ) : (
+              <PlayIcon className="w-10" />
+            )}
           </IconButton>
           <IconButton onClick={() => {}}>
             <ForwardIcon className="w-10" />
