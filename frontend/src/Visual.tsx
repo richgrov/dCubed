@@ -92,6 +92,37 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
       .then((json) => (moveState.current = { currentMove: -1, moves: json }));
   }, []);
 
+  function onNext() {
+    if (!paused) {
+      setPaused(true);
+      return;
+    }
+
+    tryPlayNextAnimation();
+  }
+
+  function onPrev() {
+    if (!paused) {
+      setPaused(true);
+      return;
+    }
+
+    if (!scene.current.isAnimationDone()) {
+      return;
+    }
+
+    const moves = moveState.current;
+    if (moves.currentMove < 0) {
+      return;
+    }
+
+    const { side, clockwise } = moves.moves[moves.currentMove];
+    // Invert clockwise to "undo" move.
+    // Forward animations are done by incrementing and then animating. Because we are going
+    // backwards, the animation must be done before decrementing to maintain order.
+    scene.current.rotateSide(side, !clockwise).then(() => moves.currentMove--);
+  }
+
   function onPause() {
     setPaused((wasPaused) => {
       if (wasPaused) {
@@ -109,7 +140,7 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
       </div>
       <div className="flex-[1]">
         <div className="flex justify-center gap-5 py-10">
-          <IconButton onClick={() => {}}>
+          <IconButton onClick={onPrev}>
             <BackwardIcon className="w-10" />
           </IconButton>
           <IconButton onClick={onPause}>
@@ -119,7 +150,7 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
               <PauseIcon className="w-10" />
             )}
           </IconButton>
-          <IconButton onClick={() => {}}>
+          <IconButton onClick={onNext}>
             <ForwardIcon className="w-10" />
           </IconButton>
         </div>
