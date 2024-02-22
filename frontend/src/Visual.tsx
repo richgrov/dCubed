@@ -74,9 +74,9 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
           </IconButton>
           <IconButton onClick={() => setPaused((pause) => !pause)}>
             {paused ? (
-              <PauseIcon className="w-10" />
-            ) : (
               <PlayIcon className="w-10" />
+            ) : (
+              <PauseIcon className="w-10" />
             )}
           </IconButton>
           <IconButton onClick={() => {}}>
