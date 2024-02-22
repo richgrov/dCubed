@@ -14,11 +14,28 @@ export type CubeInfo = {
   session: string;
 };
 
+type MoveState = {
+  currentMove: number;
+  moves: {
+    side: string;
+    clockwise: boolean;
+  }[];
+};
+
 export default function Visual(props: { cubeInfo: CubeInfo }) {
   const wrapperEl = useRef<HTMLDivElement>(null);
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const scene = useRef(new CubeScene(props.cubeInfo.sides));
+  const moveState = useRef<MoveState>({ currentMove: -1, moves: [] });
   const [paused, setPaused] = useState(true);
+
+  function tryPlayNextAnimation() {
+    const moves = moveState.current;
+    if (moves.currentMove + 1 < moves.moves.length) {
+      const { side, clockwise } = moves.moves[++moves.currentMove];
+      scene.current.rotateSide(side, clockwise);
+    }
+  }
 
   useEffect(() => {
     const wrapper = wrapperEl.current!;
@@ -32,7 +49,10 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
       const delta = now - time;
       time = now;
 
-      scene.current!.update(delta);
+      const animationDone = scene.current!.update(delta);
+      if (animationDone && !paused) {
+        tryPlayNextAnimation();
+      }
       scene.current!.render();
 
       if (running) {
@@ -61,12 +81,15 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
 
     fetch(url, { method: "POST" })
       .then((r) => r.json())
-      .then((json) => (scene.current!.moves = json));
+      .then((json) => (moveState.current = { currentMove: -1, moves: json }));
   }, []);
 
   function onPause() {
-    setPaused((pause) => {
-      scene.current.setAutoAdvance(pause);
+    setPaused((wasPaused) => {
+      if (wasPaused && scene.current.isAnimationDone()) {
+        tryPlayNextAnimation();
+      }
+
       return !paused;
     });
   }
@@ -163,11 +186,6 @@ const SIDE_OFFSETS = [
   [-1, 0],
 ];
 
-type Move = {
-  side: string;
-  clockwise: boolean;
-};
-
 class CubeScene {
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(70, 16 / 9, 0.01, 10);
@@ -176,17 +194,14 @@ class CubeScene {
 
   private rotatingFaces = new Array<THREE.Object3D>();
   private rotatingFaceMatrices = new Array<THREE.Matrix4>();
-  private rotationProgress = 0;
+  private rotationProgress = 1;
+  private rotationAxis = new THREE.Vector3();
   private rotationDirection = 0;
-  private autoAdvance = false;
 
   private rotationCollision = new THREE.Mesh(
     new THREE.BoxGeometry(1, 4, 4),
     new THREE.MeshBasicMaterial({ color: 0xffffff })
   );
-
-  public moves = new Array<Move>();
-  private currentMove = -1;
 
   constructor(private sides: Record<string, string[]>) {
     this.camera.position.set(0, 5, 0);
@@ -212,27 +227,12 @@ class CubeScene {
     this.controls.update();
   }
 
-  setAutoAdvance(autoAdvance: boolean) {
-    this.autoAdvance = autoAdvance;
-
-    const animationNotRunning = this.rotationProgress === 0;
-    if (this.autoAdvance && animationNotRunning) {
-      if (this.currentMove + 1 < this.moves.length) {
-        const nextMove = this.moves[++this.currentMove];
-        this.rotateSide(nextMove.side, nextMove.clockwise);
-      }
-    }
-  }
-
-  update(delta: number) {
+  /**
+   * @returns If animation is complete
+   */
+  update(delta: number): boolean {
     this.controls!.update();
 
-    if (this.currentMove < 0 || this.currentMove >= this.moves.length) {
-      return;
-    }
-
-    const move = this.moves[this.currentMove];
-    const rotationAxis = ROTATIONS[move.side].rotationAxis;
     this.rotationProgress = Math.min(this.rotationProgress + delta / 500, 1);
 
     const rotation =
@@ -240,7 +240,10 @@ class CubeScene {
       this.rotationDirection;
 
     const matrix = new THREE.Matrix4();
-    const rotate = new THREE.Matrix4().makeRotationAxis(rotationAxis, rotation);
+    const rotate = new THREE.Matrix4().makeRotationAxis(
+      this.rotationAxis,
+      rotation
+    );
 
     for (let iFace = 0; iFace < this.rotatingFaces.length; iFace++) {
       const face = this.rotatingFaces[iFace];
@@ -249,14 +252,7 @@ class CubeScene {
       face.matrix.copy(matrix);
     }
 
-    if (this.rotationProgress === 1 && this.autoAdvance) {
-      if (this.currentMove + 1 >= this.moves.length) {
-        return;
-      }
-
-      const nextMove = this.moves[++this.currentMove];
-      this.rotateSide(nextMove.side, nextMove.clockwise);
-    }
+    return this.isAnimationDone();
   }
 
   render() {
@@ -267,6 +263,10 @@ class CubeScene {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer!.setSize(width, height);
+  }
+
+  isAnimationDone() {
+    return this.rotationProgress === 1;
   }
 
   addSide(color: string, rotAxis: THREE.Vector3, rot: number) {
@@ -293,9 +293,10 @@ class CubeScene {
     }
   }
 
-  private rotateSide(sideColor: string, clockwise: boolean) {
+  rotateSide(sideColor: string, clockwise: boolean) {
     this.rotationProgress = 0;
     const rotationInfo = ROTATIONS[sideColor];
+    this.rotationAxis = rotationInfo.rotationAxis;
     this.rotationDirection = clockwise ? 1 : -1;
 
     const translate = new THREE.Matrix4().makeTranslation(
