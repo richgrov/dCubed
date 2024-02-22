@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
+import { PlayIcon, ForwardIcon, BackwardIcon } from "@heroicons/react/16/solid";
+import { IconButton } from "./Button";
 
 export type CubeInfo = {
   sides: Record<string, string[]>;
@@ -65,10 +67,22 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
 
   return (
     <div className="flex h-full">
-      <div ref={wrapperEl} className="min-w-0 flex-[4]">
+      <div ref={wrapperEl} className="min-w-0 flex-[3]">
         <canvas ref={canvasEl}></canvas>
       </div>
-      <div className="flex-[1]"></div>
+      <div className="flex-[1]">
+        <div className="flex justify-center gap-5 py-10">
+          <IconButton onClick={() => {}}>
+            <BackwardIcon className="w-10" />
+          </IconButton>
+          <IconButton onClick={() => {}}>
+            <PlayIcon className="w-10" />
+          </IconButton>
+          <IconButton onClick={() => {}}>
+            <ForwardIcon className="w-10" />
+          </IconButton>
+        </div>
+      </div>
     </div>
   );
 }
