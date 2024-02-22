@@ -18,7 +18,7 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
   const wrapperEl = useRef<HTMLDivElement>(null);
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const scene = useRef(new CubeScene(props.cubeInfo.sides));
-  const [paused, setPaused] = useState(false);
+  const [paused, setPaused] = useState(true);
 
   useEffect(() => {
     const wrapper = wrapperEl.current!;
@@ -62,6 +62,13 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
     };
   });
 
+  function onPause() {
+    setPaused((pause) => {
+      scene.current.setAutoAdvance(pause);
+      return !paused;
+    });
+  }
+
   return (
     <div className="flex h-full">
       <div ref={wrapperEl} className="min-w-0 flex-[3]">
@@ -72,7 +79,7 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
           <IconButton onClick={() => {}}>
             <BackwardIcon className="w-10" />
           </IconButton>
-          <IconButton onClick={() => setPaused((pause) => !pause)}>
+          <IconButton onClick={onPause}>
             {paused ? (
               <PlayIcon className="w-10" />
             ) : (
@@ -167,9 +174,9 @@ class CubeScene {
 
   private rotatingFaces = new Array<THREE.Object3D>();
   private rotatingFaceMatrices = new Array<THREE.Matrix4>();
-  private currentRotation: string | undefined = undefined;
   private rotationProgress = 0;
   private rotationDirection = 0;
+  private autoAdvance = false;
 
   private rotationCollision = new THREE.Mesh(
     new THREE.BoxGeometry(1, 4, 4),
@@ -177,7 +184,7 @@ class CubeScene {
   );
 
   public moves = new Array<Move>();
-  private currentMove = 0;
+  private currentMove = -1;
 
   constructor(private sides: Record<string, string[]>) {
     this.camera.position.set(0, 5, 0);
@@ -203,20 +210,27 @@ class CubeScene {
     this.controls.update();
   }
 
+  setAutoAdvance(autoAdvance: boolean) {
+    this.autoAdvance = autoAdvance;
+
+    const animationNotRunning = this.rotationProgress === 0;
+    if (this.autoAdvance && animationNotRunning) {
+      if (this.currentMove + 1 < this.moves.length) {
+        const nextMove = this.moves[++this.currentMove];
+        this.rotateSide(nextMove.side, nextMove.clockwise);
+      }
+    }
+  }
+
   update(delta: number) {
     this.controls!.update();
 
-    if (typeof this.currentRotation === "undefined") {
-      if (this.currentMove >= this.moves.length) {
-        return;
-      }
-
-      const move = this.moves[this.currentMove];
-      this.rotateSide(move.side, move.clockwise);
+    if (this.currentMove < 0 || this.currentMove >= this.moves.length) {
       return;
     }
 
-    const rotationAxis = ROTATIONS[this.currentRotation].rotationAxis;
+    const move = this.moves[this.currentMove];
+    const rotationAxis = ROTATIONS[move.side].rotationAxis;
     this.rotationProgress = Math.min(this.rotationProgress + delta / 500, 1);
 
     const rotation =
@@ -233,10 +247,13 @@ class CubeScene {
       face.matrix.copy(matrix);
     }
 
-    if (this.rotationProgress === 1) {
-      this.currentRotation = undefined;
-      this.rotationProgress = 0;
-      this.currentMove++;
+    if (this.rotationProgress === 1 && this.autoAdvance) {
+      if (this.currentMove + 1 >= this.moves.length) {
+        return;
+      }
+
+      const nextMove = this.moves[++this.currentMove];
+      this.rotateSide(nextMove.side, nextMove.clockwise);
     }
   }
 
@@ -274,9 +291,9 @@ class CubeScene {
     }
   }
 
-  rotateSide(sideColor: string, clockwise: boolean) {
+  private rotateSide(sideColor: string, clockwise: boolean) {
+    this.rotationProgress = 0;
     const rotationInfo = ROTATIONS[sideColor];
-    this.currentRotation = sideColor;
     this.rotationDirection = clockwise ? 1 : -1;
 
     const translate = new THREE.Matrix4().makeTranslation(
