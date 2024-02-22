@@ -17,11 +17,12 @@ export type CubeInfo = {
 export default function Visual(props: { cubeInfo: CubeInfo }) {
   const wrapperEl = useRef<HTMLDivElement>(null);
   const canvasEl = useRef<HTMLCanvasElement>(null);
-  const scene = useRef<CubeScene | undefined>(undefined);
+  const scene = useRef(new CubeScene(props.cubeInfo.sides));
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    scene.current = new CubeScene(props.cubeInfo.sides, canvasEl.current!);
+    const wrapper = wrapperEl.current!;
+    scene.current.setCanvas(canvasEl.current!);
 
     let running = true;
     let time = Date.now();
@@ -40,10 +41,11 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
     }
     window.requestAnimationFrame(loop);
 
-    new ResizeObserver(() => {
-      const { clientWidth, clientHeight } = wrapperEl.current!;
+    const observer = new ResizeObserver(() => {
+      const { clientWidth, clientHeight } = wrapper;
       scene.current!.resize(clientWidth, clientHeight);
-    }).observe(wrapperEl.current!);
+    });
+    observer.observe(wrapper);
 
     let url =
       import.meta.env.VITE_BACKEND_URL +
@@ -56,8 +58,9 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
 
     return () => {
       running = false;
+      observer.unobserve(wrapper);
     };
-  }, []);
+  });
 
   return (
     <div className="flex h-full">
@@ -159,14 +162,15 @@ type Move = {
 class CubeScene {
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(70, 16 / 9, 0.01, 10);
-  private renderer: THREE.Renderer;
-  private controls: OrbitControls;
+  private renderer: THREE.Renderer | undefined;
+  private controls: OrbitControls | undefined;
 
   private rotatingFaces = new Array<THREE.Object3D>();
   private rotatingFaceMatrices = new Array<THREE.Matrix4>();
   private currentRotation: string | undefined = undefined;
   private rotationProgress = 0;
   private rotationDirection = 0;
+
   private rotationCollision = new THREE.Mesh(
     new THREE.BoxGeometry(1, 4, 4),
     new THREE.MeshBasicMaterial({ color: 0xffffff })
@@ -175,15 +179,8 @@ class CubeScene {
   public moves = new Array<Move>();
   private currentMove = 0;
 
-  constructor(
-    private sides: Record<string, string[]>,
-    canvas: HTMLCanvasElement
-  ) {
-    this.renderer = new THREE.WebGLRenderer({ canvas });
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+  constructor(private sides: Record<string, string[]>) {
     this.camera.position.set(0, 5, 0);
-    this.controls.update();
-
     this.rotationCollision.matrixAutoUpdate = false;
 
     this.addSide("GREEN", axisY, 0);
@@ -194,8 +191,20 @@ class CubeScene {
     this.addSide("YELLOW", axisZ, Math.PI / -2);
   }
 
-  update(delta: number) {
+  setCanvas(canvas: HTMLCanvasElement) {
+    if (typeof this.renderer === "undefined") {
+      this.renderer = new THREE.WebGLRenderer({ canvas });
+    } else {
+      this.renderer.domElement = canvas;
+    }
+
+    this.controls?.dispose();
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.update();
+  }
+
+  update(delta: number) {
+    this.controls!.update();
 
     if (typeof this.currentRotation === "undefined") {
       if (this.currentMove >= this.moves.length) {
@@ -232,13 +241,13 @@ class CubeScene {
   }
 
   render() {
-    this.renderer.render(this.scene, this.camera);
+    this.renderer!.render(this.scene, this.camera);
   }
 
   resize(width: number, height: number) {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(width, height);
+    this.renderer!.setSize(width, height);
   }
 
   addSide(color: string, rotAxis: THREE.Vector3, rot: number) {
