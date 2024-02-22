@@ -43,6 +43,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
             this.rotateSideTopWhiteEdges();
             this.rotateSideSideWhiteEdges();
             this.rotateSideBottomWhiteEdges();
+            this.rotateWhiteEdgesOnYellow();
 
             if (i++ == 4) {
                 throw new IllegalStateException("couldn't form white cross");
@@ -209,6 +210,24 @@ public class WhiteCrossStep extends AbstractSolveStep {
             if (this.inWhiteCross[sideToLeft]) {
                 this.clockwise(sideToLeft);
             }
+            this.rotate(targetColor, 2);
+            this.inWhiteCross[targetColor] = true;
+        }
+    }
+
+    private void rotateWhiteEdgesOnYellow() {
+        for (var connection : Cube.getConnections(FaceColor.WHITE)) {
+            var sides = this.cube.getSides();
+
+            var connectingYellow = this.cube.getColorOfEdgePiece(FaceColor.YELLOW, connection.side());
+            if (connectingYellow != FaceColor.WHITE) {
+                continue;
+            }
+
+            var targetColor = sides[connection.side()].toColors()[1];
+            var currentColor = connection.side();
+            var distance = sideDistance(targetColor, currentColor);
+            this.rotate(FaceColor.YELLOW, distance);
             this.rotate(targetColor, 2);
             this.inWhiteCross[targetColor] = true;
         }
