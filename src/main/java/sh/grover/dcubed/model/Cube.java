@@ -37,8 +37,10 @@ public class Cube {
 
     public static final int TOP_LEFT = 0;
     public static final int TOP_RIGHT = 2;
+    public static final int MIDDLE_RIGHT = 3;
     public static final int BOTTOM_RIGHT = 4;
     public static final int BOTTOM_LEFT = 6;
+    public static final int MIDDLE_LEFT = 7;
 
     private static final int TOP_CONNECTION = 0;
     private static final int RIGHT_CONNECTION = 1;

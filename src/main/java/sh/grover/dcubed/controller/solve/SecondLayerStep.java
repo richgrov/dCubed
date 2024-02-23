@@ -3,6 +3,7 @@ package sh.grover.dcubed.controller.solve;
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
 import sh.grover.dcubed.model.Move;
+import sh.grover.dcubed.util.ArrayUtil;
 
 import java.util.List;
 
@@ -17,8 +18,10 @@ public class SecondLayerStep extends AbstractSolveStep {
         for (var limit = 0; limit < 4; limit++) {
             var edge = this.findAndAlignEdgeOnYellow();
             if (edge == null) {
-                // TODO: find on side
-                continue;
+                edge = this.findAndAlignEdgeOnSide();
+                if (edge == null) {
+                    return;
+                }
             }
 
             this.insertEdge(edge);
@@ -43,6 +46,42 @@ public class SecondLayerStep extends AbstractSolveStep {
 
             var otherSideRelative = distanceAroundYellow(colorOnConnected, colorOnYellow);
             return new PreparedEdge(colorOnConnected, otherSideRelative);
+        }
+
+        return null;
+    }
+
+    private PreparedEdge findAndAlignEdgeOnSide() {
+        var connections = Cube.getConnections(FaceColor.YELLOW);
+        for (var iConn = 0; iConn < connections.length; iConn++) {
+            var connection = connections[iConn];
+            var sides = this.cube.getSides();
+
+            var rightEdge = sides[connection.side()].toColors()[Cube.MIDDLE_RIGHT];
+            var nextSide = ArrayUtil.loopedIndex(connections, iConn - 1).side();
+            var leftEdgeOfNext = sides[nextSide].toColors()[Cube.MIDDLE_LEFT];
+            if (rightEdge == FaceColor.YELLOW || leftEdgeOfNext == FaceColor.YELLOW) {
+                continue;
+            }
+
+            var alreadySolved = rightEdge == connection.side() && leftEdgeOfNext == nextSide;
+            if (alreadySolved) {
+                continue;
+            }
+
+            this.counterClockwise(connection.side());
+            this.counterClockwise(FaceColor.YELLOW);
+            this.clockwise(connection.side());
+            this.clockwise(FaceColor.YELLOW);
+            this.clockwise(nextSide);
+            this.clockwise(FaceColor.YELLOW);
+            this.counterClockwise(nextSide);
+
+            var newSide = ArrayUtil.loopedIndex(connections, iConn + 1).side();
+            var distance = distanceAroundYellow(newSide, rightEdge);
+            this.rotate(FaceColor.YELLOW, distance);
+
+            return new PreparedEdge(rightEdge, distanceAroundYellow(rightEdge, leftEdgeOfNext));
         }
 
         return null;
