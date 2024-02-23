@@ -5,8 +5,44 @@ import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
 import sh.grover.dcubed.util.ArrayUtil;
 
+/**
+ * Positions and orients each of the white corners to the correct form. The
+ * following steps are repeated four times, once for each connected side to
+ * white:
+ * 1. In this project, white is on bottom, so the "white corner" in this case
+ * is the bottom right of the connected side. Following this logic, the 3 sides
+ * of this corner are the white side, the current connected side, and the side
+ * to the right of the connected side. The corner we need to find is now
+ * identified. This is represented in the first few lines of the loop body in
+ * {@link this#solve}
+ *
+ * 2. Check if the corner is solved. If not, find where it is, and bring it to
+ * be "above" the spot it needs to be. In other words, put it on the same
+ * column as where it should be, but on the yellow side. There are two
+ * possibilities for how this plays out:
+ * 2a. The corner is on the white side: Rotate the side it's on to bring it to
+ * the top, rotate it to be "above" its target, and "unrotate" the side it was
+ * on to prevent the white cross from being lost. However, unrotating may cause
+ * the corner to no longer be above its target if it's still on the same side.
+ * Therefore, the corner must be rotated off of this side, and after the white
+ * cross is restored, the corner can also be restored.
+ * 2b. The corner is on the yellow side: This is easy. Simply rotate it to be
+ * above its target. {@link this#findAndAlignCornerAbove}
+ *
+ * 3. Now, the traditional corner rotation/insertion algorithm can be used up
+ * to three times until the corner is in its proper place.
+ * {@link this#insertCornerWithCorrectRotation}
+ * See <a
+ * href="https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/step-2-first-layer-corners/"
+ * >rotation algorithm explained</a>
+ */
 public class WhiteCornersStep extends AbstractSolveStep {
 
+    /**
+     * White corners of a connected side are on the bottom-right of that side.
+     * This table holds, for each side connected to the white side, the face
+     * index on the white side for that corresponding connected side corner.
+     */
     private static final int[] WHITE_CORNER_COLORS = new int[] {
             -1, // white
             Cube.TOP_LEFT, // red
@@ -16,6 +52,10 @@ public class WhiteCornersStep extends AbstractSolveStep {
             Cube.BOTTOM_LEFT, // blue
     };
 
+    /**
+     * Similar to the table above, but for the top-right of a connected face.
+     * Used when scanning the yellow side.
+     */
     private static final int[] YELLOW_CORNER_COLORS = new int[] {
             -1, // white
             Cube.BOTTOM_LEFT, // red
