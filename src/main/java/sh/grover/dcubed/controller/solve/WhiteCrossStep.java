@@ -191,11 +191,11 @@ public class WhiteCrossStep extends AbstractSolveStep {
 
         if (targetColor == sideToLeft) {
             this.clockwise(connection.side());
-            this.counterClockwise(sideToLeft);
+            this.clockwise(sideToLeft);
             return;
         } else if (targetColor == sideToRight) {
             this.counterClockwise(connection.side());
-            this.clockwise(sideToRight);
+            this.counterClockwise(sideToRight);
             return;
         }
 
