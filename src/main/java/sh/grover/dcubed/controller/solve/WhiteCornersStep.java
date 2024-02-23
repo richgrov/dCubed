@@ -104,7 +104,7 @@ public class WhiteCornersStep extends AbstractSolveStep {
         var distance = distanceAroundYellow(originSide, leftSideOfCorner);
         this.rotate(FaceColor.YELLOW, distance);
         if (needsRestore) {
-            if (distance == -1) {
+            if (distance == 1) {
                 this.clockwise(FaceColor.YELLOW);
                 this.clockwise(originSide);
                 this.counterClockwise(FaceColor.YELLOW);
