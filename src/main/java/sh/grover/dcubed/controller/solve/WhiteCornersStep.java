@@ -109,6 +109,9 @@ public class WhiteCornersStep extends AbstractSolveStep {
                 this.clockwise(originSide);
                 this.counterClockwise(FaceColor.YELLOW);
             } else {
+                if (distance == 0) {
+                    this.clockwise(FaceColor.YELLOW);
+                }
                 this.clockwise(originSide);
             }
         }
