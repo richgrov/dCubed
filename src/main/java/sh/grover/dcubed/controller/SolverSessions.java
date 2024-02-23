@@ -62,13 +62,9 @@ public class SolverSessions {
                 new Side(sides[FaceColor.BLUE])
         );
 
-        var whiteCross = new WhiteCrossStep(cube);
-        whiteCross.solve();
-        var moves = new ArrayList<>(whiteCross.moves());
-
-        var whiteCorners = new WhiteCornersStep(cube);
-        whiteCorners.solve();
-        moves.addAll(whiteCorners.moves());
+        var moves = new ArrayList<Move>(64);
+        new WhiteCrossStep(cube, moves).solve();
+        new WhiteCornersStep(cube, moves).solve();
         return moves;
     }
 }

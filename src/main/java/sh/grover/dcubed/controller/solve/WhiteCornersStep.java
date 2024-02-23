@@ -3,7 +3,10 @@ package sh.grover.dcubed.controller.solve;
 import sh.grover.dcubed.model.CornerPiece;
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
+import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.util.ArrayUtil;
+
+import java.util.List;
 
 /**
  * Positions and orients each of the white corners to the correct form. The
@@ -65,8 +68,8 @@ public class WhiteCornersStep extends AbstractSolveStep {
             Cube.TOP_LEFT, // blue
     };
 
-    public WhiteCornersStep(Cube cube) {
-        super(cube);
+    public WhiteCornersStep(Cube cube, List<Move> moves) {
+        super(cube, moves);
     }
 
     @Override
@@ -98,7 +101,7 @@ public class WhiteCornersStep extends AbstractSolveStep {
             }
         }
 
-        var distance = sideDistance(leftSideOfCorner, originSide);
+        var distance = distanceAroundYellow(originSide, leftSideOfCorner);
         this.rotate(FaceColor.YELLOW, distance);
         if (needsRestore) {
             if (distance == -1) {

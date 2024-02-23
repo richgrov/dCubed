@@ -3,7 +3,6 @@ package sh.grover.dcubed.controller.solve;
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.Move;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,7 +13,7 @@ public abstract class AbstractSolveStep {
      * opposite to each other. This only accounts for sides touching the white side. It can also
      * work for the yellow side indexing the faces backwards.
      */
-    protected static final int[][] SIDE_DISTANCES = new int[][] {
+    private static final int[][] SIDE_DISTANCES = new int[][] {
             { 99, 99, 99, 99, 99, 99 },
             { 99,  0,  2, 99,  1, -1 },
             { 99,  2,  0, 99, -1,  1 },
@@ -23,19 +22,24 @@ public abstract class AbstractSolveStep {
             { 99,  1, -1, 99,  2,  0 },
     };
 
-    protected static int sideDistance(int side1, int side2) {
-        var distance = SIDE_DISTANCES[side1][side2];
+    protected static int distanceAroundWhite(int fromSide, int toSide) {
+        var distance = SIDE_DISTANCES[fromSide][toSide];
         if (distance == 99) {
-            throw new IndexOutOfBoundsException("can't find distance between " + side1 + " and " + side2);
+            throw new IndexOutOfBoundsException("can't find distance between " + fromSide + " and " + toSide);
         }
         return distance;
     }
 
-    protected final Cube cube;
-    private final List<Move> moves = new ArrayList<>();
+    protected static int distanceAroundYellow(int fromSide, int toSide) {
+        return distanceAroundWhite(toSide, fromSide);
+    }
 
-    public AbstractSolveStep(Cube cube) {
+    protected final Cube cube;
+    private final List<Move> moves;
+
+    public AbstractSolveStep(Cube cube, List<Move> moves) {
         this.cube = cube;
+        this.moves = moves;
     }
 
     public abstract void solve();
