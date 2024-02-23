@@ -17,13 +17,16 @@ import java.util.List;
  * 2. If there are any white edges on the white side that are touching the wrong
  * side, move those to the correct side. {@link this#ensureWhiteEdgesCorrect()}
  *
- * 3. Move the white sides to the correct positions based on which of the
- * following states they match:
- * 3a. There's a white face on the bottom of the side {@link this#bottomOfSide}
- * 3b. There's a white face on the top of the side {@link this#topOfSide}
- * 3c. There's a white face on the corresponding edge of the yellow {@link this#edgeOnYellow}
+ * 3. For each side that connects to the white side:
+ * 3a. Check if there's a white face on the bottom of the side
+ * 3b. Check if there's a white face on the top of the side
+ * 3c. Check if there's a white face on the corresponding edge of the yellow
  * side
- * 3d. There's a white face on the left or right of the side {@link this#sideOfSide}
+ * 3d. Check if there's a white face on the left or right of the side
+ * If any of these find a match, fully move that side to where it belongs, and
+ * return to step 3. This process repeats up to four times. Because there are
+ * four white edges, it would be a bug to have to do this process more than
+ * that.
  */
 public class WhiteCrossStep extends AbstractSolveStep {
 
@@ -36,34 +39,36 @@ public class WhiteCrossStep extends AbstractSolveStep {
         this.rotateWhiteSideBest();
         this.ensureWhiteEdgesCorrect();
 
-        for (var connection : Cube.getConnections(FaceColor.WHITE)) {
-            var sides = this.cube.getSides();
-            var connectedFaces = sides[connection.side()].toColors();
+        for (var limit = 0; limit < 4; limit++) {
+            for (var connection : Cube.getConnections(FaceColor.WHITE)) {
+                var sides = this.cube.getSides();
+                var connectedFaces = sides[connection.side()].toColors();
 
-            var whiteEdgeOnBottom = connectedFaces[5] == FaceColor.WHITE;
-            if (whiteEdgeOnBottom) {
-                this.bottomOfSide(connection);
-                continue;
+                var whiteEdgeOnBottom = connectedFaces[5] == FaceColor.WHITE;
+                if (whiteEdgeOnBottom) {
+                    this.bottomOfSide(connection);
+                    break;
+                }
+
+                var whiteEdgeOnTop = connectedFaces[1] == FaceColor.WHITE;
+                if (whiteEdgeOnTop) {
+                    this.topOfSide(connection);
+                    break;
+                }
+
+                var connectingYellow = this.cube.getColorOfEdgePiece(FaceColor.YELLOW, connection.side());
+                if (connectingYellow == FaceColor.WHITE) {
+                    this.edgeOnYellow(sides, connection);
+                    break;
+                }
+
+                this.sideOfSide(connection);
             }
-
-            var whiteEdgeOnTop = connectedFaces[1] == FaceColor.WHITE;
-            if (whiteEdgeOnTop) {
-                this.topOfSide(connection);
-                continue;
-            }
-
-            var connectingYellow = this.cube.getColorOfEdgePiece(FaceColor.YELLOW, connection.side());
-            if (connectingYellow == FaceColor.WHITE) {
-                this.edgeOnYellow(sides, connection);
-                continue;
-            }
-
-            this.sideOfSide(connection);
         }
 
         for (var connection : Cube.getConnections(FaceColor.WHITE)) {
             if (!this.inWhiteCross(connection.side())) {
-                throw new IllegalStateException("white cross not solved");
+                throw new IllegalStateException(connection.side() + " not in white cross");
             }
         }
     }
@@ -134,14 +139,15 @@ public class WhiteCrossStep extends AbstractSolveStep {
 
         var rotationDirection = distance < 0 ? 1 : -1;
 
+        var connectedNeedsRestore = this.inWhiteCross(connectedSide);
         this.rotate(connectedSide, rotationDirection);
         this.rotate(targetSide, -rotationDirection);
-        if (this.inWhiteCross(connectedSide)) {
+        if (connectedNeedsRestore) {
             this.rotate(connectedSide, -rotationDirection);
         }
     }
 
-    private void sideOfSide(Cube.SideConnection connection) {
+    private boolean sideOfSide(Cube.SideConnection connection) {
         final var SIDES = new int[] { 7, 3 }; // left, right
         final var ROTATE = new int[] { 1, -1 };
 
@@ -167,17 +173,21 @@ public class WhiteCrossStep extends AbstractSolveStep {
             if (connectedSideColor == edgeColor) {
                 this.rotate(connectedSideColor, rotation);
             } else {
+                var connectedNeedsRestore = this.inWhiteCross(connectedSideColor);
                 this.rotate(connectedSideColor, oppositeRotation);
 
                 var distance = distanceAroundYellow(connectedSideColor, edgeColor);
                 this.rotate(FaceColor.YELLOW, distance);
 
-                if (this.inWhiteCross(connectedSideColor)) {
+                if (connectedNeedsRestore) {
                     this.rotate(connectedSideColor, rotation);
                 }
                 this.rotate(edgeColor, 2);
             }
+            return true;
         }
+
+        return false;
     }
 
     private void bottomOfSide(Cube.SideConnection connection) {
@@ -200,10 +210,11 @@ public class WhiteCrossStep extends AbstractSolveStep {
         }
 
         this.clockwise(connection.side());
+        var leftNeedsRestore = this.inWhiteCross(sideToLeft);
         this.counterClockwise(sideToLeft);
         var distance = distanceAroundYellow(sideToLeft, targetColor);
         this.rotate(FaceColor.YELLOW, distance);
-        if (this.inWhiteCross(sideToLeft)) {
+        if (leftNeedsRestore) {
             this.clockwise(sideToLeft);
         }
         this.rotate(targetColor, 2);
