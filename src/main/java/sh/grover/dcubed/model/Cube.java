@@ -38,10 +38,10 @@ public class Cube {
     private static final SideConnection[][] SIDE_CONNECTIONS = {
             // white
             {
-                SideConnection.bottomOf(FaceColor.RED),
                 SideConnection.bottomOf(FaceColor.GREEN),
                 SideConnection.bottomOf(FaceColor.ORANGE),
                 SideConnection.bottomOf(FaceColor.BLUE),
+                SideConnection.bottomOf(FaceColor.RED),
             },
             // red
             {
@@ -59,10 +59,10 @@ public class Cube {
             },
             // yellow
             {
-                SideConnection.topOf(FaceColor.RED),
                 SideConnection.topOf(FaceColor.BLUE),
                 SideConnection.topOf(FaceColor.ORANGE),
                 SideConnection.topOf(FaceColor.GREEN),
+                SideConnection.topOf(FaceColor.RED),
             },
             // green
             {
