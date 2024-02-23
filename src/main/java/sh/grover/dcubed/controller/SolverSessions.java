@@ -1,6 +1,7 @@
 package sh.grover.dcubed.controller;
 
 import org.opencv.core.Mat;
+import sh.grover.dcubed.controller.solve.WhiteCornersStep;
 import sh.grover.dcubed.controller.solve.WhiteCrossStep;
 import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.controller.vision.IColorIdentifier;
@@ -9,6 +10,7 @@ import sh.grover.dcubed.model.FaceColor;
 import sh.grover.dcubed.model.ScanResult;
 import sh.grover.dcubed.model.Side;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,8 +62,13 @@ public class SolverSessions {
                 new Side(sides[FaceColor.BLUE])
         );
 
-        var algorithm = new WhiteCrossStep(cube);
-        algorithm.solve();
-        return algorithm.moves();
+        var whiteCross = new WhiteCrossStep(cube);
+        whiteCross.solve();
+        var moves = new ArrayList<>(whiteCross.moves());
+
+        var whiteCorners = new WhiteCornersStep(cube);
+        whiteCorners.solve();
+        moves.addAll(whiteCorners.moves());
+        return moves;
     }
 }
