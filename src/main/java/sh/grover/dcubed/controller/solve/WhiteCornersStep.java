@@ -101,7 +101,7 @@ public class WhiteCornersStep extends AbstractSolveStep {
             }
         }
 
-        var distance = sideDistance(leftSideOfCorner, originSide);
+        var distance = distanceAroundYellow(originSide, leftSideOfCorner);
         this.rotate(FaceColor.YELLOW, distance);
         if (needsRestore) {
             if (distance == -1) {
