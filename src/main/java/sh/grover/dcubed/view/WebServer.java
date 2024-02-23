@@ -1,4 +1,4 @@
-package sh.grover.dcubed.router;
+package sh.grover.dcubed.view;
 
 import io.javalin.Javalin;
 import io.javalin.config.SizeUnit;
