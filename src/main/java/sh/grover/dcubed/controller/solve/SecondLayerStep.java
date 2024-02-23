@@ -41,17 +41,7 @@ public class SecondLayerStep extends AbstractSolveStep {
             var distance = distanceAroundYellow(connection.side(), colorOnConnected);
             this.rotate(FaceColor.YELLOW, distance);
 
-            int otherSideRelative;
-            if (Cube.getAdjacentSideFromConnectedSideWithOffset(FaceColor.YELLOW, colorOnConnected, 1)
-                    .side() == colorOnYellow) {
-                otherSideRelative = 1;
-            } else if (Cube.getAdjacentSideFromConnectedSideWithOffset(FaceColor.YELLOW, colorOnConnected, -1)
-                    .side() == colorOnYellow) {
-                otherSideRelative = -1;
-            } else {
-                throw new IllegalStateException("couldn't determine rotation direction");
-            }
-
+            var otherSideRelative = distanceAroundYellow(colorOnConnected, colorOnYellow);
             return new PreparedEdge(colorOnConnected, otherSideRelative);
         }
 
@@ -74,5 +64,12 @@ public class SecondLayerStep extends AbstractSolveStep {
         this.rotate(initialConnectedSide, -edge.otherSideRelative);
     }
 
-    private record PreparedEdge(int connectedSide, int otherSideRelative) {}
+    private record PreparedEdge(int connectedSide, int otherSideRelative) {
+
+        public PreparedEdge {
+            if (Math.abs(otherSideRelative) != 1) {
+                throw new IllegalArgumentException("otherSideRelative must be -1 or 1");
+            }
+        }
+    }
 }
