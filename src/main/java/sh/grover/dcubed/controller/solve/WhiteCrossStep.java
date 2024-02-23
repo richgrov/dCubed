@@ -28,28 +28,6 @@ import sh.grover.dcubed.model.Side;
 public class WhiteCrossStep extends AbstractSolveStep {
 
     /**
-     * The distance of a side to another side. E.g. [RED][ORANGE] returns 2 because they are
-     * opposite to each other. This only accounts for sides touching the white side. It can also
-     * work for the yellow side indexing the faces backwards.
-     */
-    private static final int[][] SIDE_DISTANCES = new int[][] {
-            { 99, 99, 99, 99, 99, 99 },
-            { 99,  0,  2, 99,  1, -1 },
-            { 99,  2,  0, 99, -1,  1 },
-            { 99, 99, 99, 99, 99, 99 },
-            { 99, -1,  1, 99,  0,  2 },
-            { 99,  1, -1, 99,  2,  0 },
-    };
-
-    private static int sideDistance(int side1, int side2) {
-        var distance = SIDE_DISTANCES[side1][side2];
-        if (distance == 99) {
-            throw new IndexOutOfBoundsException("can't find distance between " + side1 + " and " + side2);
-        }
-        return distance;
-    }
-
-    /**
      * Stores the colors of the white edges that have been aligned to the
      * cross. Contains indices for storing white and yellow to enable faster
      * indexing, but they are unused.

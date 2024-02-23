@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CubeTest {
 
@@ -117,6 +117,38 @@ class CubeTest {
         return new Side(
                 sideColor, sideColor, sideColor, sideColor,
                 bottomColor, bottomColor, bottomColor, sideColor
+        );
+    }
+
+    @Test
+    void getCornerPiece() {
+        var cube = new Cube(
+                new Side(FaceColor.WHITE, FaceColor.RED, FaceColor.ORANGE, FaceColor.WHITE, FaceColor.GREEN, FaceColor.GREEN, FaceColor.RED, FaceColor.WHITE),
+                new Side(FaceColor.RED, FaceColor.WHITE, FaceColor.WHITE, FaceColor.BLUE, FaceColor.BLUE, FaceColor.ORANGE, FaceColor.WHITE, FaceColor.RED),
+                new Side(FaceColor.GREEN, FaceColor.GREEN, FaceColor.YELLOW, FaceColor.GREEN, FaceColor.YELLOW, FaceColor.RED, FaceColor.WHITE, FaceColor.GREEN),
+                new Side(FaceColor.YELLOW, FaceColor.BLUE, FaceColor.BLUE, FaceColor.YELLOW, FaceColor.YELLOW, FaceColor.ORANGE, FaceColor.GREEN, FaceColor.BLUE),
+                new Side(FaceColor.ORANGE, FaceColor.YELLOW, FaceColor.RED, FaceColor.RED, FaceColor.BLUE, FaceColor.YELLOW, FaceColor.RED, FaceColor.YELLOW),
+                new Side(FaceColor.ORANGE, FaceColor.ORANGE, FaceColor.BLUE, FaceColor.BLUE, FaceColor.GREEN, FaceColor.ORANGE, FaceColor.ORANGE, FaceColor.WHITE)
+        );
+
+        assertEquals(
+                new CornerPiece(FaceColor.YELLOW, FaceColor.BLUE, FaceColor.RED),
+                cube.getCornerPiece(FaceColor.YELLOW, Cube.TOP_LEFT)
+        );
+
+        assertEquals(
+                new CornerPiece(FaceColor.BLUE, FaceColor.ORANGE, FaceColor.YELLOW),
+                cube.getCornerPiece(FaceColor.YELLOW, Cube.TOP_RIGHT)
+        );
+
+        assertEquals(
+                new CornerPiece(FaceColor.WHITE, FaceColor.ORANGE, FaceColor.BLUE),
+                cube.getCornerPiece(FaceColor.ORANGE, Cube.BOTTOM_LEFT)
+        );
+
+        assertEquals(
+                new CornerPiece(FaceColor.GREEN, FaceColor.ORANGE, FaceColor.YELLOW),
+                cube.getCornerPiece(FaceColor.WHITE, Cube.BOTTOM_RIGHT)
         );
     }
 }
