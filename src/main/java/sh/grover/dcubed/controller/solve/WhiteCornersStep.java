@@ -150,6 +150,6 @@ public class WhiteCornersStep extends AbstractSolveStep {
     private boolean isCornerSolved(int leftSideOfCorner, int rightSideOfCorner) {
         var sides = this.cube.getSides();
         return sides[leftSideOfCorner].toColors()[Cube.BOTTOM_RIGHT] == leftSideOfCorner &&
-                sides[rightSideOfCorner].toColors()[Cube.BOTTOM_LEFT] != rightSideOfCorner;
+                sides[rightSideOfCorner].toColors()[Cube.BOTTOM_LEFT] == rightSideOfCorner;
     }
 }
