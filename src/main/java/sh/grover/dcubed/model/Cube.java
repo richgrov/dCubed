@@ -35,6 +35,16 @@ import sh.grover.dcubed.util.ArrayUtil;
  */
 public class Cube {
 
+    public static final int TOP_LEFT = 0;
+    public static final int TOP_RIGHT = 2;
+    public static final int BOTTOM_RIGHT = 4;
+    public static final int BOTTOM_LEFT = 6;
+
+    private static final int TOP_CONNECTION = 0;
+    private static final int RIGHT_CONNECTION = 1;
+    private static final int BOTTOM_CONNECTION = 2;
+    private static final int LEFT_CONNECTION = 3;
+
     private static final SideConnection[][] SIDE_CONNECTIONS = {
             // white
             {
@@ -187,6 +197,52 @@ public class Cube {
         var faceColors = new Side(this.sides[side]).toColors();
         var adjacentIndex = EDGE_PIECE_CONNECTIONS[side][adjacentSide];
         return faceColors[adjacentIndex];
+    }
+
+    public CornerPiece getCornerPiece(int side, int face) {
+        if (face % 2 == 1) {
+            throw new IllegalArgumentException(face + " is not a corner face index");
+        }
+
+        int face2Side;
+        int face2Face;
+        int face3Side;
+        int face3Face;
+
+        if (face <= TOP_RIGHT) {
+            face2Side = TOP_CONNECTION;
+        } else {
+            face2Side = BOTTOM_CONNECTION;
+        }
+
+        if (face >= TOP_RIGHT && face <= BOTTOM_RIGHT) {
+            face3Side = RIGHT_CONNECTION;
+        } else {
+            face3Side = LEFT_CONNECTION;
+        }
+
+        var isTopLeftOrBottomRight = face % 4 == 0;
+        if (isTopLeftOrBottomRight) {
+            face2Face = 0;
+            face3Face = 2;
+        } else {
+            face2Face = 2;
+            face3Face = 0;
+        }
+
+        var side1 = new Side(sides[side]);
+
+        var connections = getConnections(side);
+        var face2Connection = connections[face2Side];
+        var side2 = new Side(sides[face2Connection.side()]);
+        var face3Connection = connections[face3Side];
+        var side3 = new Side(sides[face3Connection.side()]);
+
+        return new CornerPiece(
+                side1.toColors()[face],
+                side2.toColors()[face2Connection.faces()[face2Face]],
+                side3.toColors()[face3Connection.faces()[face3Face]]
+        );
     }
 
     /**
