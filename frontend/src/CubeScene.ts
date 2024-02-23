@@ -4,7 +4,7 @@ import { OrbitControls } from "three/examples/jsm/Addons.js";
 const COLORS = {
   WHITE: 0xffffff,
   RED: 0xff0000,
-  ORANGE: 0xff5500,
+  ORANGE: 0xff7700,
   YELLOW: 0xffff00,
   GREEN: 0x00ff00,
   BLUE: 0x0000ff,
