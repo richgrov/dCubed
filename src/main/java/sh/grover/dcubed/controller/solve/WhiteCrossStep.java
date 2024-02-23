@@ -4,6 +4,27 @@ import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
 import sh.grover.dcubed.model.Side;
 
+/**
+ * Moves the white edge of the cube to line up with the corresponding connected
+ * faces. There are several steps to this process:
+ * 1. If there are any white edges already on the white side, rotate the white
+ * side so as many of the white edges align with their connected sides as
+ * possible. {@link this#rotateWhiteSideBest()}
+ *
+ * 2. If there are any white edges on the white side that are touching the wrong
+ * side, move those to the correct side. {@link this#ensureWhiteEdgesCorrect()}
+ *
+ * 3. For each side that connects to the white side:
+ * 3a. Check if there's a white face on the bottom of the side
+ * 3b. Check if there's a white face on the top of the side
+ * 3c. Check if there's a white face on the corresponding edge of the yellow
+ * side
+ * 3d. Check if there's a white face on the left or right of the side
+ * If any of these find a match, fully move that side to where it belongs, and
+ * return to step 3. This process repeats up to four times. Because there are
+ * four white edges, it would be a bug to have to do this process more than
+ * that.
+ */
 public class WhiteCrossStep extends AbstractSolveStep {
 
     /**
@@ -20,8 +41,6 @@ public class WhiteCrossStep extends AbstractSolveStep {
             { 99,  1, -1, 99,  2,  0 },
     };
 
-    private final boolean[] inWhiteCross = new boolean[6];
-
     private static int sideDistance(int side1, int side2) {
         var distance = SIDE_DISTANCES[side1][side2];
         if (distance == 99) {
@@ -29,6 +48,13 @@ public class WhiteCrossStep extends AbstractSolveStep {
         }
         return distance;
     }
+
+    /**
+     * Stores the colors of the white edges that have been aligned to the
+     * cross. Contains indices for storing white and yellow to enable faster
+     * indexing, but they are unused.
+     */
+    private final boolean[] inWhiteCross = new boolean[6];
 
     public WhiteCrossStep(Cube cube) {
         super(cube);
