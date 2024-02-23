@@ -134,9 +134,10 @@ public class WhiteCrossStep extends AbstractSolveStep {
 
         var rotationDirection = distance < 0 ? 1 : -1;
 
+        var connectedNeedsRestore = this.inWhiteCross(connectedSide);
         this.rotate(connectedSide, rotationDirection);
         this.rotate(targetSide, -rotationDirection);
-        if (this.inWhiteCross(connectedSide)) {
+        if (connectedNeedsRestore) {
             this.rotate(connectedSide, -rotationDirection);
         }
     }
@@ -167,12 +168,13 @@ public class WhiteCrossStep extends AbstractSolveStep {
             if (connectedSideColor == edgeColor) {
                 this.rotate(connectedSideColor, rotation);
             } else {
+                var connectedNeedsRestore = this.inWhiteCross(connectedSideColor);
                 this.rotate(connectedSideColor, oppositeRotation);
 
                 var distance = distanceAroundYellow(connectedSideColor, edgeColor);
                 this.rotate(FaceColor.YELLOW, distance);
 
-                if (this.inWhiteCross(connectedSideColor)) {
+                if (connectedNeedsRestore) {
                     this.rotate(connectedSideColor, rotation);
                 }
                 this.rotate(edgeColor, 2);
@@ -200,10 +202,11 @@ public class WhiteCrossStep extends AbstractSolveStep {
         }
 
         this.clockwise(connection.side());
+        var leftNeedsRestore = this.inWhiteCross(sideToLeft);
         this.counterClockwise(sideToLeft);
         var distance = distanceAroundYellow(sideToLeft, targetColor);
         this.rotate(FaceColor.YELLOW, distance);
-        if (this.inWhiteCross(sideToLeft)) {
+        if (leftNeedsRestore) {
             this.clockwise(sideToLeft);
         }
         this.rotate(targetColor, 2);
