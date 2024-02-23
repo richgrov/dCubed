@@ -236,9 +236,8 @@ public class WhiteCrossStep extends AbstractSolveStep {
     }
 
     private boolean whiteCrossComplete() {
-        var sides = new int[] { FaceColor.RED, FaceColor.ORANGE, FaceColor.GREEN, FaceColor.BLUE };
-        for (var side : sides) {
-            if (!this.inWhiteCross[side]) {
+        for (var connection : Cube.getConnections(FaceColor.WHITE)) {
+            if (!this.inWhiteCross[connection.side()]) {
                 return false;
             }
         }
