@@ -30,8 +30,7 @@ public class SecondLayerStep extends AbstractSolveStep {
     }
 
     private PreparedEdge findAndAlignEdgeOnYellow() {
-        var connections = Cube.getConnections(FaceColor.YELLOW);
-        for (Cube.SideConnection connection : connections) {
+        for (Cube.SideConnection connection : Cube.getConnections(FaceColor.YELLOW)) {
             var sides = this.cube.getSides();
             var connectedEdge = connection.faces()[1];
 
@@ -69,13 +68,7 @@ public class SecondLayerStep extends AbstractSolveStep {
                 continue;
             }
 
-            this.counterClockwise(connection.side());
-            this.counterClockwise(FaceColor.YELLOW);
-            this.clockwise(connection.side());
-            this.clockwise(FaceColor.YELLOW);
-            this.clockwise(nextSide);
-            this.clockwise(FaceColor.YELLOW);
-            this.counterClockwise(nextSide);
+            this.moveSideEdgeToYellowAndClockwise(connection.side(), nextSide);
 
             var newSide = ArrayUtil.loopedIndex(connections, iConn + 1).side();
             var distance = distanceAroundYellow(newSide, rightEdge);
@@ -85,6 +78,16 @@ public class SecondLayerStep extends AbstractSolveStep {
         }
 
         return null;
+    }
+
+    private void moveSideEdgeToYellowAndClockwise(int leftSide, int rightSide) {
+        this.counterClockwise(leftSide);
+        this.counterClockwise(FaceColor.YELLOW);
+        this.clockwise(leftSide);
+        this.clockwise(FaceColor.YELLOW);
+        this.clockwise(rightSide);
+        this.clockwise(FaceColor.YELLOW);
+        this.counterClockwise(rightSide);
     }
 
     private void insertEdge(PreparedEdge edge) {
