@@ -68,6 +68,7 @@ public class SolverSessions {
         new YellowCrossStep(cube, moves).solve();
         new YellowEdgesStep(cube, moves).solve();
         new PositionYellowCornersStep(cube, moves).solve();
+        new OrientYellowCornersStep(cube, moves).solve();
         return moves;
     }
 }

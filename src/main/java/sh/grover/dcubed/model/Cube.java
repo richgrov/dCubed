@@ -36,6 +36,7 @@ import sh.grover.dcubed.util.ArrayUtil;
 public class Cube {
 
     public static final int TOP_LEFT = 0;
+    public static final int TOP_MIDDLE = 1;
     public static final int TOP_RIGHT = 2;
     public static final int MIDDLE_RIGHT = 3;
     public static final int BOTTOM_RIGHT = 4;
