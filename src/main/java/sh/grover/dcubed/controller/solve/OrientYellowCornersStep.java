@@ -17,7 +17,6 @@ public class OrientYellowCornersStep extends AbstractSolveStep {
     public void solve() {
         var connections = Cube.getConnections(FaceColor.YELLOW);
         var startingConnection = this.findLeadingUnsolvedCorner();
-        System.out.println("starting on " + startingConnection);
 
         if (startingConnection != -1) {
             for (var limit = 0; limit < 4; limit++) {
@@ -26,10 +25,8 @@ public class OrientYellowCornersStep extends AbstractSolveStep {
                 if (nextUnsolvedConnection == -1) {
                     break;
                 }
-                System.out.println("found unsolved on " + nextUnsolvedConnection);
 
                 var distance = distanceAroundYellow(connections[nextUnsolvedConnection].side(), connections[startingConnection].side());
-                System.out.println("rotating " + distance);
                 this.rotate(FaceColor.YELLOW, distance);
             }
         }
@@ -48,7 +45,6 @@ public class OrientYellowCornersStep extends AbstractSolveStep {
                 foundUnsolved = true;
                 var nextSide = sides[ArrayUtil.loopedIndex(connections, iConn + 1).side()].toColors();
                 if (nextSide[Cube.TOP_LEFT] == nextSide[Cube.TOP_MIDDLE]) {
-                    System.out.println(side[Cube.TOP_LEFT] + " != " + side[Cube.TOP_MIDDLE] + " && " + nextSide[Cube.TOP_LEFT] + " == " + nextSide[Cube.TOP_MIDDLE]);
                     return iConn;
                 }
             }
@@ -64,7 +60,6 @@ public class OrientYellowCornersStep extends AbstractSolveStep {
     private void orient(int connectedSideIndex) {
         var connections = Cube.getConnections(FaceColor.YELLOW);
         for (var limit = 0; limit < 4; limit++) {
-            System.out.println("orienting " + connectedSideIndex);
             var side = connections[connectedSideIndex].side();
             this.counterClockwise(side);
             this.clockwise(FaceColor.WHITE);
@@ -74,10 +69,8 @@ public class OrientYellowCornersStep extends AbstractSolveStep {
             var sides = this.cube.getSides();
             var colors = sides[side].toColors();
             var thisCornerMatch = colors[Cube.TOP_LEFT] == colors[Cube.TOP_MIDDLE];
-            System.out.println("colors " + colors[Cube.TOP_LEFT] + " " + colors[Cube.TOP_MIDDLE]);
 
             var nextColors = sides[ArrayUtil.loopedIndex(connections, connectedSideIndex + 1).side()].toColors();
-            System.out.println("next colors " + nextColors[Cube.TOP_RIGHT] + " " + nextColors[Cube.TOP_MIDDLE]);
             var nextCornerMatch = nextColors[Cube.TOP_RIGHT] == nextColors[Cube.TOP_MIDDLE];
             if (thisCornerMatch && nextCornerMatch) {
                 return;
