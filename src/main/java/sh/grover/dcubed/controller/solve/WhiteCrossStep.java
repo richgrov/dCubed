@@ -4,6 +4,7 @@ import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
 import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.model.Side;
+import sh.grover.dcubed.util.ArrayUtil;
 
 import java.util.List;
 
@@ -91,17 +92,10 @@ public class WhiteCrossStep extends AbstractSolveStep {
             distanceVote[distance + 1]++; // distances are [-1, 2], so +1 to normalize that to [0, 3]
         }
 
-        var highestVotes = 0;
-        var bestMove = 0;
-        for (var iDist = 0; iDist < distanceVote.length; iDist++) {
-            var numVotes = distanceVote[iDist];
-            if (numVotes > highestVotes) {
-                highestVotes = numVotes;
-                bestMove = iDist - 1; // -1 to undo the normalization above
-            }
+        var bestMove = ArrayUtil.indexOfHighest(distanceVote);
+        if (bestMove != -1) {
+            this.rotate(FaceColor.WHITE, bestMove - 1); // -1 to undo the normalization above
         }
-
-        this.rotate(FaceColor.WHITE, bestMove);
     }
 
     private void ensureWhiteEdgesCorrect() {
