@@ -4,6 +4,7 @@ import org.opencv.core.Mat;
 import sh.grover.dcubed.controller.solve.SecondLayerStep;
 import sh.grover.dcubed.controller.solve.WhiteCornersStep;
 import sh.grover.dcubed.controller.solve.WhiteCrossStep;
+import sh.grover.dcubed.controller.solve.YellowCrossStep;
 import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.controller.vision.IColorIdentifier;
 import sh.grover.dcubed.model.Cube;
@@ -67,6 +68,7 @@ public class SolverSessions {
         new WhiteCrossStep(cube, moves).solve();
         new WhiteCornersStep(cube, moves).solve();
         new SecondLayerStep(cube, moves).solve();
+        new YellowCrossStep(cube, moves).solve();
         return moves;
     }
 }
