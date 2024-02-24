@@ -191,9 +191,8 @@ public class Cube {
         FaceColor.requireValid(side);
         FaceColor.requireValid(adjacentSide);
 
-        var faceColors = new Side(this.sides[side]).toColors();
         var adjacentIndex = EDGE_PIECE_CONNECTIONS[side][adjacentSide];
-        return faceColors[adjacentIndex];
+        return this.side(side).face(adjacentIndex);
     }
 
     public CornerPiece getCornerPiece(int side, int face) {
@@ -236,9 +235,9 @@ public class Cube {
         var side3 = new Side(sides[face3Connection.side()]);
 
         return new CornerPiece(
-                side1.toColors()[face],
-                side2.toColors()[face2Connection.faces()[face2Face]],
-                side3.toColors()[face3Connection.faces()[face3Face]]
+                side1.face(face),
+                side2.face(face2Connection.faces()[face2Face]),
+                side3.face(face3Connection.faces()[face3Face])
         );
     }
 

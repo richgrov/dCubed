@@ -86,7 +86,7 @@ public class YellowEdgesStep extends AbstractSolveStep {
     
     private int distanceFromSideToYellowEdge(Cube.SideConnection connection) {
         var edgeIndex = connection.faces()[1];
-        var edgeColor = this.cube.side(connection.side()).toColors()[edgeIndex];
+        var edgeColor = this.cube.side(connection.side()).face(edgeIndex);
         return distanceAroundYellow(connection.side(), edgeColor);
     }
 }

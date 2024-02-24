@@ -20,12 +20,6 @@ class SideTest {
     }
 
     @Test
-    void toColors() {
-        var side = new Side(ENCODED);
-        assertArrayEquals(COLORS, side.toColors());
-    }
-
-    @Test
     void all() {
         for (var color : FaceColor.values()) {
             var all = Side.all(color);

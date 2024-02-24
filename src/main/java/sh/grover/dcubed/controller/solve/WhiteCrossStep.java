@@ -41,15 +41,15 @@ public class WhiteCrossStep extends AbstractSolveStep {
 
         for (var limit = 0; limit < 4; limit++) {
             for (var connection : Cube.getConnections(FaceColor.WHITE)) {
-                var connectedFaces = this.cube.side(connection.side()).toColors();
+                var connectedFaces = this.cube.side(connection.side());
 
-                var whiteEdgeOnBottom = connectedFaces[5] == FaceColor.WHITE;
+                var whiteEdgeOnBottom = connectedFaces.face(5) == FaceColor.WHITE;
                 if (whiteEdgeOnBottom) {
                     this.bottomOfSide(connection);
                     break;
                 }
 
-                var whiteEdgeOnTop = connectedFaces[1] == FaceColor.WHITE;
+                var whiteEdgeOnTop = connectedFaces.face(1) == FaceColor.WHITE;
                 if (whiteEdgeOnTop) {
                     this.topOfSide(connection);
                     break;
@@ -82,7 +82,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
             }
 
             var touchingEdgeIndex = touch.faces()[1];
-            var touchingEdgeColor = this.cube.side(touch.side()).toColors()[touchingEdgeIndex];
+            var touchingEdgeColor = this.cube.side(touch.side()).face(touchingEdgeIndex);
 
             var distance = distanceAroundWhite(touch.side(), touchingEdgeColor);
             distanceVote[distance + 1]++; // distances are [-1, 2], so +1 to normalize that to [0, 3]
@@ -102,7 +102,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
             }
 
             var connectedEdgeIndex = connection.faces()[1];
-            var connectedEdge = this.cube.side(connection.side()).toColors()[connectedEdgeIndex];
+            var connectedEdge = this.cube.side(connection.side()).face(connectedEdgeIndex);
             // Although the piece is on white, if it's wrong, it needs to be brought up and rotated around the yellow
             // axis.
             var distance = distanceAroundYellow(connectedEdge, connection.side());
@@ -141,14 +141,14 @@ public class WhiteCrossStep extends AbstractSolveStep {
         final var ROTATE = new int[] { 1, -1 };
 
         for (var direction = 0; direction < 2; direction++) {
-            var colors = this.cube.side(connection.side()).toColors();
+            var colors = this.cube.side(connection.side());
 
             var side = SIDES[direction];
             var oppositeSide = SIDES[(direction + 1) % SIDES.length];
             var rotation = ROTATE[direction];
             var oppositeRotation = ROTATE[(direction + 1) % ROTATE.length];
 
-            if (colors[side] != FaceColor.WHITE) {
+            if (colors.face(side) != FaceColor.WHITE) {
                 continue;
             }
 
@@ -156,7 +156,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
                     Cube.getAdjacentSideFromConnectedSideWithOffset(FaceColor.YELLOW, connection.side(), rotation)
                             .side();
 
-            var edgeColor = this.cube.side(connectedSideColor).toColors()[oppositeSide];
+            var edgeColor = this.cube.side(connectedSideColor).face(oppositeSide);
 
             if (connectedSideColor == edgeColor) {
                 this.rotate(connectedSideColor, rotation);
@@ -209,7 +209,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
     }
 
     private void edgeOnYellow(Cube.SideConnection connection) {
-        var targetColor = this.cube.side(connection.side()).toColors()[1];
+        var targetColor = this.cube.side(connection.side()).face(Cube.TOP_MIDDLE);
         var distance = distanceAroundYellow(connection.side(), targetColor);
         this.rotate(FaceColor.YELLOW, distance);
         this.rotate(targetColor, 2);
