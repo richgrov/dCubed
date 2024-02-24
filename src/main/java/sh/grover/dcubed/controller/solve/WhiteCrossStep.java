@@ -3,7 +3,6 @@ package sh.grover.dcubed.controller.solve;
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
 import sh.grover.dcubed.model.Move;
-import sh.grover.dcubed.model.Side;
 import sh.grover.dcubed.util.ArrayUtil;
 
 import java.util.List;
@@ -42,8 +41,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
 
         for (var limit = 0; limit < 4; limit++) {
             for (var connection : Cube.getConnections(FaceColor.WHITE)) {
-                var sides = this.cube.getSides();
-                var connectedFaces = sides[connection.side()].toColors();
+                var connectedFaces = this.cube.side(connection.side()).toColors();
 
                 var whiteEdgeOnBottom = connectedFaces[5] == FaceColor.WHITE;
                 if (whiteEdgeOnBottom) {
@@ -59,7 +57,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
 
                 var connectingYellow = this.cube.getColorOfEdgePiece(FaceColor.YELLOW, connection.side());
                 if (connectingYellow == FaceColor.WHITE) {
-                    this.edgeOnYellow(sides, connection);
+                    this.edgeOnYellow(connection);
                     break;
                 }
 
@@ -75,8 +73,6 @@ public class WhiteCrossStep extends AbstractSolveStep {
     }
 
     private void rotateWhiteSideBest() {
-        var sides = this.cube.getSides();
-
         var distanceVote = new int[4];
 
         for (var touch : Cube.getConnections(FaceColor.WHITE)) {
@@ -86,7 +82,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
             }
 
             var touchingEdgeIndex = touch.faces()[1];
-            var touchingEdgeColor = sides[touch.side()].toColors()[touchingEdgeIndex];
+            var touchingEdgeColor = this.cube.side(touch.side()).toColors()[touchingEdgeIndex];
 
             var distance = distanceAroundWhite(touch.side(), touchingEdgeColor);
             distanceVote[distance + 1]++; // distances are [-1, 2], so +1 to normalize that to [0, 3]
@@ -100,14 +96,13 @@ public class WhiteCrossStep extends AbstractSolveStep {
 
     private void ensureWhiteEdgesCorrect() {
         for (var connection : Cube.getConnections(FaceColor.WHITE)) {
-            var sides = this.cube.getSides();
             var whiteSideEdge = cube.getColorOfEdgePiece(FaceColor.WHITE, connection.side());
             if (whiteSideEdge != FaceColor.WHITE) {
                 continue;
             }
 
             var connectedEdgeIndex = connection.faces()[1];
-            var connectedEdge = sides[connection.side()].toColors()[connectedEdgeIndex];
+            var connectedEdge = this.cube.side(connection.side()).toColors()[connectedEdgeIndex];
             // Although the piece is on white, if it's wrong, it needs to be brought up and rotated around the yellow
             // axis.
             var distance = distanceAroundYellow(connectedEdge, connection.side());
@@ -146,8 +141,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
         final var ROTATE = new int[] { 1, -1 };
 
         for (var direction = 0; direction < 2; direction++) {
-            var sides = this.cube.getSides();
-            var colors = sides[connection.side()].toColors();
+            var colors = this.cube.side(connection.side()).toColors();
 
             var side = SIDES[direction];
             var oppositeSide = SIDES[(direction + 1) % SIDES.length];
@@ -162,7 +156,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
                     Cube.getAdjacentSideFromConnectedSideWithOffset(FaceColor.YELLOW, connection.side(), rotation)
                             .side();
 
-            var edgeColor = sides[connectedSideColor].toColors()[oppositeSide];
+            var edgeColor = this.cube.side(connectedSideColor).toColors()[oppositeSide];
 
             if (connectedSideColor == edgeColor) {
                 this.rotate(connectedSideColor, rotation);
@@ -214,8 +208,8 @@ public class WhiteCrossStep extends AbstractSolveStep {
         this.rotate(targetColor, 2);
     }
 
-    private void edgeOnYellow(Side[] sides, Cube.SideConnection connection) {
-        var targetColor = sides[connection.side()].toColors()[1];
+    private void edgeOnYellow(Cube.SideConnection connection) {
+        var targetColor = this.cube.side(connection.side()).toColors()[1];
         var distance = distanceAroundYellow(connection.side(), targetColor);
         this.rotate(FaceColor.YELLOW, distance);
         this.rotate(targetColor, 2);

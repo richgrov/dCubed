@@ -123,7 +123,7 @@ public class WhiteCornersStep extends AbstractSolveStep {
             this.counterClockwise(FaceColor.YELLOW);
             this.clockwise(leftSideOfCorner);
 
-            var whiteFaces = this.cube.getSides()[FaceColor.WHITE].toColors();
+            var whiteFaces = this.cube.side(FaceColor.WHITE).toColors();
             var correctRotation = whiteFaces[WHITE_CORNER_COLORS[leftSideOfCorner]] == FaceColor.WHITE;
             if (correctRotation) {
                 return;
@@ -151,8 +151,7 @@ public class WhiteCornersStep extends AbstractSolveStep {
     }
 
     private boolean isCornerSolved(int leftSideOfCorner, int rightSideOfCorner) {
-        var sides = this.cube.getSides();
-        return sides[leftSideOfCorner].toColors()[Cube.BOTTOM_RIGHT] == leftSideOfCorner &&
-                sides[rightSideOfCorner].toColors()[Cube.BOTTOM_LEFT] == rightSideOfCorner;
+        return this.cube.side(leftSideOfCorner).toColors()[Cube.BOTTOM_RIGHT] == leftSideOfCorner &&
+                this.cube.side(rightSideOfCorner).toColors()[Cube.BOTTOM_LEFT] == rightSideOfCorner;
     }
 }

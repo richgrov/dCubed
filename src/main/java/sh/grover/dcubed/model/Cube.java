@@ -177,14 +177,8 @@ public class Cube {
         this.applyColorsToTouchingFaces(side, -1, touchingFaces);
     }
 
-    public Side[] getSides() {
-        var outSides = new Side[6];
-
-        for (var iSide = 0; iSide < 6; iSide++) {
-            outSides[iSide] = new Side(this.sides[iSide]);
-        }
-
-        return outSides;
+    public Side side(int sideIndex) {
+        return new Side(this.sides[sideIndex]);
     }
 
     /**

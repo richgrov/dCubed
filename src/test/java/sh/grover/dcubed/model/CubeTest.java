@@ -19,7 +19,7 @@ class CubeTest {
                 Side.checker(FaceColor.BLUE, FaceColor.GREEN),
         };
         var cube = new Cube(Arrays.copyOf(expected, expected.length));
-        assertArrayEquals(expected, cube.getSides());
+        assertCubeEquals(expected, cube);
     }
 
     @Test
@@ -43,7 +43,7 @@ class CubeTest {
                 sideWithBottomColor(FaceColor.BLUE, FaceColor.ORANGE),
         };
 
-        assertArrayEquals(expected, cube.getSides());
+        assertCubeEquals(expected, cube);
     }
 
     @Test
@@ -67,7 +67,7 @@ class CubeTest {
                 sideWithBottomColor(FaceColor.BLUE, FaceColor.RED),
         };
 
-        assertArrayEquals(expected, cube.getSides());
+        assertCubeEquals(expected, cube);
     }
 
     @Test
@@ -99,7 +99,7 @@ class CubeTest {
                 new Side(FaceColor.ORANGE, FaceColor.YELLOW, FaceColor.RED, FaceColor.RED, FaceColor.BLUE, FaceColor.YELLOW, FaceColor.RED, FaceColor.YELLOW),
                 new Side(FaceColor.ORANGE, FaceColor.ORANGE, FaceColor.BLUE, FaceColor.BLUE, FaceColor.GREEN, FaceColor.ORANGE, FaceColor.ORANGE, FaceColor.WHITE),
         };
-        assertArrayEquals(expectedScrambled, cube.getSides());
+        assertCubeEquals(expectedScrambled, cube);
 
         cube.rotateClockwise(FaceColor.GREEN);
         cube.rotateClockwise(FaceColor.YELLOW);
@@ -110,7 +110,7 @@ class CubeTest {
         cube.rotateClockwise(FaceColor.ORANGE);
         cube.rotateCounterClockwise(FaceColor.WHITE);
 
-        assertArrayEquals(expectedSolved, cube.getSides());
+        assertCubeEquals(expectedSolved, cube);
     }
 
     private static Side sideWithBottomColor(int sideColor, int bottomColor) {
@@ -150,5 +150,10 @@ class CubeTest {
                 new CornerPiece(FaceColor.GREEN, FaceColor.ORANGE, FaceColor.YELLOW),
                 cube.getCornerPiece(FaceColor.WHITE, Cube.BOTTOM_RIGHT)
         );
+    }
+
+    private static void assertCubeEquals(Side[] expected, Cube cube) {
+        var actual = Arrays.stream(FaceColor.values()).mapToObj(cube::side).toArray();
+        assertArrayEquals(expected, actual);
     }
 }
