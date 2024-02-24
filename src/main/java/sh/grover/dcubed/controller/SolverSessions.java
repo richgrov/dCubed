@@ -67,6 +67,7 @@ public class SolverSessions {
         new SecondLayerStep(cube, moves).solve();
         new YellowCrossStep(cube, moves).solve();
         new YellowEdgesStep(cube, moves).solve();
+        new PositionYellowCornersStep(cube, moves).solve();
         return moves;
     }
 }
