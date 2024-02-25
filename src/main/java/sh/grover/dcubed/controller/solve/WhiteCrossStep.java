@@ -133,7 +133,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
         }
     }
 
-    private boolean sideOfSide(Cube.SideConnection connection) {
+    private void sideOfSide(Cube.SideConnection connection) {
         final var SIDES = new int[] { 7, 3 }; // left, right
         final var ROTATE = new int[] { 1, -1 };
 
@@ -169,10 +169,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
                 }
                 this.rotate(edgeColor, 2);
             }
-            return true;
         }
-
-        return false;
     }
 
     private void bottomOfSide(Cube.SideConnection connection) {
