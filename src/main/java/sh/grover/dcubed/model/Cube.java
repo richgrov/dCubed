@@ -40,6 +40,7 @@ public class Cube {
     public static final int TOP_RIGHT = 2;
     public static final int MIDDLE_RIGHT = 3;
     public static final int BOTTOM_RIGHT = 4;
+    public static final int BOTTOM_MIDDLE = 5;
     public static final int BOTTOM_LEFT = 6;
     public static final int MIDDLE_LEFT = 7;
 

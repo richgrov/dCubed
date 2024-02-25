@@ -43,20 +43,17 @@ public class WhiteCrossStep extends AbstractSolveStep {
             for (var connection : Cube.getConnections(FaceColor.WHITE)) {
                 var connectedFaces = this.cube.side(connection.side());
 
-                var whiteEdgeOnBottom = connectedFaces.face(5) == FaceColor.WHITE;
-                if (whiteEdgeOnBottom) {
+                if (connectedFaces.face(Cube.BOTTOM_MIDDLE) == FaceColor.WHITE) {
                     this.bottomOfSide(connection);
                     break;
                 }
 
-                var whiteEdgeOnTop = connectedFaces.face(1) == FaceColor.WHITE;
-                if (whiteEdgeOnTop) {
+                if (connectedFaces.face(Cube.TOP_MIDDLE) == FaceColor.WHITE) {
                     this.topOfSide(connection);
                     break;
                 }
 
-                var connectingYellow = this.cube.getColorOfEdgePiece(FaceColor.YELLOW, connection.side());
-                if (connectingYellow == FaceColor.WHITE) {
+                if (this.cube.getColorOfEdgePiece(FaceColor.YELLOW, connection.side()) == FaceColor.WHITE) {
                     this.edgeOnYellow(connection);
                     break;
                 }
