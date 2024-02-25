@@ -2,6 +2,8 @@ package sh.grover.dcubed.model;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Side {
 
@@ -24,13 +26,8 @@ public class Side {
         this.encoded = encoded;
     }
 
-    public int[] toColors() {
-        var faceColors = new int[8];
-        for (var iFace = 0; iFace < 8; iFace++) {
-            var colorIndex = (this.encoded >>> ((7 - iFace) * 8)) & 0xFF;
-            faceColors[iFace] = FaceColor.values()[(int) colorIndex];
-        }
-        return faceColors;
+    public int face(int faceIndex) {
+        return (int) (this.encoded >>> ((7 - faceIndex) * 8)) & 0xFF;
     }
 
     public long encoded() {
@@ -63,6 +60,9 @@ public class Side {
 
     @Override
     public String toString() {
-        return Arrays.toString(this.toColors());
+        return IntStream.range(0, 8)
+                .mapToObj(this::face)
+                .map(FaceColor::toString)
+                .collect(Collectors.joining(", ", "[", "]"));
     }
 }

@@ -31,11 +31,10 @@ public class SecondLayerStep extends AbstractSolveStep {
 
     private PreparedEdge findAndAlignEdgeOnYellow() {
         for (Cube.SideConnection connection : Cube.getConnections(FaceColor.YELLOW)) {
-            var sides = this.cube.getSides();
             var connectedEdge = connection.faces()[1];
 
             var colorOnYellow = this.cube.getColorOfEdgePiece(FaceColor.YELLOW, connection.side());
-            var colorOnConnected = sides[connection.side()].toColors()[connectedEdge];
+            var colorOnConnected = this.cube.side(connection.side()).face(connectedEdge);
             if (colorOnYellow == FaceColor.YELLOW || colorOnConnected == FaceColor.YELLOW) {
                 continue;
             }
@@ -54,11 +53,10 @@ public class SecondLayerStep extends AbstractSolveStep {
         var connections = Cube.getConnections(FaceColor.YELLOW);
         for (var iConn = 0; iConn < connections.length; iConn++) {
             var connection = connections[iConn];
-            var sides = this.cube.getSides();
 
-            var rightEdge = sides[connection.side()].toColors()[Cube.MIDDLE_RIGHT];
+            var rightEdge = this.cube.side(connection.side()).face(Cube.MIDDLE_RIGHT);
             var nextSide = ArrayUtil.loopedIndex(connections, iConn - 1).side();
-            var leftEdgeOfNext = sides[nextSide].toColors()[Cube.MIDDLE_LEFT];
+            var leftEdgeOfNext = this.cube.side(nextSide).face(Cube.MIDDLE_LEFT);
             if (rightEdge == FaceColor.YELLOW || leftEdgeOfNext == FaceColor.YELLOW) {
                 continue;
             }

@@ -36,15 +36,14 @@ public class OrientYellowCornersStep extends AbstractSolveStep {
 
     private int findLeadingUnsolvedCorner() {
         var connections = Cube.getConnections(FaceColor.YELLOW);
-        var sides = this.cube.getSides();
         var foundUnsolved = false;
 
         for (int iConn = 0; iConn < connections.length; iConn++) {
-            var side = sides[connections[iConn].side()].toColors();
-            if (side[Cube.TOP_LEFT] != side[Cube.TOP_MIDDLE]) {
+            var side = this.cube.side(connections[iConn].side());
+            if (side.face(Cube.TOP_LEFT) != side.face(Cube.TOP_MIDDLE)) {
                 foundUnsolved = true;
-                var nextSide = sides[ArrayUtil.loopedIndex(connections, iConn + 1).side()].toColors();
-                if (nextSide[Cube.TOP_LEFT] == nextSide[Cube.TOP_MIDDLE]) {
+                var nextSide = this.cube.side(ArrayUtil.loopedIndex(connections, iConn + 1).side());
+                if (nextSide.face(Cube.TOP_LEFT) == nextSide.face(Cube.TOP_MIDDLE)) {
                     return iConn;
                 }
             }
@@ -66,12 +65,11 @@ public class OrientYellowCornersStep extends AbstractSolveStep {
             this.clockwise(side);
             this.counterClockwise(FaceColor.WHITE);
 
-            var sides = this.cube.getSides();
-            var colors = sides[side].toColors();
-            var thisCornerMatch = colors[Cube.TOP_LEFT] == colors[Cube.TOP_MIDDLE];
+            var colors = this.cube.side(side);
+            var thisCornerMatch = colors.face(Cube.TOP_LEFT) == colors.face(Cube.TOP_MIDDLE);
 
-            var nextColors = sides[ArrayUtil.loopedIndex(connections, connectedSideIndex + 1).side()].toColors();
-            var nextCornerMatch = nextColors[Cube.TOP_RIGHT] == nextColors[Cube.TOP_MIDDLE];
+            var nextColors = this.cube.side(ArrayUtil.loopedIndex(connections, connectedSideIndex + 1).side());
+            var nextCornerMatch = nextColors.face(Cube.TOP_RIGHT) == nextColors.face(Cube.TOP_MIDDLE);
             if (thisCornerMatch && nextCornerMatch) {
                 return;
             }
@@ -80,7 +78,7 @@ public class OrientYellowCornersStep extends AbstractSolveStep {
     }
 
     private void finalYellowRotation() {
-        var edge = this.cube.getSides()[FaceColor.RED].toColors()[Cube.TOP_MIDDLE];
+        var edge = this.cube.side(FaceColor.RED).face(Cube.TOP_MIDDLE);
         var distance = distanceAroundYellow(FaceColor.RED, edge);
         this.rotate(FaceColor.YELLOW, distance);
     }

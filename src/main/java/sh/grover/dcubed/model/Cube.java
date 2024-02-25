@@ -40,6 +40,7 @@ public class Cube {
     public static final int TOP_RIGHT = 2;
     public static final int MIDDLE_RIGHT = 3;
     public static final int BOTTOM_RIGHT = 4;
+    public static final int BOTTOM_MIDDLE = 5;
     public static final int BOTTOM_LEFT = 6;
     public static final int MIDDLE_LEFT = 7;
 
@@ -177,14 +178,8 @@ public class Cube {
         this.applyColorsToTouchingFaces(side, -1, touchingFaces);
     }
 
-    public Side[] getSides() {
-        var outSides = new Side[6];
-
-        for (var iSide = 0; iSide < 6; iSide++) {
-            outSides[iSide] = new Side(this.sides[iSide]);
-        }
-
-        return outSides;
+    public Side side(int sideIndex) {
+        return new Side(this.sides[sideIndex]);
     }
 
     /**
@@ -197,9 +192,8 @@ public class Cube {
         FaceColor.requireValid(side);
         FaceColor.requireValid(adjacentSide);
 
-        var faceColors = new Side(this.sides[side]).toColors();
         var adjacentIndex = EDGE_PIECE_CONNECTIONS[side][adjacentSide];
-        return faceColors[adjacentIndex];
+        return this.side(side).face(adjacentIndex);
     }
 
     public CornerPiece getCornerPiece(int side, int face) {
@@ -242,9 +236,9 @@ public class Cube {
         var side3 = new Side(sides[face3Connection.side()]);
 
         return new CornerPiece(
-                side1.toColors()[face],
-                side2.toColors()[face2Connection.faces()[face2Face]],
-                side3.toColors()[face3Connection.faces()[face3Face]]
+                side1.face(face),
+                side2.face(face2Connection.faces()[face2Face]),
+                side3.face(face3Connection.faces()[face3Face])
         );
     }
 
