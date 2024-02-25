@@ -134,7 +134,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
     }
 
     private void sideOfSide(Cube.SideConnection connection) {
-        final var SIDES = new int[] { 7, 3 }; // left, right
+        final var SIDES = new int[] { Cube.MIDDLE_LEFT, Cube.MIDDLE_RIGHT };
         final var ROTATE = new int[] { 1, -1 };
 
         for (var direction = 0; direction < 2; direction++) {
