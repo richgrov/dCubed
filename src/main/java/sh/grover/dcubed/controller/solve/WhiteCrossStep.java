@@ -100,8 +100,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
 
             var connectedEdgeIndex = connection.faces()[1];
             var connectedEdge = this.cube.side(connection.side()).face(connectedEdgeIndex);
-            // Although the piece is on white, if it's wrong, it needs to be brought up and rotated around the yellow
-            // axis.
+
             var distance = distanceAroundYellow(connectedEdge, connection.side());
             if (distance == 0) {
                 continue;
