@@ -31,6 +31,13 @@ def index_of_lowest_y(points):
 
     return lowest_index
 
+def rescale_point(point, current_img, new_img) -> tuple[float, float]:
+    current_height, current_width, _ = current_img
+    new_height, new_width, _ = new_img
+
+    x, y = point
+    return x / current_width * new_width, y / current_height * new_height
+
 app = Flask("Segmenter")
 
 @app.route("/segment", methods=["POST"])
@@ -42,18 +49,18 @@ def segment():
 
     # Rescale to constant size so the epsilon value of approxPolyDP can give
     # consistent results.
-    img = img_util.scale_smaller_axis(img, 480)
+    scaled = img_util.scale_smaller_axis(img, 480)
 
-    bounds = models.predict_bounds(img)
+    bounds = models.predict_bounds(scaled)
     if bounds is None:
         app.logger.info("bounds were not found on image")
         if app.debug:
-            img_util.debug_write(img, "bounds")
+            img_util.debug_write(scaled, "bounds")
 
         return SCAN_ERROR_RESPONSE
 
     if app.debug:
-        debug_img = img.copy()
+        debug_img = scaled.copy()
         cv2.rectangle(debug_img, (bounds[0], bounds[1]), (bounds[2], bounds[3]), color=(255, 255, 255))
 
     # Increasing bounding box size slightly increases segmentation accuracy
@@ -63,7 +70,7 @@ def segment():
         bounds[2] + SEGMENTATION_BOUND_PADDING,
         bounds[3] + SEGMENTATION_BOUND_PADDING,
     )
-    contour_points = models.predict_segmentation(img, segmentation_bounds)
+    contour_points = models.predict_segmentation(scaled, segmentation_bounds)
     if contour_points is None:
         app.logger.info("segmentation was not found on image")
         if app.debug:
@@ -87,14 +94,16 @@ def segment():
         return SCAN_ERROR_RESPONSE
 
     highest = index_of_lowest_y(contour_points) # "highest" is lowest y because top of image is y=0
-    height, width, _ = img.shape
-    encoded_points = [{"x": p[0] / width, "y": p[1] / height} for p in contour_points.tolist()]
+
+    # Point needs to be rescaled to match dimensions of input image
+    rescaled = [rescale_point(p, scaled, img) for p in contour_points.tolist()]
+    encoded = [{"x": p[0], "y": p[1]} for p in rescaled]
     keys = ["top", "topLeft", "bottomLeft", "bottom", "bottomRight", "topRight"]
 
     response = {}
     for offset in range(6):
         key = keys[offset]
-        value = encoded_points[(highest + offset) % len(contour_points)]
+        value = encoded[(highest + offset) % len(contour_points)]
         response[key] = value
 
     return jsonify(response)
