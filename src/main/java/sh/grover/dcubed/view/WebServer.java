@@ -7,7 +7,10 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 import sh.grover.dcubed.controller.SolverSessions;
+import sh.grover.dcubed.controller.vision.IColorIdentifier;
+import sh.grover.dcubed.controller.vision.ScannedSide;
 import sh.grover.dcubed.model.ScanResult;
+import sh.grover.dcubed.model.vision.ColorScanException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,9 +19,11 @@ import java.util.UUID;
 public class WebServer {
 
     private final SolverSessions solverSessions;
+    private final IColorIdentifier colorIdentifier;
 
-    public WebServer(SolverSessions solverSessions) {
+    public WebServer(SolverSessions solverSessions, IColorIdentifier colorIdentifier) {
         this.solverSessions = solverSessions;
+        this.colorIdentifier = colorIdentifier;
 
         Javalin.create(config -> config.jetty.multipartConfig.maxTotalRequestSize(1, SizeUnit.MB))
                 .post("/scan-photo", this::scanPhoto)
@@ -38,11 +43,21 @@ public class WebServer {
             return;
         }
 
-        Mat img;
-        try (var stream = file.content()) {
-            img = readImage(stream, Imgcodecs.IMREAD_GRAYSCALE);
+        Mat image;
+        try {
+            image = this.imageFromStream(file.content(), Imgcodecs.IMREAD_UNCHANGED);
         } catch (IOException e) {
-            e.printStackTrace(); // TODO
+            e.printStackTrace();
+            ctx.status(400).json("failed to read image");
+            return;
+        }
+
+        ScannedSide[] sides;
+        try {
+            sides = this.colorIdentifier.estimateColors(image);
+        } catch (ColorScanException e) {
+            e.printStackTrace();
+            ctx.status(400).json("failed to scan");
             return;
         }
 
@@ -50,7 +65,7 @@ public class WebServer {
 
         var sessionStr = ctx.queryParam("session");
         if (sessionStr == null) {
-            scanResult = this.solverSessions.newSession(img);
+            scanResult = this.solverSessions.newSession(sides);
         } else {
             UUID session;
             try {
@@ -60,7 +75,7 @@ public class WebServer {
                 return;
             }
 
-            scanResult = this.solverSessions.addPhoto(session, img);
+            scanResult = this.solverSessions.addPhoto(session, sides);
         }
 
         ctx.json(scanResult);
@@ -89,10 +104,15 @@ public class WebServer {
         ctx.json(solves);
     }
 
-    private static Mat readImage(InputStream stream, int flags) throws IOException {
+    private Mat imageFromStream(InputStream stream, int flags) throws IOException {
         var bytes = stream.readAllBytes();
         var mat = new Mat(1, bytes.length, CvType.CV_8UC1);
         mat.put(0, 0, bytes);
-        return Imgcodecs.imdecode(mat, flags);
+
+        var result = Imgcodecs.imdecode(mat, flags);
+        if (result.empty()) {
+            throw new IOException("failed to scan image");
+        }
+        return result;
     }
 }
