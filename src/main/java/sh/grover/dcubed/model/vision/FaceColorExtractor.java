@@ -9,9 +9,6 @@ import sh.grover.dcubed.util.DrawUtil;
 
 public class FaceColorExtractor {
 
-    private static final int KMEANS_CLUSTERS = 2;
-    private static final TermCriteria KMEANS_CRITERIA = new TermCriteria(TermCriteria.COUNT + TermCriteria.EPS, 200, 0.1);
-
     private static final int ANNOTATION_CIRCLE_RADIUS = 10;
     private static final int COLOR_NOT_FOUND = -1;
 
@@ -89,37 +86,6 @@ public class FaceColorExtractor {
         }
         return estimate;
     }
-    /*private int getDominantFaceColor(Mat image, Point annotationCirclePos) {
-        var pixels = image.reshape(0, image.width() * image.height());
-
-        var labels = new Mat();
-        var centers = new Mat();
-        Core.kmeans(pixels, KMEANS_CLUSTERS, labels, KMEANS_CRITERIA, 10, Core.KMEANS_RANDOM_CENTERS, centers);
-        System.out.println(centers.width() + " * " + centers.height());
-
-        var estimatedColor = COLOR_NOT_FOUND;
-
-        for (var center = 0; center < centers.width(); center++) {
-            //var index = (int) labels.get(iLabel, 0)[0];
-            var color = new double[] {
-                    centers.get(center, 0)[0],
-                    centers.get(center, 1)[0],
-                    centers.get(center, 2)[0],
-            };
-            if (this.currentAnnotation != null) {
-                Imgproc.circle(this.currentAnnotation, new Point(annotationCirclePos.x + ANNOTATION_CIRCLE_RADIUS * center, annotationCirclePos.y), ANNOTATION_CIRCLE_RADIUS, new Scalar(color), -1);
-            }
-            estimatedColor = closestFaceColor(color);
-            if (estimatedColor != COLOR_NOT_FOUND) {
-                break;
-            }
-        }
-
-        if (estimatedColor == COLOR_NOT_FOUND) {
-            estimatedColor = FaceColor.WHITE;
-        }
-        return estimatedColor;
-    }*/
 
     private void processSide(int[] scanned, int[] adjacentScanned, int adjacentConnectionIndex) {
         var centerColor = scanned[4];
