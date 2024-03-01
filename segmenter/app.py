@@ -32,8 +32,8 @@ def index_of_lowest_y(points):
     return lowest_index
 
 def rescale_point(point, current_img, new_img) -> tuple[float, float]:
-    current_height, current_width, _ = current_img
-    new_height, new_width, _ = new_img
+    current_height, current_width, _ = current_img.shape
+    new_height, new_width, _ = new_img.shape
 
     x, y = point
     return x / current_width * new_width, y / current_height * new_height
