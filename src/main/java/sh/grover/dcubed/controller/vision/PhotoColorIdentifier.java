@@ -22,6 +22,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
     private static final SimpleDateFormat DEBUG_IMAGE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
     private static final Size GAUSSIAN_BLUR_KSIZE = new Size(3, 3);
     private static final Mat DILATION_KERNEL = Imgproc.getStructuringElement(1, new Size(3, 3));
+    private static final int HOUGH_LINE_THRESHOLD = 150;
     private static final double LINE_SEGMENTATION_DEVIATION = 20;
     private static final int NEAR_LINE_DISTANCE = 20;
 
@@ -120,7 +121,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         var optimized = this.optimizeImageForLineDetection(image);
 
         var lines = new Mat();
-        Imgproc.HoughLines(optimized, lines, 1, Math.PI / 180, 50);
+        Imgproc.HoughLines(optimized, lines, 1, Math.PI / 180, HOUGH_LINE_THRESHOLD);
 
         for (var iLine = 0; iLine < lines.rows(); iLine++) {
             var theta = lines.get(iLine, 0)[1];
