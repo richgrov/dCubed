@@ -112,7 +112,7 @@ export default function Uploader(props: { onComplete: CompletionCallback }) {
 				<input {...getInputProps()} />
 
 				{errorMessage !== "" && (
-					<div className="max-w-lg rounded-xl border-4 border-red-600 text-3xl text-red-600">
+					<div className="mb-5 max-w-3xl rounded-xl bg-red-600 p-5 text-2xl text-white shadow-[black_10px_10px]">
 						{errorMessage}
 					</div>
 				)}
