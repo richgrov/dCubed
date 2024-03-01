@@ -7,11 +7,7 @@ import {
 } from "@heroicons/react/16/solid";
 import { IconButton } from "./Button";
 import CubeScene from "./CubeScene";
-
-export type CubeInfo = {
-  sides: Record<string, string[]>;
-  session: string;
-};
+import { AppState } from "./model";
 
 type MoveState = {
   currentMove: number;
@@ -21,10 +17,10 @@ type MoveState = {
   }[];
 };
 
-export default function Visual(props: { cubeInfo: CubeInfo }) {
+export default function Visual(props: { appState: AppState }) {
   const wrapperEl = useRef<HTMLDivElement>(null);
   const canvasEl = useRef<HTMLCanvasElement>(null);
-  const scene = useRef(new CubeScene(props.cubeInfo.sides));
+  const scene = useRef(new CubeScene(props.appState.cube));
   const moveState = useRef<MoveState>({ currentMove: -1, moves: [] });
   const [paused, setPaused] = useState(true);
 
@@ -83,7 +79,7 @@ export default function Visual(props: { cubeInfo: CubeInfo }) {
     let url =
       import.meta.env.VITE_BACKEND_URL +
       "/solve?" +
-      new URLSearchParams({ session: props.cubeInfo.session });
+      new URLSearchParams({ session: props.appState.sessionId });
 
     fetch(url, { method: "POST" })
       .then((r) => r.json())
