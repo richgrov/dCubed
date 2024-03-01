@@ -3,6 +3,7 @@ import { Button } from "./Button";
 import { useDropzone } from "react-dropzone";
 
 import loadingAnimation from "./assets/loading.gif";
+import phone from "./assets/phone.png";
 import Visual, { CubeInfo } from "./Visual";
 
 export default function Solver() {
@@ -43,7 +44,7 @@ export default function Solver() {
 
   return (
     <div className="flex flex-col items-center gap-20 py-20">
-      <h1 className="text-5xl">Step 1: Scan Cube</h1>
+      <h1 className="text-5xl">Click or Drop File Below to Scan</h1>
       <div className="relative h-[80vh] w-4/5 rounded-2xl border-4 border-black">
         {typeof cubeInfo !== "undefined" ? (
           <Visual cubeInfo={cubeInfo} />
@@ -68,7 +69,7 @@ function InputSetup(props: { onPhoto: (file: File) => void }) {
   }, []);
 
   const handleCamera = () => {};
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({
     accept: {
       "image/png": [".png"],
       "image/jpeg": [".jpeg"],
@@ -81,14 +82,19 @@ function InputSetup(props: { onPhoto: (file: File) => void }) {
     <div className="flex h-full flex-col items-center">
       <div
         {...getRootProps()}
-        className="flex w-full flex-1 cursor-pointer items-center justify-center border-b-4 border-dashed border-black"
+        className="flex w-full flex-1 cursor-pointer flex-col items-center justify-center gap-5 border-b-4 border-dashed border-black"
       >
         <input {...getInputProps()} />
-        <h1 className="text-3xl">
-          {isDragActive
-            ? "Drop Files Here"
-            : "Click to Upload or Drop Photo Here"}
-        </h1>
+
+        <img
+          src={phone}
+          alt="A picture of a Rubik's cube on a flat surface"
+          className="rounded-xl border-4 border-dashed border-black"
+        />
+        <p className="max-w-lg text-center text-2xl">
+          Photograph a picture of your cube on a flat surface, where 3 sides are
+          clearly visible.
+        </p>
       </div>
       <div className="p-5">
         <Button onClick={handleCamera}>Use Camera Instead</Button>
