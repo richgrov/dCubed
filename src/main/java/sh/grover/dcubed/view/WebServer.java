@@ -57,7 +57,7 @@ public class WebServer {
             sides = this.colorIdentifier.estimateColors(image);
         } catch (ColorScanException e) {
             e.printStackTrace();
-            ctx.status(400).json("failed to scan");
+            ctx.status(422).json("failed to scan");
             return;
         }
 
