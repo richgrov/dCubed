@@ -11,7 +11,7 @@ const INITIAL_INSTRUCTION = "";
 
 const NETWORK_ERROR = "Network error. Check connection and try again.";
 const SCAN_ERROR =
-	"Couldn't scan a cube in this image. Ensure it is centered in the frame and has 3 sides clearly visible.";
+	"Couldn't find a cube in this image. Ensure it is centered in the frame and has 3 sides clearly visible.";
 const UPLOAD_ERROR =
 	"Wrong image upload. Double-check file type and try again.";
 const SERVER_ERROR = "Internal error. Please try again later.";
