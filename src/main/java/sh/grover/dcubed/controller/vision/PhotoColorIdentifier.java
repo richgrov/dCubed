@@ -7,19 +7,17 @@ import sh.grover.dcubed.controller.vision.segment.ICubeSegmenter;
 import sh.grover.dcubed.model.vision.ColorScanException;
 import sh.grover.dcubed.model.vision.StepDebugLevel;
 import sh.grover.dcubed.model.vision.segment.CubeSegmentation;
+import sh.grover.dcubed.util.DrawUtil;
 import sh.grover.dcubed.util.MathUtil;
 import sh.grover.dcubed.util.PolarLine;
 
 import java.net.URI;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 public class PhotoColorIdentifier implements IColorIdentifier {
 
-    private static final SimpleDateFormat DEBUG_IMAGE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
     private static final Size GAUSSIAN_BLUR_KSIZE = new Size(3, 3);
     private static final Mat DILATION_KERNEL = Imgproc.getStructuringElement(1, new Size(3, 3));
     private static final int HOUGH_LINE_THRESHOLD = 150;
@@ -60,7 +58,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
             point(annotatedCrop, croppedSegmentation.bottom());
             point(annotatedCrop, croppedSegmentation.bottomRight());
             point(annotatedCrop, croppedSegmentation.topRight());
-            debugWrite(annotatedCrop, "cropped");
+            DrawUtil.debugWrite(annotatedCrop, "cropped");
         }
 
         var verticalLines = new ArrayList<Integer>();
@@ -75,7 +73,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
             drawLines(annotatedCrop, lines, verticalLines, MathUtil.GREEN);
             drawLines(annotatedCrop, lines, slopeDownLines, MathUtil.BLUE);
             drawLines(annotatedCrop, lines, slopeUpLines, MathUtil.RED);
-            debugWrite(annotatedCrop, "lines");
+            DrawUtil.debugWrite(annotatedCrop, "lines");
         }
 
         var vertical = medianLineClosestToPoint(lines, verticalLines, croppedSegmentation.bottom());
@@ -97,7 +95,6 @@ public class PhotoColorIdentifier implements IColorIdentifier {
             drawLine(annotatedCrop, vertical.rho(), vertical.theta(), MathUtil.GREEN);
             drawLine(annotatedCrop, slopeDown.rho(), slopeDown.theta(), MathUtil.BLUE);
             drawLine(annotatedCrop, slopeUp.rho(), slopeUp.theta(), MathUtil.RED);
-            debugWrite(annotatedCrop, "filtered");
         }
 
         var twoPointVertical = MathUtil.polarToTwoPointLine(vertical.rho(), vertical.theta());
@@ -107,11 +104,10 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         var rightFace = warpedCrop(cropped, tl, croppedSegmentation.topRight(), croppedSegmentation.bottomRight(), croppedSegmentation.bottom());
 
         if (this.debugLevel == StepDebugLevel.ALL) {
-            debugWrite(rightFace, "right-face");
         }
 
         if (this.debugLevel == StepDebugLevel.ALL || false /* failure */) {
-            debugWrite(image, "start");
+            DrawUtil.debugWrite(image, "start");
         }
 
         return new ScannedSide[0];
@@ -224,12 +220,5 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         var warped = new Mat();
         Imgproc.warpPerspective(image, warped, matrix, new Size(width, height));
         return warped;
-    }
-
-    private static void debugWrite(Mat image, String label) {
-        var imageName = DEBUG_IMAGE_DATE_FORMAT.format(new Date()) + "-" + label + ".jpg";
-        if (!Imgcodecs.imwrite(imageName, image)) {
-            throw new RuntimeException("failed to save image");
-        }
     }
 }
