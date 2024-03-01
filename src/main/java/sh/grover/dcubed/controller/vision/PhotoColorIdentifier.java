@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class PhotoColorIdentifier implements IColorIdentifier {
 
@@ -79,6 +80,14 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         var vertical = medianLineClosestToPoint(lines, verticalLines, croppedSegmentation.bottom());
         var slopeDown = medianLineClosestToPoint(lines, slopeDownLines, croppedSegmentation.topLeft());
         var slopeUp = medianLineClosestToPoint(lines, slopeUpLines, croppedSegmentation.topRight());
+
+        try {
+            Objects.requireNonNull(vertical, "median vertical was null");
+            Objects.requireNonNull(slopeDown, "median down was null");
+            Objects.requireNonNull(slopeUp, "median up was null");
+        } catch (NullPointerException cause) {
+            throw new ColorScanException(cause);
+        }
 
         if (this.debugLevel == StepDebugLevel.ALL) {
             var annotatedCrop = new Mat();
