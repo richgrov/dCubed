@@ -20,11 +20,11 @@ public record CubeSegmentation(
     }
 
     public double highestY() {
-        return MathUtil.max(this.bottom.y, this.bottomLeft.y, this.bottomRight.y);
+        return Math.max(Math.max(this.bottom.y, this.bottomLeft.y), this.bottomRight.y);
     }
 
     public double lowestY() {
-        return MathUtil.min(this.top.y, this.topLeft.y, this.topRight.y);
+        return Math.min(Math.min(this.top.y, this.topLeft.y), this.topRight.y);
     }
 
     public CubeSegmentation subtract(double x, double y) {

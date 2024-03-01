@@ -13,30 +13,6 @@ public class MathUtil {
     public static final Scalar GREEN = new Scalar(0, 255, 0);
     public static final Scalar BLUE = new Scalar(255, 0, 0);
 
-    public static double max(double... vals) {
-        if (vals.length == 0) {
-            throw new IllegalArgumentException("vals must not be empty");
-        }
-
-        double max = 0;
-        for (var index = 0; index < vals.length - 1; index++) {
-            max = Math.max(vals[index], vals[index + 1]);
-        }
-        return max;
-    }
-
-    public static double min(double... vals) {
-        if (vals.length == 0) {
-            throw new IllegalArgumentException("vals must not be empty");
-        }
-
-        double min = 0;
-        for (var index = 0; index < vals.length - 1; index++) {
-            min = Math.min(vals[index], vals[index + 1]);
-        }
-        return min;
-    }
-
     public static double median(List<Double> vals) {
         if (vals.size() % 2 == 0) {
             var a = vals.get(vals.size() / 2 - 1);
