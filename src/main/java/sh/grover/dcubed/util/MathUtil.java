@@ -37,15 +37,23 @@ public class MathUtil {
         return numerator / denominator;
     }
 
-    public static Point lineIntersection(Point lineA1, Point lineA2, Point lineB1, Point lineB2) {
-        var denominator = (lineA1.x - lineA2.x)*(lineB1.y - lineB2.y) - (lineA1.y - lineA2.y)*(lineB1.x - lineB2.y);
+    public static Point lineIntersection(TwoPointLine a, TwoPointLine b) {
+        var x1 = a.a().x;
+        var y1 = a.a().y;
+        var x2 = a.b().x;
+        var y2 = a.b().y;
+        var x3 = b.a().x;
+        var y3 = b.a().y;
+        var x4 = b.b().x;
+        var y4 = b.b().y;
+
+        var denominator = (x1 - x2)*(y3 - y4) - (y1 - y2)*(x3 - x4);
         if (denominator == 0) {
             return null;
         }
 
-        var numeratorX = (lineA1.x*lineA2.y - lineA1.y*lineA2.x)*(lineB1.x - lineB2.x) - (lineA1.x - lineA2.x)*(lineB1.x*lineB2.y - lineB1.y*lineB2.x);
-        var numeratorY = (lineA1.x*lineA2.y - lineA1.y*lineA2.x)*(lineB1.y - lineB2.y) - (lineA1.y - lineA2.y)*(lineB1.x*lineB2.y - lineB1.y*lineB2.x);
-
+        var numeratorX = (x1*y2 - y1*x2)*(x3 - x4) - (x1 - x2)*(x3*y4 - y3*x4);
+        var numeratorY = (x1*y2 - y1*x2)*(y3 - y4) - (y1 - y2)*(x3*y4 - y3*x4);
         return new Point(numeratorX / denominator, numeratorY / denominator);
     }
 

@@ -98,16 +98,28 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         }
 
         var twoPointVertical = MathUtil.polarToTwoPointLine(vertical.rho(), vertical.theta());
+        var twoPointDown = MathUtil.polarToTwoPointLine(slopeDown.rho(), slopeDown.theta());
         var twoPointUp = MathUtil.polarToTwoPointLine(slopeUp.rho(), slopeUp.theta());
 
-        var tl = MathUtil.lineIntersection(twoPointVertical.a(), twoPointVertical.b(), twoPointUp.a(), twoPointUp.b());
-        var rightFace = warpedCrop(cropped, tl, croppedSegmentation.topRight(), croppedSegmentation.bottomRight(), croppedSegmentation.bottom());
+        var verticalDownIntersect = MathUtil.lineIntersection(twoPointVertical, twoPointDown);
+        var verticalUpIntersect = MathUtil.lineIntersection(twoPointVertical, twoPointUp);
+        var upDownIntersect = MathUtil.lineIntersection(twoPointUp, twoPointDown);
 
         if (this.debugLevel == StepDebugLevel.ALL) {
         }
 
+        var leftFace = warpedCrop(cropped, croppedSegmentation.topLeft(), verticalDownIntersect, croppedSegmentation.bottom(), croppedSegmentation.bottomLeft());
+        var rightFace = warpedCrop(cropped, verticalUpIntersect, croppedSegmentation.topRight(), croppedSegmentation.bottomRight(), croppedSegmentation.bottom());
+        var topFace = warpedCrop(cropped, croppedSegmentation.top(), croppedSegmentation.topRight(), upDownIntersect, croppedSegmentation.topLeft());
+
         if (this.debugLevel == StepDebugLevel.ALL || false /* failure */) {
             DrawUtil.debugWrite(image, "start");
+        }
+
+        if (this.debugLevel == StepDebugLevel.ALL) {
+            DrawUtil.debugWrite(leftFace, "left-face");
+            DrawUtil.debugWrite(rightFace, "right-face");
+            DrawUtil.debugWrite(topFace, "top-face");
         }
 
         return new ScannedSide[0];
