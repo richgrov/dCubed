@@ -139,7 +139,7 @@ public class FaceColorExtractor {
 //        var expectedCenterColor = Cube.getConnections(centerColor)[adjacentConnectionIndex].side();
 //        var distance = Cube.getDistanceAround(centerColor, adjacentCenterColor, expectedCenterColor);
         System.out.println("index of " + adjacentCenterColor + " on " + centerColor + " is " + connectionIndex);
-        this.result[centerColor] = Side.from3x3(scanned).rotated(connectionIndex + 2);
+        this.result[centerColor] = Side.from3x3(scanned).rotated(connectionIndex - adjacentConnectionIndex);
     }
 
     private static int closestFaceColor(double[] color) {
