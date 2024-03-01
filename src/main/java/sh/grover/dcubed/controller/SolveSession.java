@@ -1,28 +1,23 @@
 package sh.grover.dcubed.controller;
 
-import sh.grover.dcubed.controller.vision.ScannedSide;
-
-import java.util.Arrays;
+import sh.grover.dcubed.model.Side;
 
 public class SolveSession {
 
-    private final int[][] sides = new int[6][];
+    private final Side[] sides = new Side[6];
 
-    public void addSide(ScannedSide side) {
-        this.sides[side.sideColor()] = side.faces();
+    public void mergeSides(Side[] sides) {
+        for (var sideColor = 0; sideColor < sides.length; sideColor++) {
+            var side = sides[sideColor];
+            if (side != null) {
+                this.sides[sideColor] = side;
+            }
+        }
     }
 
-    public int[][] sides() {
-        return Arrays.stream(sides)
-                .map(faces -> {
-                    if (faces == null) {
-                        return null;
-                    }
-
-                    var copy = new int[faces.length];
-                    System.arraycopy(faces, 0, copy, 0, faces.length);
-                    return copy;
-                })
-                .toArray(int[][]::new);
+    public Side[] sides() {
+        var copy = new Side[this.sides.length];
+        System.arraycopy(this.sides, 0, copy, 0, this.sides.length);
+        return copy;
     }
 }

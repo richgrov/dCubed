@@ -22,12 +22,21 @@ public class Side {
         }
     }
 
+    public static Side from3x3(int[] faces) {
+        return new Side(faces[0], faces[1], faces[2], faces[5], faces[8], faces[7], faces[6], faces[3]);
+    }
+
     Side(long encoded) {
         this.encoded = encoded;
     }
 
     public int face(int faceIndex) {
         return (int) (this.encoded >>> ((7 - faceIndex) * 8)) & 0xFF;
+    }
+
+    public Side rotated(int amount) {
+        var rotatedEncoded = Long.rotateRight(this.encoded, amount * 16);
+        return new Side(rotatedEncoded);
     }
 
     public long encoded() {
