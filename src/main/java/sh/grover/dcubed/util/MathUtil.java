@@ -2,16 +2,11 @@ package sh.grover.dcubed.util;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
-import org.opencv.core.Scalar;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MathUtil {
-
-    public static final Scalar RED = new Scalar(0, 0, 255);
-    public static final Scalar GREEN = new Scalar(0, 255, 0);
-    public static final Scalar BLUE = new Scalar(255, 0, 0);
 
     public static double median(List<Double> vals) {
         if (vals.size() % 2 == 0) {
