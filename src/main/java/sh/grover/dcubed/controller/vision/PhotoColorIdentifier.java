@@ -137,12 +137,21 @@ public class PhotoColorIdentifier implements IColorIdentifier {
     private Mat optimizeImageForLineDetection(Mat image) {
         var blurred = new Mat();
         Imgproc.GaussianBlur(image, blurred, GAUSSIAN_BLUR_KSIZE, 0);
+        if (this.debugLevel == StepDebugLevel.ALL) {
+            DrawUtil.debugWrite(blurred, "blurred");
+        }
 
         var canny = new Mat();
         Imgproc.Canny(blurred, canny, 24, 24*3);
+        if (this.debugLevel == StepDebugLevel.ALL) {
+            DrawUtil.debugWrite(canny, "canny");
+        }
 
         var dilated = new Mat();
         Imgproc.dilate(canny, dilated, DILATION_KERNEL);
+        if (this.debugLevel == StepDebugLevel.ALL) {
+            DrawUtil.debugWrite(dilated, "dilated");
+        }
         return dilated;
     }
 
