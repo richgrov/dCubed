@@ -161,6 +161,10 @@ public class PhotoColorIdentifier implements IColorIdentifier {
             }
         }
 
+        if (nearby.isEmpty()) {
+            return null;
+        }
+
         return MathUtil.medianLine(lines, nearby);
     }
 
