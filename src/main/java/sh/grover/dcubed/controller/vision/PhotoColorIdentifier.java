@@ -156,7 +156,8 @@ public class PhotoColorIdentifier implements IColorIdentifier {
             var theta = lines.get(index, 0)[1];
             var twoPointLine = MathUtil.polarToTwoPointLine(rho, theta);
 
-            if (MathUtil.distanceFromPointToLine(point, twoPointLine.a(), twoPointLine.b()) <= NEAR_LINE_DISTANCE) {
+            var distance = MathUtil.distanceFromPointToLine(point, twoPointLine.a(), twoPointLine.b());
+            if (distance <= NEAR_LINE_DISTANCE) {
                 nearby.add(index);
             }
         }
