@@ -5,7 +5,6 @@ import org.opencv.imgproc.Imgproc;
 import sh.grover.dcubed.controller.vision.segment.HttpCubeSegmenter;
 import sh.grover.dcubed.controller.vision.segment.ICubeSegmenter;
 import sh.grover.dcubed.model.vision.ColorScanException;
-import sh.grover.dcubed.model.vision.StepDebugLevel;
 import sh.grover.dcubed.model.vision.segment.CubeSegmentation;
 import sh.grover.dcubed.util.DrawUtil;
 import sh.grover.dcubed.util.MathUtil;
@@ -25,11 +24,11 @@ public class PhotoColorIdentifier implements IColorIdentifier {
     private static final int NEAR_LINE_DISTANCE = 20;
 
     private final ICubeSegmenter segmenter;
-    private final StepDebugLevel debugLevel;
+    private final boolean debug;
 
-    public PhotoColorIdentifier(StepDebugLevel debugLevel) {
+    public PhotoColorIdentifier(boolean debug) {
         this.segmenter = new HttpCubeSegmenter(URI.create("http://localhost:5000"));
-        this.debugLevel = debugLevel;
+        this.debug = debug;
     }
 
     @Override
@@ -44,7 +43,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         var cropFrom = new Point(segmentation.lowestX(), segmentation.lowestY());
         var cropTo = new Point(segmentation.highestX(), segmentation.highestY());
 
-        if (this.debugLevel == StepDebugLevel.ALL) {
+        if (this.debug) {
             var annotated = new Mat();
             image.copyTo(annotated);
             DrawUtil.point(annotated, segmentation.top());
@@ -62,7 +61,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         var cropped = image.submat(range);
         var croppedSegmentation = segmentation.subtract(cropFrom.x, cropFrom.y);
 
-        if (this.debugLevel == StepDebugLevel.ALL) {
+        if (this.debug) {
             var annotatedCrop = new Mat();
             cropped.copyTo(annotatedCrop);
 
@@ -80,7 +79,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         var slopeUpLines = new ArrayList<Integer>();
         var lines = this.findAxisLines(cropped, verticalLines, slopeDownLines, slopeUpLines);
 
-        if (this.debugLevel == StepDebugLevel.ALL) {
+        if (this.debug) {
             var annotatedCrop = new Mat();
             cropped.copyTo(annotatedCrop);
 
@@ -110,7 +109,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         var verticalUpIntersect = MathUtil.lineIntersection(twoPointVertical, twoPointUp);
         var upDownIntersect = MathUtil.lineIntersection(twoPointUp, twoPointDown);
 
-        if (this.debugLevel == StepDebugLevel.ALL) {
+        if (this.debug) {
             var annotatedCrop = new Mat();
             cropped.copyTo(annotatedCrop);
 
@@ -137,11 +136,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         var rightFace = warpedCrop(cropped, verticalUpIntersect, croppedSegmentation.topRight(), croppedSegmentation.bottomRight(), croppedSegmentation.bottom());
         var topFace = warpedCrop(cropped, croppedSegmentation.top(), croppedSegmentation.topRight(), upDownIntersect, croppedSegmentation.topLeft());
 
-        if (this.debugLevel == StepDebugLevel.ALL || false /* failure */) {
-            DrawUtil.debugWrite(image, "start");
-        }
-
-        if (this.debugLevel == StepDebugLevel.ALL) {
+        if (this.debug) {
             DrawUtil.debugWrite(leftFace, "left-face");
             DrawUtil.debugWrite(rightFace, "right-face");
             DrawUtil.debugWrite(topFace, "top-face");
@@ -174,19 +169,19 @@ public class PhotoColorIdentifier implements IColorIdentifier {
     private Mat optimizeImageForLineDetection(Mat image) {
         var blurred = new Mat();
         Imgproc.GaussianBlur(image, blurred, GAUSSIAN_BLUR_KSIZE, 0);
-        if (this.debugLevel == StepDebugLevel.ALL) {
+        if (this.debug) {
             DrawUtil.debugWrite(blurred, "blurred");
         }
 
         var canny = new Mat();
         Imgproc.Canny(blurred, canny, 24, 24*3);
-        if (this.debugLevel == StepDebugLevel.ALL) {
+        if (this.debug) {
             DrawUtil.debugWrite(canny, "canny");
         }
 
         var dilated = new Mat();
         Imgproc.dilate(canny, dilated, DILATION_KERNEL);
-        if (this.debugLevel == StepDebugLevel.ALL) {
+        if (this.debug) {
             DrawUtil.debugWrite(dilated, "dilated");
         }
         return dilated;
