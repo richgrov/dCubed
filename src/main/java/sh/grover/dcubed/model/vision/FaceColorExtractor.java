@@ -44,7 +44,6 @@ public class FaceColorExtractor {
     }
 
     private int[] extractColors(Mat image, String debugName) {
-        System.out.println("----" + debugName + "-----");
         if (this.debug) {
             this.currentAnnotation = new Mat();
             image.copyTo(this.currentAnnotation);
@@ -136,9 +135,6 @@ public class FaceColorExtractor {
         if (connectionIndex == -1) {
             throw new IllegalArgumentException("no connection");
         }
-//        var expectedCenterColor = Cube.getConnections(centerColor)[adjacentConnectionIndex].side();
-//        var distance = Cube.getDistanceAround(centerColor, adjacentCenterColor, expectedCenterColor);
-        System.out.println("index of " + adjacentCenterColor + " on " + centerColor + " is " + connectionIndex);
         this.result[centerColor] = Side.from3x3(scanned).rotated(connectionIndex - adjacentConnectionIndex);
     }
 
