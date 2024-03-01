@@ -12,7 +12,7 @@ public record CubeSegmentation(
     Point topRight
 ) {
     public double highestX() {
-        return Math.max(this.topLeft.x, this.bottomLeft.x);
+        return Math.max(this.topRight.x, this.bottomRight.x);
     }
 
     public double lowestX() {
