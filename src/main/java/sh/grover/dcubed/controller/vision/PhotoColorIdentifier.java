@@ -1,10 +1,6 @@
 package sh.grover.dcubed.controller.vision;
 
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import sh.grover.dcubed.controller.vision.segment.HttpCubeSegmenter;
 import sh.grover.dcubed.controller.vision.segment.ICubeSegmenter;
@@ -201,19 +197,15 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         var height2 = Math.sqrt(Math.pow(tl.x - bl.x, 2) + Math.pow(tl.y - bl.y, 2));
         var height = Math.max((int) height1, (int) height2);
 
-        var perspectiveSrc = new Mat(4);
-        perspectiveSrc.put(0, 0, tl.x, tl.y);
-        perspectiveSrc.put(1, 0, tr.x, tr.y);
-        perspectiveSrc.put(2, 0, br.x, br.y);
-        perspectiveSrc.put(3, 0, bl.x, bl.y);
+        var perspectiveSrc = new MatOfPoint2f(tl, tr, br, bl);
+        var perspectiveDst = new MatOfPoint2f(
+                new Point(0, 0),
+                new Point(width - 1, 0),
+                new Point(width - 1, height - 1),
+                new Point(0, height - 1)
+        );
 
-        var perspectiveDst = new Mat(4);
-        perspectiveDst.put(0, 0, 0,         0);
-        perspectiveDst.put(1, 0, width - 1, 0);
-        perspectiveDst.put(2, 0, width - 1, height - 1);
-        perspectiveDst.put(3, 0, 0,         height - 1);
         var matrix = Imgproc.getPerspectiveTransform(perspectiveSrc, perspectiveDst);
-
         var warped = new Mat();
         Imgproc.warpPerspective(image, warped, matrix, new Size(width, height));
         return warped;
