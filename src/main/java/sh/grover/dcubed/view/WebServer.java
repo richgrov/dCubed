@@ -8,8 +8,8 @@ import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 import sh.grover.dcubed.controller.SolverSessions;
 import sh.grover.dcubed.controller.vision.IColorIdentifier;
-import sh.grover.dcubed.controller.vision.ScannedSide;
 import sh.grover.dcubed.model.ScanResult;
+import sh.grover.dcubed.model.Side;
 import sh.grover.dcubed.model.vision.ColorScanException;
 
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class WebServer {
             return;
         }
 
-        ScannedSide[] sides;
+        Side[] sides;
         try {
             sides = this.colorIdentifier.estimateColors(image);
         } catch (ColorScanException e) {

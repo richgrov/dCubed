@@ -1,7 +1,6 @@
 package sh.grover.dcubed.controller;
 
 import sh.grover.dcubed.controller.solve.*;
-import sh.grover.dcubed.controller.vision.ScannedSide;
 import sh.grover.dcubed.model.*;
 
 import java.util.ArrayList;
@@ -13,27 +12,22 @@ public class SolverSessions {
 
     private final ConcurrentHashMap<UUID, SolveSession> sessions = new ConcurrentHashMap<>();
 
-    public ScanResult newSession(ScannedSide[] sides) {
+    public ScanResult newSession(Side[] sides) {
         var session = new SolveSession();
-        for (var side : sides) {
-            session.addSide(side);
-        }
+        session.mergeSides(sides);
 
         var sessionId = UUID.randomUUID();
         this.sessions.put(sessionId, session);
         return new ScanResult(sessionId, session.sides());
     }
 
-    public ScanResult addPhoto(UUID sessionId, ScannedSide[] sides) throws IllegalArgumentException {
+    public ScanResult addPhoto(UUID sessionId, Side[] sides) throws IllegalArgumentException {
         var session = this.sessions.get(sessionId);
         if (session == null) {
             throw new IllegalArgumentException("session does not exist");
         }
 
-        for (var side : sides) {
-            session.addSide(side);
-        }
-
+        session.mergeSides(sides);
         return new ScanResult(sessionId, session.sides());
     }
 
@@ -41,12 +35,12 @@ public class SolverSessions {
         var session = this.sessions.get(sessionId);
         var sides = session.sides();
         var cube = new Cube(
-                new Side(sides[FaceColor.WHITE]),
-                new Side(sides[FaceColor.RED]),
-                new Side(sides[FaceColor.ORANGE]),
-                new Side(sides[FaceColor.YELLOW]),
-                new Side(sides[FaceColor.GREEN]),
-                new Side(sides[FaceColor.BLUE])
+                sides[FaceColor.WHITE],
+                sides[FaceColor.RED],
+                sides[FaceColor.ORANGE],
+                sides[FaceColor.YELLOW],
+                sides[FaceColor.GREEN],
+                sides[FaceColor.BLUE]
         );
 
         var moves = new ArrayList<Move>(64);
