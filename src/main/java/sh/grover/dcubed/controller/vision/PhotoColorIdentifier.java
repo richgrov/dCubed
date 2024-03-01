@@ -4,7 +4,9 @@ import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import sh.grover.dcubed.controller.vision.segment.HttpCubeSegmenter;
 import sh.grover.dcubed.controller.vision.segment.ICubeSegmenter;
+import sh.grover.dcubed.model.Side;
 import sh.grover.dcubed.model.vision.ColorScanException;
+import sh.grover.dcubed.model.vision.FaceColorExtractor;
 import sh.grover.dcubed.model.vision.segment.CubeSegmentation;
 import sh.grover.dcubed.util.DrawUtil;
 import sh.grover.dcubed.util.MathUtil;
@@ -32,7 +34,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
     }
 
     @Override
-    public ScannedSide[] estimateColors(Mat image) throws ColorScanException {
+    public Side[] estimateColors(Mat image) throws ColorScanException {
         CubeSegmentation segmentation;
         try {
             segmentation = this.segmenter.segment(image);
@@ -142,7 +144,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
             DrawUtil.debugWrite(topFace, "top-face");
         }
 
-        return new ScannedSide[0];
+        return new FaceColorExtractor(this.debug, topFace, leftFace, rightFace).result();
     }
 
     private Mat findAxisLines(Mat image, List<Integer> vertical, List<Integer> slopeDown, List<Integer> slopeUp) {
