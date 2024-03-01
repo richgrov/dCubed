@@ -41,14 +41,13 @@ public class PhotoColorIdentifier implements IColorIdentifier {
             throw new ColorScanException("failed to segment image", e);
         }
 
-        var top = segmentation.lowestY();
-        var bottom = segmentation.highestY();
-        var left = segmentation.lowestX();
-        var right = segmentation.highestX();
-        var cropped = image.submat((int) top, (int) bottom, (int) left, (int) right);
-        var croppedSegmentation = segmentation.subtract(left, top);
+        var cropFrom = new Point(segmentation.lowestX(), segmentation.lowestY());
+        var cropTo = new Point(segmentation.highestX(), segmentation.highestY());
 
         if (this.debugLevel == StepDebugLevel.ALL) {
+        var range = new Rect(cropFrom, cropTo);
+        var cropped = image.submat(range);
+        var croppedSegmentation = segmentation.subtract(cropFrom.x, cropFrom.y);
             var annotatedCrop = new Mat();
             cropped.copyTo(annotatedCrop);
 
