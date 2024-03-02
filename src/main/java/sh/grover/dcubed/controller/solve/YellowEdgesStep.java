@@ -2,15 +2,12 @@ package sh.grover.dcubed.controller.solve;
 
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
-import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.util.ArrayUtil;
-
-import java.util.List;
 
 public class YellowEdgesStep extends AbstractSolveStep {
 
-    public YellowEdgesStep(Cube cube, List<Move> moves) {
-        super(cube, moves);
+    public YellowEdgesStep(Cube cube) {
+        super(cube);
     }
 
     @Override
@@ -29,6 +26,11 @@ public class YellowEdgesStep extends AbstractSolveStep {
                 throw new IllegalStateException("couldn't align yellow edges");
             }
         }
+    }
+
+    @Override
+    public String stepId() {
+        return "yellowEdges";
     }
 
     private void rotateYellowBest() {

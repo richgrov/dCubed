@@ -3,6 +3,7 @@ package sh.grover.dcubed.controller.solve;
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.Move;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,14 +36,15 @@ public abstract class AbstractSolveStep {
     }
 
     protected final Cube cube;
-    private final List<Move> moves;
+    private final List<Move> moves = new ArrayList<>(16);
 
-    public AbstractSolveStep(Cube cube, List<Move> moves) {
+    public AbstractSolveStep(Cube cube) {
         this.cube = cube;
-        this.moves = moves;
     }
 
     public abstract void solve();
+
+    public abstract String stepId();
 
     protected void clockwise(int color) {
         this.moves.add(new Move(color, true));

@@ -2,15 +2,12 @@ package sh.grover.dcubed.controller.solve;
 
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
-import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.util.ArrayUtil;
-
-import java.util.List;
 
 public class SecondLayerStep extends AbstractSolveStep {
 
-    public SecondLayerStep(Cube cube, List<Move> moves) {
-        super(cube, moves);
+    public SecondLayerStep(Cube cube) {
+        super(cube);
     }
 
     @Override
@@ -27,6 +24,11 @@ public class SecondLayerStep extends AbstractSolveStep {
             this.insertEdge(edge);
         }
 
+    }
+
+    @Override
+    public String stepId() {
+        return "secondLayer";
     }
 
     private PreparedEdge findAndAlignEdgeOnYellow() {

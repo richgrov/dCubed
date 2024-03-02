@@ -7,3 +7,17 @@ export type AppState = {
   cube: Cube;
   sessionId: string;
 };
+
+export type Move = {
+  side: string;
+  clockwise: boolean;
+};
+
+export class SolveStageIndices {
+  public whiteCorners = 0;
+  public secondLayer = 0;
+  public yellowCross = 0;
+  public yellowEdges = 0;
+  public positionYellowCorners = 0;
+  public orientYellowCorners = 0;
+}

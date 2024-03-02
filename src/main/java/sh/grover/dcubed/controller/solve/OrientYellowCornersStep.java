@@ -2,15 +2,12 @@ package sh.grover.dcubed.controller.solve;
 
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
-import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.util.ArrayUtil;
-
-import java.util.List;
 
 public class OrientYellowCornersStep extends AbstractSolveStep {
 
-    public OrientYellowCornersStep(Cube cube, List<Move> moves) {
-        super(cube, moves);
+    public OrientYellowCornersStep(Cube cube) {
+        super(cube);
     }
 
     @Override
@@ -32,6 +29,11 @@ public class OrientYellowCornersStep extends AbstractSolveStep {
         }
 
         this.finalYellowRotation();
+    }
+
+    @Override
+    public String stepId() {
+        return "orientYellowCorners";
     }
 
     private int findLeadingUnsolvedCorner() {

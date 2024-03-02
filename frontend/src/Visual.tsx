@@ -7,21 +7,23 @@ import {
 } from "@heroicons/react/16/solid";
 import { IconButton } from "./Button";
 import CubeScene from "./CubeScene";
-import { AppState } from "./model";
+import { AppState, Move, SolveStageIndices } from "./model";
 
 type MoveState = {
   currentMove: number;
-  moves: {
-    side: string;
-    clockwise: boolean;
-  }[];
+  moves: Move[];
+  stages: SolveStageIndices;
 };
 
 export default function Visual(props: { appState: AppState }) {
   const wrapperEl = useRef<HTMLDivElement>(null);
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const scene = useRef(new CubeScene(props.appState.cube));
-  const moveState = useRef<MoveState>({ currentMove: -1, moves: [] });
+  const moveState = useRef<MoveState>({
+    currentMove: -1,
+    moves: [],
+    stages: new SolveStageIndices(),
+  });
   const [paused, setPaused] = useState(true);
 
   async function tryPlayNextAnimation() {
@@ -83,7 +85,14 @@ export default function Visual(props: { appState: AppState }) {
 
     fetch(url, { method: "POST" })
       .then((r) => r.json())
-      .then((json) => (moveState.current = { currentMove: -1, moves: json }));
+      .then(
+        (json) =>
+          (moveState.current = {
+            currentMove: -1,
+            moves: json.moves,
+            stages: json.stages,
+          })
+      );
   }, []);
 
   function onNext() {

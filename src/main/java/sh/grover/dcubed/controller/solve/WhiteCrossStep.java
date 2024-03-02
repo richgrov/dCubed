@@ -2,10 +2,7 @@ package sh.grover.dcubed.controller.solve;
 
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
-import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.util.ArrayUtil;
-
-import java.util.List;
 
 /**
  * Moves the white edge of the cube to line up with the corresponding connected
@@ -30,8 +27,8 @@ import java.util.List;
  */
 public class WhiteCrossStep extends AbstractSolveStep {
 
-    public WhiteCrossStep(Cube cube, List<Move> moves) {
-        super(cube, moves);
+    public WhiteCrossStep(Cube cube) {
+        super(cube);
     }
 
     @Override
@@ -67,6 +64,11 @@ public class WhiteCrossStep extends AbstractSolveStep {
                 throw new IllegalStateException(connection.side() + " not in white cross");
             }
         }
+    }
+
+    @Override
+    public String stepId() {
+        return "whiteCross";
     }
 
     private void rotateWhiteSideBest() {
