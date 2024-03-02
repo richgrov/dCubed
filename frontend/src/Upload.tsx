@@ -2,8 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "./Button";
 import { useDropzone } from "react-dropzone";
 
-import { Cube } from "./model";
+import { COLORS, Cube } from "./model";
 
+import { CheckIcon, XMarkIcon } from "@heroicons/react/16/solid";
 import phone from "./assets/phone.png";
 import loadingAnimation from "./assets/loading.gif";
 
@@ -122,6 +123,9 @@ export default function Uploader(props: { onComplete: CompletionCallback }) {
 					alt="A picture of a Rubik's cube on a flat surface"
 					className="rounded-xl border-4 border-dashed border-black"
 				/>
+
+				<ScannedColors cube={sides} />
+
 				<p className="max-w-lg text-2xl">
 					Photograph a picture of your cube on a flat surface, where 3
 					sides are clearly visible.
@@ -137,6 +141,27 @@ export default function Uploader(props: { onComplete: CompletionCallback }) {
 			) : (
 				""
 			)}
+		</div>
+	);
+}
+
+function ScannedColors(props: { cube: Partial<Cube> }) {
+	return (
+		<div className="flex gap-3">
+			{COLORS.map((key) => {
+				const css = { backgroundColor: key.toLowerCase() };
+				const isScanned =
+					typeof props.cube[key as keyof Cube] !== "undefined";
+				return (
+					<div
+						className="h-10 w-10 rounded-full border-4 border-black shadow-[black_4px_4px]"
+						style={css}
+						key={key}
+					>
+						{isScanned ? <CheckIcon /> : <XMarkIcon />}
+					</div>
+				);
+			})}
 		</div>
 	);
 }
