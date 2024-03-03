@@ -39,12 +39,14 @@ export default function Visual(props: { appState: AppState }) {
       const { side, clockwise } = moves.moves[++moves.currentMove];
       setMoveList(<MoveList state={moveState.current} />);
       await scene.current.rotateSide(side, clockwise);
-      setPaused((updatedPause) => {
-        if (!updatedPause) {
-          tryPlayNextAnimation();
-        }
-        return updatedPause;
-      });
+      setTimeout(() => {
+        setPaused((updatedPause) => {
+          if (!updatedPause) {
+            tryPlayNextAnimation();
+          }
+          return updatedPause;
+        });
+      }, 1000);
     }
   }
 
