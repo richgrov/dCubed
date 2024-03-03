@@ -231,7 +231,7 @@ const STEP_DESCRIPTIONS: Record<keyof SolveStageIndices, StepDescription> = {
   orientYellowCorners: {
     header: "Step 7: Orient Yellow Corners",
     description:
-      "All that's left is to correctly rotate the yellow corners! This is a simply algorithm " +
+      "All that's left is to correctly rotate the yellow corners! This is a simple algorithm " +
       "that's easy to memorize.",
   },
 };
