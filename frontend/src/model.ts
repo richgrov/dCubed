@@ -14,6 +14,7 @@ export type Move = {
 };
 
 export class SolveStageIndices {
+  public whiteCross = 0;
   public whiteCorners = 0;
   public secondLayer = 0;
   public yellowCross = 0;

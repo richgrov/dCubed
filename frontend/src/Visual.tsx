@@ -91,7 +91,7 @@ export default function Visual(props: { appState: AppState }) {
         moveState.current = {
           currentMove: -1,
           moves: json.moves,
-          stages: json.stages,
+          stages: json.stageIndices,
         };
         setMoveList(<MoveList moves={json.moves} />);
       });
