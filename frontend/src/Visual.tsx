@@ -125,6 +125,14 @@ export default function Visual(props: { appState: AppState }) {
     }
 
     const { side, clockwise } = moves.moves[moves.currentMove];
+    setMoveList(
+      <MoveList
+        state={{
+          ...moveState.current,
+          currentMove: moveState.current.currentMove - 1,
+        }}
+      />
+    );
     // Invert clockwise to "undo" move.
     // Forward animations are done by incrementing and then animating. Because we are going
     // backwards, the animation must be done before decrementing to maintain order.
