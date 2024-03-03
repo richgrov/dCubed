@@ -19,7 +19,7 @@ export default function Visual(props: { appState: AppState }) {
   const wrapperEl = useRef<HTMLDivElement>(null);
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const scene = useRef(new CubeScene(props.appState.cube));
-  const [moves, setMoveState] = useState<MoveState>({
+  const moveState = useRef<MoveState>({
     currentMove: -1,
     moves: [],
     stages: new SolveStageIndices(),
@@ -31,14 +31,10 @@ export default function Visual(props: { appState: AppState }) {
       return;
     }
 
-    const nextMove = moves.moves[moves.currentMove + 1];
-
-    if (typeof nextMove !== "undefined") {
-      setMoveState((moves) => {
-        moves.currentMove += 1;
-        return moves;
-      });
-      await scene.current.rotateSide(nextMove.side, nextMove.clockwise);
+    const moves = moveState.current;
+    if (moves.currentMove + 1 < moves.moves.length) {
+      const { side, clockwise } = moves.moves[++moves.currentMove];
+      await scene.current.rotateSide(side, clockwise);
       setPaused((updatedPause) => {
         if (!updatedPause) {
           tryPlayNextAnimation();
@@ -89,12 +85,13 @@ export default function Visual(props: { appState: AppState }) {
 
     fetch(url, { method: "POST" })
       .then((r) => r.json())
-      .then((json) =>
-        setMoveState({
-          currentMove: -1,
-          moves: json.moves,
-          stages: json.stages,
-        })
+      .then(
+        (json) =>
+          (moveState.current = {
+            currentMove: -1,
+            moves: json.moves,
+            stages: json.stages,
+          })
       );
   }, []);
 
@@ -117,6 +114,7 @@ export default function Visual(props: { appState: AppState }) {
       return;
     }
 
+    const moves = moveState.current;
     if (moves.currentMove < 0) {
       return;
     }
@@ -125,12 +123,7 @@ export default function Visual(props: { appState: AppState }) {
     // Invert clockwise to "undo" move.
     // Forward animations are done by incrementing and then animating. Because we are going
     // backwards, the animation must be done before decrementing to maintain order.
-    scene.current.rotateSide(side, !clockwise).then(() => {
-      setMoveState((moveState) => {
-        moveState.currentMove--;
-        return moveState;
-      });
-    });
+    scene.current.rotateSide(side, !clockwise).then(() => moves.currentMove--);
   }
 
   function onPause() {
