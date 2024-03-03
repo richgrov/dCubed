@@ -177,18 +177,26 @@ export default function Visual(props: { appState: AppState }) {
 }
 
 function MoveList(props: { state: MoveState }) {
-  return props.state.moves.map((move, i) => (
-    <div
-      key={i}
-      className={
-        "px-5 pb-4" + (props.state.currentMove === i ? " bg-red-200" : "")
-      }
-    >
-      {GetMoveHeader(props.state.stages, i)}
-      Rotate the {move.side.toLowerCase()} side{" "}
-      {move.clockwise ? "clockwise" : "counter-clockwise"}
-    </div>
-  ));
+  let focused = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    focused.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+
+  return props.state.moves.map((move, i) => {
+    const isCurrent = props.state.currentMove === i;
+
+    return (
+      <div
+        key={i}
+        className={"px-5 py-2" + (isCurrent ? " bg-red-200" : "")}
+        ref={isCurrent ? focused : undefined}
+      >
+        {GetMoveHeader(props.state.stages, i)}
+        {`Rotate the ${move.side.toLowerCase()} side ${move.clockwise ? "clockwise" : "counter-clockwise"}`}
+      </div>
+    );
+  });
 }
 
 type StepDescription = {
