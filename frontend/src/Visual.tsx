@@ -25,7 +25,9 @@ export default function Visual(props: { appState: AppState }) {
     stages: new SolveStageIndices(),
   });
   const [paused, setPaused] = useState(true);
-  const [moveList, setMoveList] = useState(<MoveList moves={[]} />);
+  const [moveList, setMoveList] = useState(
+    <MoveList state={moveState.current} />
+  );
 
   async function tryPlayNextAnimation() {
     if (!scene.current.isAnimationDone()) {
@@ -35,6 +37,7 @@ export default function Visual(props: { appState: AppState }) {
     const moves = moveState.current;
     if (moves.currentMove + 1 < moves.moves.length) {
       const { side, clockwise } = moves.moves[++moves.currentMove];
+      setMoveList(<MoveList state={moveState.current} />);
       await scene.current.rotateSide(side, clockwise);
       setPaused((updatedPause) => {
         if (!updatedPause) {
@@ -93,7 +96,7 @@ export default function Visual(props: { appState: AppState }) {
           moves: json.moves,
           stages: json.stageIndices,
         };
-        setMoveList(<MoveList moves={json.moves} />);
+        setMoveList(<MoveList state={moveState.current} />);
       });
   }, []);
 
@@ -165,11 +168,96 @@ export default function Visual(props: { appState: AppState }) {
   );
 }
 
-function MoveList(props: { moves: Move[] }) {
-  return props.moves.map((move, i) => (
-    <div key={i} className="px-5 pb-4">
+function MoveList(props: { state: MoveState }) {
+  return props.state.moves.map((move, i) => (
+    <div
+      key={i}
+      className={
+        "px-5 pb-4" + (props.state.currentMove === i ? " bg-red-200" : "")
+      }
+    >
+      {GetMoveHeader(props.state.stages, i)}
       Rotate the {move.side.toLowerCase()} side{" "}
       {move.clockwise ? "clockwise" : "counter-clockwise"}
     </div>
   ));
+}
+
+type StepDescription = {
+  header: string;
+  description: string;
+};
+
+const STEP_DESCRIPTIONS: Record<keyof SolveStageIndices, StepDescription> = {
+  whiteCross: {
+    header: "Step 1: White Cross",
+    description:
+      "Solving a Rubik's cube typically starts on the white face. First, let's move " +
+      "each of the white edges to their correct position on the bottom. After that, we'll cover " +
+      "how to solve the remaining layers without destroying the progress we've already made. " +
+      "The moves to make depend on where each piece is, so let's jump into an example:",
+  },
+  whiteCorners: {
+    header: "Step 2: White Corners",
+    description:
+      "The white cross is now complete. Next, we need to ensure all four white corners are in " +
+      "the correct position and rotation. Once again, we'll solve these without messing up the " +
+      "white cross!",
+  },
+  secondLayer: {
+    header: "Step 3: Second Layer Edges",
+    description:
+      "The white face is now complete. Now, we'll go over how to solve the middle layer.",
+  },
+  yellowCross: {
+    header: "Step 4: Yellow Cross",
+    description:
+      "The last stage is to solve the yellow side. We'll being by moving each yellow edge to " +
+      "the top. Unlike the white cross, we don't care if the yellow edges are aligned with " +
+      "their neighboring color!",
+  },
+  yellowEdges: {
+    header: "Step 5: Position Yellow Edges",
+    description:
+      "Now that the yellow cross is formed, let's move each edge to be touching the correct" +
+      "neighboring color.",
+  },
+  positionYellowCorners: {
+    header: "Step 6: Position Yellow Corners",
+    description:
+      "Only four corners left to go! First, let's move them to the correct position. They don't " +
+      "need to be rotated properly, we'll cover that in the last step.",
+  },
+  orientYellowCorners: {
+    header: "Step 7: Orient Yellow Corners",
+    description:
+      "All that's left is to correctly rotate the yellow corners! This is a simply algorithm " +
+      "that's easy to memorize.",
+  },
+};
+
+function GetMoveHeader(steps: SolveStageIndices, index: number) {
+  let step: StepDescription | undefined;
+  for (const k of Object.keys(steps)) {
+    const key = k as keyof SolveStageIndices;
+
+    const stepIndex = steps[key];
+    if (stepIndex === index) {
+      step = STEP_DESCRIPTIONS[key];
+      break;
+    }
+  }
+
+  if (typeof step === "undefined") {
+    return;
+  }
+
+  return (
+    <div className="py-5">
+      <h1 className="mb-5 rounded-full border-4 border-black bg-purple-400 p-2 text-center text-lg shadow-neo5">
+        {step.header}
+      </h1>
+      <p className="text-lg">{step.description}</p>
+    </div>
+  );
 }
