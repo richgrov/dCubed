@@ -47,7 +47,6 @@ export default function Visual(props: { appState: AppState }) {
 
   useEffect(() => {
     const wrapper = wrapperEl.current!;
-    scene.current.setCanvas(canvasEl.current!);
 
     let running = true;
     let time = Date.now();
@@ -79,6 +78,8 @@ export default function Visual(props: { appState: AppState }) {
   });
 
   useEffect(() => {
+    scene.current.setCanvas(canvasEl.current!);
+
     let url =
       import.meta.env.VITE_BACKEND_URL +
       "/solve?" +
@@ -139,7 +140,7 @@ export default function Visual(props: { appState: AppState }) {
 
   return (
     <div className="flex h-full">
-      <div ref={wrapperEl} className="min-w-0 flex-[2]">
+      <div key="__canvas__" ref={wrapperEl} className="min-w-0 flex-[2]">
         <canvas ref={canvasEl}></canvas>
       </div>
       <div className="flex flex-[1] flex-col">
