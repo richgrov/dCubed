@@ -25,6 +25,7 @@ export default function Visual(props: { appState: AppState }) {
     stages: new SolveStageIndices(),
   });
   const [paused, setPaused] = useState(true);
+  const [moveList, setMoveList] = useState(<MoveList moves={[]} />);
 
   async function tryPlayNextAnimation() {
     if (!scene.current.isAnimationDone()) {
@@ -85,14 +86,14 @@ export default function Visual(props: { appState: AppState }) {
 
     fetch(url, { method: "POST" })
       .then((r) => r.json())
-      .then(
-        (json) =>
-          (moveState.current = {
-            currentMove: -1,
-            moves: json.moves,
-            stages: json.stages,
-          })
-      );
+      .then((json) => {
+        moveState.current = {
+          currentMove: -1,
+          moves: json.moves,
+          stages: json.stages,
+        };
+        setMoveList(<MoveList moves={json.moves} />);
+      });
   }, []);
 
   function onNext() {
@@ -138,10 +139,10 @@ export default function Visual(props: { appState: AppState }) {
 
   return (
     <div className="flex h-full">
-      <div ref={wrapperEl} className="min-w-0 flex-[3]">
+      <div ref={wrapperEl} className="min-w-0 flex-[2]">
         <canvas ref={canvasEl}></canvas>
       </div>
-      <div className="flex-[1]">
+      <div className="flex flex-[1] flex-col">
         <div className="flex justify-center gap-5 py-10">
           <IconButton onClick={onPrev}>
             <BackwardIcon className="w-10" />
@@ -157,7 +158,17 @@ export default function Visual(props: { appState: AppState }) {
             <ForwardIcon className="w-10" />
           </IconButton>
         </div>
+        <div className="overflow-y-scroll">{moveList}</div>
       </div>
     </div>
   );
+}
+
+function MoveList(props: { moves: Move[] }) {
+  return props.moves.map((move, i) => (
+    <div key={i} className="px-5 pb-4">
+      Rotate the {move.side.toLowerCase()} side{" "}
+      {move.clockwise ? "clockwise" : "counter-clockwise"}
+    </div>
+  ));
 }
