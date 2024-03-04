@@ -61,6 +61,7 @@ public class OrientYellowCornersStep extends AbstractSolveStep {
     private void orient(int connectedSideIndex) {
         var connections = Cube.getConnections(FaceColor.YELLOW);
         for (var limit = 0; limit < 4; limit++) {
+            this.addMarker("yellowCorner");
             var side = connections[connectedSideIndex].side();
             this.counterClockwise(side);
             this.clockwise(FaceColor.WHITE);

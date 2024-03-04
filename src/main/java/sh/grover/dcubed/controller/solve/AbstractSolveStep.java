@@ -1,11 +1,11 @@
 package sh.grover.dcubed.controller.solve;
 
 import sh.grover.dcubed.model.Cube;
+import sh.grover.dcubed.model.FaceColor;
 import sh.grover.dcubed.model.Move;
+import sh.grover.dcubed.model.MoveMarker;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public abstract class AbstractSolveStep {
 
@@ -37,6 +37,7 @@ public abstract class AbstractSolveStep {
 
     protected final Cube cube;
     private final List<Move> moves = new ArrayList<>(16);
+    private final HashMap<Integer, MoveMarker> markers = new HashMap<>(4);
 
     public AbstractSolveStep(Cube cube) {
         this.cube = cube;
@@ -71,7 +72,20 @@ public abstract class AbstractSolveStep {
         }
     }
 
+    protected void addMarker(String id, int... faceColors) {
+        var strColors = new String[faceColors.length];
+        for (var iColor = 0; iColor < faceColors.length; iColor++) {
+            strColors[iColor] = FaceColor.toString(faceColors[iColor]).toLowerCase();
+        }
+
+        this.markers.put(this.moves.size(), new MoveMarker(id, strColors));
+    }
+
     public List<Move> moves() {
         return Collections.unmodifiableList(this.moves);
+    }
+
+    public Map<Integer, MoveMarker> markers() {
+        return Collections.unmodifiableMap(this.markers);
     }
 }

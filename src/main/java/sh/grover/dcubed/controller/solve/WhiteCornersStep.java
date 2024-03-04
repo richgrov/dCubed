@@ -80,6 +80,7 @@ public class WhiteCornersStep extends AbstractSolveStep {
                 continue;
             }
 
+            this.addMarker("whiteCorner", leftSideOfCorner, rightSideOfCorner);
             this.findAndAlignCornerAbove(leftSideOfCorner, rightSideOfCorner);
             this.insertCornerWithCorrectRotation(leftSideOfCorner);
         }

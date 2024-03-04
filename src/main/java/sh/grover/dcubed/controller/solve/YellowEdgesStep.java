@@ -43,6 +43,7 @@ public class YellowEdgesStep extends AbstractSolveStep {
 
         var bestMove = ArrayUtil.indexOfHighest(distanceVote);
         if (bestMove != -1) {
+            this.addMarker("yellowCrossBest");
             this.rotate(FaceColor.YELLOW, bestMove - 1); // -1 to undo the normalization above
         }
     }
@@ -76,6 +77,7 @@ public class YellowEdgesStep extends AbstractSolveStep {
             return;
         }
 
+        this.addMarker("yellowSwap");
         this.clockwise(rightSolvedSide);
         this.clockwise(FaceColor.YELLOW);
         this.counterClockwise(rightSolvedSide);

@@ -9,15 +9,21 @@ import java.util.Map;
 
 public record SolveInstructions(
         List<Move> moves,
-        Map<String, Integer> stageIndices
+        Map<String, Integer> stageIndices,
+        Map<Integer, MoveMarker> markers
 ) {
     public SolveInstructions() {
-        this(new ArrayList<>(128), new HashMap<>());
+        this(new ArrayList<>(128), new HashMap<>(), new HashMap<>(4));
     }
 
     public void runStep(AbstractSolveStep step) {
         this.stageIndices.put(step.stepId(), this.moves.size());
         step.solve();
+
+        for (var entry : step.markers().entrySet()) {
+            this.markers.put(entry.getKey() + this.moves.size(), entry.getValue());
+        }
+
         this.moves.addAll(step.moves());
     }
 }

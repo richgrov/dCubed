@@ -75,6 +75,7 @@ public class PositionYellowCornersStep extends AbstractSolveStep {
         var left = ArrayUtil.loopedIndex(connections, connectedSideIndex + 1).side();
         var right = ArrayUtil.loopedIndex(connections, connectedSideIndex - 1).side();
 
+        this.addMarker("yellowCycle");
         this.clockwise(FaceColor.YELLOW);
         this.clockwise(right);
         this.counterClockwise(FaceColor.YELLOW);

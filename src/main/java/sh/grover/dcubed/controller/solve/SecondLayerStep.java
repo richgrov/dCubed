@@ -42,6 +42,9 @@ public class SecondLayerStep extends AbstractSolveStep {
             }
 
             var distance = distanceAroundYellow(connection.side(), colorOnConnected);
+            if (distance != 0) {
+                this.addMarker("secondEdgeMove", colorOnYellow, colorOnConnected);
+            }
             this.rotate(FaceColor.YELLOW, distance);
 
             var otherSideRelative = distanceAroundYellow(colorOnConnected, colorOnYellow);
@@ -68,6 +71,7 @@ public class SecondLayerStep extends AbstractSolveStep {
                 continue;
             }
 
+            this.addMarker("secondEdgeMove", rightEdge, leftEdgeOfNext);
             this.moveSideEdgeToYellowAndClockwise(connection.side(), nextSide);
 
             var newSide = ArrayUtil.loopedIndex(connections, iConn + 1).side();
@@ -96,6 +100,7 @@ public class SecondLayerStep extends AbstractSolveStep {
                 FaceColor.YELLOW, edge.connectedSide, edge.otherSideRelative
         ).side();
 
+        this.addMarker("secondEdgeInsert", initialConnectedSide, otherConnectedSide);
         this.rotate(FaceColor.YELLOW, -edge.otherSideRelative);
         this.rotate(otherConnectedSide, -edge.otherSideRelative);
         this.rotate(FaceColor.YELLOW, edge.otherSideRelative);

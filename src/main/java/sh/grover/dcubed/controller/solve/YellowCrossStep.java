@@ -18,16 +18,19 @@ public class YellowCrossStep extends AbstractSolveStep {
     @Override
     public void solve() {
         if (this.findYellowPattern(NO_YELLOW) != -1) {
+            this.addMarker("yellowL");
             this.permute(0);
         }
 
         var lConnection = this.findYellowPattern(YELLOW_L);
         if (lConnection != -1) {
+            this.addMarker("yellowLine");
             this.permute(lConnection + 2);
         }
 
         var lineConnection = this.findYellowPattern(YELLOW_LINE);
         if (lineConnection != -1) {
+            this.addMarker("yellowCross");
             this.permute(lineConnection);
         }
 
