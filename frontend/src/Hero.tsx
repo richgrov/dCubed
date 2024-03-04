@@ -9,9 +9,12 @@ export default function Hero() {
           Skip the Video Tutorials.
         </h1>
         <h1 className="mb-10 text-7xl">Learn With Your Photos.</h1>
-        <p className="inline rounded-full border-2 border-black p-5 text-xl">
-          Get tailored instructions to solve Rubik's cube. No sign up required.
-        </p>
+        <div className="inline-block rounded-full border-2 border-black">
+          <p className="p-5 text-xl">
+            Get tailored instructions to solve Rubik's cube. No sign up
+            required.
+          </p>
+        </div>
       </div>
 
       <div className="relative self-center p-2">
