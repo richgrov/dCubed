@@ -3,13 +3,11 @@ package sh.grover.dcubed.controller.solve;
 import org.junit.jupiter.api.Test;
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
-import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.model.Side;
 
-import java.util.ArrayList;
 import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SolveTest {
 
@@ -48,14 +46,13 @@ public class SolveTest {
     }
 
     private static void unscramble(Cube cube) {
-        var moves = new ArrayList<Move>(200);
-        new WhiteCrossStep(cube, moves).solve();
-        new WhiteCornersStep(cube, moves).solve();
-        new SecondLayerStep(cube, moves).solve();
-        new YellowCrossStep(cube, moves).solve();
-        new YellowEdgesStep(cube, moves).solve();
-        new PositionYellowCornersStep(cube, moves).solve();
-        new OrientYellowCornersStep(cube, moves).solve();
+        new WhiteCrossStep(cube).solve();
+        new WhiteCornersStep(cube).solve();
+        new SecondLayerStep(cube).solve();
+        new YellowCrossStep(cube).solve();
+        new YellowEdgesStep(cube).solve();
+        new PositionYellowCornersStep(cube).solve();
+        new OrientYellowCornersStep(cube).solve();
         assertSolved(cube);
     }
 

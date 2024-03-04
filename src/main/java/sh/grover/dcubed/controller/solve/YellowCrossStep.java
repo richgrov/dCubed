@@ -2,10 +2,7 @@ package sh.grover.dcubed.controller.solve;
 
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
-import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.util.ArrayUtil;
-
-import java.util.List;
 
 public class YellowCrossStep extends AbstractSolveStep {
 
@@ -14,29 +11,37 @@ public class YellowCrossStep extends AbstractSolveStep {
     private static final boolean[] YELLOW_LINE = new boolean[] { true, false, true, false };
     private static final boolean[] YELLOW_SOLVED = new boolean[] { true, true, true, true };
 
-    public YellowCrossStep(Cube cube, List<Move> moves) {
-        super(cube, moves);
+    public YellowCrossStep(Cube cube) {
+        super(cube);
     }
 
     @Override
     public void solve() {
         if (this.findYellowPattern(NO_YELLOW) != -1) {
+            this.addMarker("yellowL");
             this.permute(0);
         }
 
         var lConnection = this.findYellowPattern(YELLOW_L);
         if (lConnection != -1) {
+            this.addMarker("yellowLine");
             this.permute(lConnection + 2);
         }
 
         var lineConnection = this.findYellowPattern(YELLOW_LINE);
         if (lineConnection != -1) {
+            this.addMarker("yellowCross");
             this.permute(lineConnection);
         }
 
         if (this.findYellowPattern(YELLOW_SOLVED) == -1) {
             throw new IllegalStateException("couldn't solve yellow cross");
         }
+    }
+
+    @Override
+    public String stepId() {
+        return "yellowCross";
     }
 
     private int findYellowPattern(boolean[] pattern) {

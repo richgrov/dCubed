@@ -2,15 +2,12 @@ package sh.grover.dcubed.controller.solve;
 
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
-import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.util.ArrayUtil;
-
-import java.util.List;
 
 public class SecondLayerStep extends AbstractSolveStep {
 
-    public SecondLayerStep(Cube cube, List<Move> moves) {
-        super(cube, moves);
+    public SecondLayerStep(Cube cube) {
+        super(cube);
     }
 
     @Override
@@ -29,6 +26,11 @@ public class SecondLayerStep extends AbstractSolveStep {
 
     }
 
+    @Override
+    public String stepId() {
+        return "secondLayer";
+    }
+
     private PreparedEdge findAndAlignEdgeOnYellow() {
         for (Cube.SideConnection connection : Cube.getConnections(FaceColor.YELLOW)) {
             var connectedEdge = connection.faces()[1];
@@ -40,6 +42,9 @@ public class SecondLayerStep extends AbstractSolveStep {
             }
 
             var distance = distanceAroundYellow(connection.side(), colorOnConnected);
+            if (distance != 0) {
+                this.addMarker("secondEdgeMove", colorOnYellow, colorOnConnected);
+            }
             this.rotate(FaceColor.YELLOW, distance);
 
             var otherSideRelative = distanceAroundYellow(colorOnConnected, colorOnYellow);
@@ -66,6 +71,7 @@ public class SecondLayerStep extends AbstractSolveStep {
                 continue;
             }
 
+            this.addMarker("secondEdgeMove", rightEdge, leftEdgeOfNext);
             this.moveSideEdgeToYellowAndClockwise(connection.side(), nextSide);
 
             var newSide = ArrayUtil.loopedIndex(connections, iConn + 1).side();
@@ -94,6 +100,7 @@ public class SecondLayerStep extends AbstractSolveStep {
                 FaceColor.YELLOW, edge.connectedSide, edge.otherSideRelative
         ).side();
 
+        this.addMarker("secondEdgeInsert", initialConnectedSide, otherConnectedSide);
         this.rotate(FaceColor.YELLOW, -edge.otherSideRelative);
         this.rotate(otherConnectedSide, -edge.otherSideRelative);
         this.rotate(FaceColor.YELLOW, edge.otherSideRelative);

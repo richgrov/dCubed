@@ -2,15 +2,12 @@ package sh.grover.dcubed.controller.solve;
 
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
-import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.util.ArrayUtil;
-
-import java.util.List;
 
 public class YellowEdgesStep extends AbstractSolveStep {
 
-    public YellowEdgesStep(Cube cube, List<Move> moves) {
-        super(cube, moves);
+    public YellowEdgesStep(Cube cube) {
+        super(cube);
     }
 
     @Override
@@ -31,6 +28,11 @@ public class YellowEdgesStep extends AbstractSolveStep {
         }
     }
 
+    @Override
+    public String stepId() {
+        return "yellowEdges";
+    }
+
     private void rotateYellowBest() {
         var distanceVote = new int[4];
 
@@ -41,6 +43,7 @@ public class YellowEdgesStep extends AbstractSolveStep {
 
         var bestMove = ArrayUtil.indexOfHighest(distanceVote);
         if (bestMove != -1) {
+            this.addMarker("yellowCrossBest");
             this.rotate(FaceColor.YELLOW, bestMove - 1); // -1 to undo the normalization above
         }
     }
@@ -74,6 +77,7 @@ public class YellowEdgesStep extends AbstractSolveStep {
             return;
         }
 
+        this.addMarker("yellowSwap");
         this.clockwise(rightSolvedSide);
         this.clockwise(FaceColor.YELLOW);
         this.counterClockwise(rightSolvedSide);

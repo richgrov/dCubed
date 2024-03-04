@@ -3,10 +3,7 @@ package sh.grover.dcubed.controller.solve;
 import sh.grover.dcubed.model.CornerPiece;
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
-import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.util.ArrayUtil;
-
-import java.util.List;
 
 public class PositionYellowCornersStep extends AbstractSolveStep {
 
@@ -19,8 +16,8 @@ public class PositionYellowCornersStep extends AbstractSolveStep {
             0, // blue
     };
 
-    public PositionYellowCornersStep(Cube cube, List<Move> moves) {
-        super(cube, moves);
+    public PositionYellowCornersStep(Cube cube) {
+        super(cube);
     }
 
     @Override
@@ -48,6 +45,11 @@ public class PositionYellowCornersStep extends AbstractSolveStep {
         }
     }
 
+    @Override
+    public String stepId() {
+        return "positionYellowCorners";
+    }
+
     private int numUnsolvedCorners() {
         var unsolved = 0;
         for (var iConn = 0; iConn < 4; iConn++) {
@@ -73,6 +75,7 @@ public class PositionYellowCornersStep extends AbstractSolveStep {
         var left = ArrayUtil.loopedIndex(connections, connectedSideIndex + 1).side();
         var right = ArrayUtil.loopedIndex(connections, connectedSideIndex - 1).side();
 
+        this.addMarker("yellowCycle");
         this.clockwise(FaceColor.YELLOW);
         this.clockwise(right);
         this.counterClockwise(FaceColor.YELLOW);

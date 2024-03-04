@@ -2,10 +2,7 @@ package sh.grover.dcubed.controller.solve;
 
 import sh.grover.dcubed.model.Cube;
 import sh.grover.dcubed.model.FaceColor;
-import sh.grover.dcubed.model.Move;
 import sh.grover.dcubed.util.ArrayUtil;
-
-import java.util.List;
 
 /**
  * Moves the white edge of the cube to line up with the corresponding connected
@@ -30,8 +27,8 @@ import java.util.List;
  */
 public class WhiteCrossStep extends AbstractSolveStep {
 
-    public WhiteCrossStep(Cube cube, List<Move> moves) {
-        super(cube, moves);
+    public WhiteCrossStep(Cube cube) {
+        super(cube);
     }
 
     @Override
@@ -69,6 +66,11 @@ public class WhiteCrossStep extends AbstractSolveStep {
         }
     }
 
+    @Override
+    public String stepId() {
+        return "whiteCross";
+    }
+
     private void rotateWhiteSideBest() {
         var distanceVote = new int[4];
 
@@ -87,6 +89,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
 
         var bestMove = ArrayUtil.indexOfHighest(distanceVote);
         if (bestMove != -1) {
+            this.addMarker("whiteCrossBest");
             this.rotate(FaceColor.WHITE, bestMove - 1); // -1 to undo the normalization above
         }
     }
@@ -106,6 +109,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
                 continue;
             }
 
+            this.addMarker("whiteEdge", connectedEdge);
             this.rotate(connection.side(), 2);
             this.rotate(FaceColor.YELLOW, distance);
             this.rotate(connectedEdge, 2);
@@ -114,6 +118,8 @@ public class WhiteCrossStep extends AbstractSolveStep {
 
     private void topOfSide(Cube.SideConnection connection) {
         var targetSide = this.cube.getColorOfEdgePiece(FaceColor.YELLOW, connection.side());
+        this.addMarker("whiteEdge", targetSide);
+
         var distance = distanceAroundYellow(connection.side(), targetSide);
         var connectedSide = connection.side();
         if (distance == 0 || distance == 2) {
@@ -154,6 +160,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
 
             var edgeColor = this.cube.side(connectedSideColor).face(oppositeSide);
 
+            this.addMarker("whiteEdge", edgeColor);
             if (connectedSideColor == edgeColor) {
                 this.rotate(connectedSideColor, rotation);
             } else {
@@ -173,6 +180,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
 
     private void bottomOfSide(Cube.SideConnection connection) {
         var targetColor = this.cube.getColorOfEdgePiece(FaceColor.WHITE, connection.side());
+        this.addMarker("whiteEdge", targetColor);
 
         var sideToLeft = Cube.getAdjacentSideFromConnectedSideWithOffset(FaceColor.YELLOW, connection.side(), 1)
                 .side();
@@ -204,6 +212,7 @@ public class WhiteCrossStep extends AbstractSolveStep {
     private void edgeOnYellow(Cube.SideConnection connection) {
         var targetColor = this.cube.side(connection.side()).face(Cube.TOP_MIDDLE);
         var distance = distanceAroundYellow(connection.side(), targetColor);
+        this.addMarker("whiteEdge", targetColor);
         this.rotate(FaceColor.YELLOW, distance);
         this.rotate(targetColor, 2);
     }
