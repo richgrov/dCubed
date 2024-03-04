@@ -5,13 +5,12 @@ export default function Hero() {
   return (
     <div className="flex justify-center border-b-4 border-b-black bg-amber-400 bg-[url('dots.png')] bg-contain bg-right bg-no-repeat py-48">
       <div className="max-w-[40%]">
-        <h1 className="text-stroke-black mb-10 text-7xl text-transparent">
-          Learn to Solve
-          <span className="text-stroke-none text-black"> Your </span>
-          Rubik's Cube
+        <h1 className="text-stroke-black text-7xl text-transparent">
+          Skip the Video Tutorials.
         </h1>
+        <h1 className="mb-10 text-7xl">Learn With Your Photos.</h1>
         <p className="inline rounded-full border-2 border-black p-5 text-xl">
-          Skip the tutorials and get tailored instructions from your photos.
+          Get tailored instructions to solve Rubik's cube. No sign up required.
         </p>
       </div>
 
