@@ -4,15 +4,17 @@ import {
   ForwardIcon,
   BackwardIcon,
   PauseIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/16/solid";
 import { IconButton } from "./Button";
 import CubeScene from "./CubeScene";
-import { AppState, Move, SolveStageIndices } from "./model";
+import { AppState, Move, MoveMarker, SolveStageIndices } from "./model";
 
 type MoveState = {
   currentMove: number;
   moves: Move[];
   stages: SolveStageIndices;
+  markers: Record<number, MoveMarker>;
 };
 
 export default function Visual(props: { appState: AppState }) {
@@ -23,6 +25,7 @@ export default function Visual(props: { appState: AppState }) {
     currentMove: -1,
     moves: [],
     stages: new SolveStageIndices(),
+    markers: [],
   });
   const [paused, setPaused] = useState(true);
   const [moveList, setMoveList] = useState(
@@ -97,6 +100,7 @@ export default function Visual(props: { appState: AppState }) {
           currentMove: -1,
           moves: json.moves,
           stages: json.stageIndices,
+          markers: json.markers,
         };
         setMoveList(<MoveList state={moveState.current} />);
       });
@@ -195,6 +199,7 @@ function MoveList(props: { state: MoveState }) {
         ref={isCurrent ? focused : undefined}
       >
         {GetMoveHeader(props.state.stages, i)}
+        {GetMoveMarker(props.state.markers, i)}
         {`Rotate the ${move.side.toLowerCase()} side ${move.clockwise ? "clockwise" : "counter-clockwise"}`}
       </div>
     );
@@ -254,6 +259,26 @@ const STEP_DESCRIPTIONS: Record<keyof SolveStageIndices, StepDescription> = {
   },
 };
 
+type MarkerFormatter = (args: string[]) => string;
+
+const MARKER_FORMATTERS: Record<string, MarkerFormatter> = {
+  whiteCrossBest: () =>
+    "Rotate the white side to line up as many of the edges as possible",
+  whiteEdge: (sides) => `Solve the white-${sides[0]} edge`,
+  whiteCorner: (sides) => `Solve the white-${sides[0]}-${sides[1]} corner`,
+  secondEdgeMove: (sides) =>
+    `Move the ${sides[0]}-${sides[1]} edge next to it's target`,
+  secondEdgeInsert: (sides) => `Insert the ${sides[0]}-${sides[1]} edge`,
+  yellowL: () => `Arrange yellow edges into L shape`,
+  yellowLine: () => `Arrange yellow edges into line`,
+  yellowCross: () => `Arrange yellow edges into cross`,
+  yellowCrossBest: () =>
+    `Rotate the yellow side to line up as many of the edges as possible`,
+  yellowSwap: () => `Swap yellow edges`,
+  yellowCycle: () => `Cycle yellow corners`,
+  yellowCorner: () => `Rotate yellow corner`,
+};
+
 function GetMoveHeader(steps: SolveStageIndices, index: number) {
   let step: StepDescription | undefined;
   for (const k of Object.keys(steps)) {
@@ -276,6 +301,26 @@ function GetMoveHeader(steps: SolveStageIndices, index: number) {
         {step.header}
       </h1>
       <p className="text-lg">{step.description}</p>
+    </div>
+  );
+}
+
+function GetMoveMarker(markers: Record<string, MoveMarker>, index: number) {
+  const marker = markers[index];
+  if (typeof marker === "undefined") {
+    return;
+  }
+
+  const formatter = MARKER_FORMATTERS[marker.id];
+  if (typeof formatter === "undefined") {
+    console.warn("Unknown marker formatter " + marker.id);
+    return;
+  }
+
+  return (
+    <div className="flex gap-2">
+      <InformationCircleIcon className="w-5" color="#9ca3af" />
+      <p className="r text-gray-400">{formatter(marker.arguments)}</p>
     </div>
   );
 }

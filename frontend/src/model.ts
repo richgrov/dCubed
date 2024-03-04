@@ -22,3 +22,8 @@ export class SolveStageIndices {
   public positionYellowCorners = 0;
   public orientYellowCorners = 0;
 }
+
+export type MoveMarker = {
+  id: string;
+  arguments: string[];
+};
