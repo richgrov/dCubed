@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   PlayIcon,
   ForwardIcon,
@@ -31,6 +31,7 @@ export default function Visual(props: { appState: AppState }) {
   const [moveList, setMoveList] = useState(
     <MoveList state={moveState.current} />
   );
+  const autoAdvanceDelay = useRef(1000);
 
   async function tryPlayNextAnimation() {
     if (!scene.current.isAnimationDone()) {
@@ -49,7 +50,7 @@ export default function Visual(props: { appState: AppState }) {
           }
           return updatedPause;
         });
-      }, 1000);
+      }, autoAdvanceDelay.current);
     }
   }
 
@@ -155,13 +156,20 @@ export default function Visual(props: { appState: AppState }) {
     });
   }
 
+  function onSpeedChange(e: ChangeEvent<HTMLInputElement>) {
+    const strSpeed = e.target.value;
+    // 0 is slowest while 1000 is fastest. Because the speed is internally controlled by delay,
+    // the range must be inverted (subtraction)
+    autoAdvanceDelay.current = 1000 - parseInt(strSpeed);
+  }
+
   return (
     <div className="flex h-full">
       <div key="__canvas__" ref={wrapperEl} className="min-w-0 flex-[2]">
         <canvas ref={canvasEl}></canvas>
       </div>
-      <div className="flex flex-[1] flex-col">
-        <div className="flex justify-center gap-5 py-10">
+      <div className="flex flex-[1] flex-col gap-5">
+        <div className="flex justify-center gap-5 pt-8">
           <IconButton onClick={onPrev}>
             <BackwardIcon className="w-10" />
           </IconButton>
@@ -176,7 +184,20 @@ export default function Visual(props: { appState: AppState }) {
             <ForwardIcon className="w-10" />
           </IconButton>
         </div>
-        <div className="overflow-y-scroll">{moveList}</div>
+        <div className="text-center">
+          <p>Speed</p>
+          <input
+            type="range"
+            min="0"
+            max="1000"
+            step="250"
+            onChange={onSpeedChange}
+            className="w-4/5 appearance-none rounded-full border-4 border-black accent-black"
+          />
+        </div>
+        <div className="overflow-y-scroll border-4 border-t-black">
+          {moveList}
+        </div>
       </div>
     </div>
   );

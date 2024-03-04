@@ -8,8 +8,6 @@ import { CheckIcon, XMarkIcon } from "@heroicons/react/16/solid";
 import phone from "./assets/phone.png";
 import loadingAnimation from "./assets/loading.gif";
 
-const INITIAL_INSTRUCTION = "";
-
 const NETWORK_ERROR = "Network error. Check connection and try again.";
 const SCAN_ERROR =
 	"Couldn't find a cube in this image. Ensure it is centered in the frame and has 3 sides clearly visible.";
