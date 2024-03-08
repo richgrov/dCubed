@@ -38,16 +38,4 @@ public record CubeSegmentation(
                 MathUtil.subtract(this.topRight, subtract)
         );
     }
-
-//    public CubeSegmentation multiply(double width, double height) {
-//        var multiply = new Point(width, height);
-//        return new CubeSegmentation(
-//                PointUtil.multiply(this.top, multiply),
-//                PointUtil.multiply(this.topLeft, multiply),
-//                PointUtil.multiply(this.bottomLeft, multiply),
-//                PointUtil.multiply(this.bottom, multiply),
-//                PointUtil.multiply(this.bottomRight, multiply),
-//                PointUtil.multiply(this.topRight, multiply)
-//        );
-//    }
 }
