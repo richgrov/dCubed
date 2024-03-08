@@ -117,11 +117,11 @@ public class FaceColorExtractor {
             return FaceColor.RED;
         }
 
-        if (hue < 18) {
+        if (hue < 19) {
             return FaceColor.ORANGE;
         }
 
-        if (hue < 36) {
+        if (hue < 38) {
             return FaceColor.YELLOW;
         }
 
