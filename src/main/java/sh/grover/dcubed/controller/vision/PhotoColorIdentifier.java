@@ -23,7 +23,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
     private static final Mat DILATION_KERNEL = Imgproc.getStructuringElement(1, new Size(3, 3));
     private static final int HOUGH_LINE_THRESHOLD = 100;
     private static final double LINE_SEGMENTATION_DEVIATION = 20;
-    private static final int NEAR_LINE_DISTANCE = 20;
+    private static final int NEAR_LINE_DISTANCE = 15;
 
     private final ICubeSegmenter segmenter;
     private final boolean debug;
