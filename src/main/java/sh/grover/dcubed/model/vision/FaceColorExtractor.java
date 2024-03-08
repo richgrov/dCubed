@@ -109,7 +109,7 @@ public class FaceColorExtractor {
         var hue = hsv[0] / 2;
         var saturation = hsv[1];
 
-        if (saturation < 0.3) {
+        if (saturation < 0.2) {
             return FaceColor.WHITE;
         }
 
