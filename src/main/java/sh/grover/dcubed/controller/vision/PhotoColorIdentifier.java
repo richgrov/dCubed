@@ -144,10 +144,18 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         Imgproc.HoughLines(optimized, lines, 1, Math.PI / 180, HOUGH_LINE_THRESHOLD);
 
         for (var iLine = 0; iLine < lines.rows(); iLine++) {
-            var theta = lines.get(iLine, 0)[1];
+            var line = lines.get(iLine, 0);
+            var theta = line[1];
 
             if (isVertical(theta)) {
                 vertical.add(iLine);
+                // Vertical lines can be on opposite ends of the angle spectrum, which can cause
+                // median calculation to create a horizontal line. Fix this by normalizing all
+                // vertical lines to one end
+                if (theta > Math.toRadians(180 - LINE_SEGMENTATION_DEVIATION)) {
+                    line[1] -= Math.PI;
+                    lines.put(iLine, 0, line);
+                }
             } else if (slopesDown(theta)) {
                 slopeDown.add(iLine);
             } else if (slopeUp(theta)) {
