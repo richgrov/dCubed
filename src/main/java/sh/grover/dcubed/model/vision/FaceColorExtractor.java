@@ -137,10 +137,20 @@ public class FaceColorExtractor {
     }
 
     private static double[] bgrToHsv(double[] color) {
+        color = removeAlphaChannel(color);
         var dst = new Mat();
         var src = new Mat(1, 1, CvType.CV_32FC3);
         src.put(0, 0, color);
         Imgproc.cvtColor(src, dst, Imgproc.COLOR_BGR2HSV);
         return dst.get(0, 0);
+    }
+
+    private static double[] removeAlphaChannel(double[] color) {
+        if (color.length == 4) {
+            return new double[] { color[0], color[1], color[2] };
+        } else if (color.length != 3) {
+            throw new IllegalArgumentException("color was not RGBA or RGB");
+        }
+        return color;
     }
 }
