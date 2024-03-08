@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Button } from "./Button";
+import { Button, IconButton } from "./Button";
 import { useDropzone } from "react-dropzone";
 
 import { COLORS, Cube } from "./model";
 
-import { CheckIcon, XMarkIcon } from "@heroicons/react/16/solid";
+import { CameraIcon, CheckIcon, XMarkIcon } from "@heroicons/react/16/solid";
 import phone from "./assets/phone.png";
 import loadingAnimation from "./assets/loading.gif";
 
@@ -62,11 +62,14 @@ async function scan(
 	};
 }
 
+type UploadMode = "upload" | "camera";
+
 export default function Scanner(props: { onComplete: CompletionCallback }) {
 	const [loading, setLoading] = useState(false);
 	const [sides, setSides] = useState<Partial<Cube>>({});
 	const sessionId = useRef<string | undefined>();
 	const [errorDialog, setErrorDialog] = useState<JSX.Element>();
+	const [uploadMode, setUploadMode] = useState<UploadMode>("upload");
 
 	useEffect(() => {
 		if (Object.keys(sides).length === 6) {
@@ -74,7 +77,9 @@ export default function Scanner(props: { onComplete: CompletionCallback }) {
 		}
 	}, [sides]);
 
-	function handleCamera() {}
+	function toggleUploadMode() {
+		setUploadMode((mode) => (mode === "upload" ? "camera" : "upload"));
+	}
 
 	async function onImageUpload(file: Blob) {
 		setLoading(true);
@@ -97,15 +102,22 @@ export default function Scanner(props: { onComplete: CompletionCallback }) {
 		}
 	}
 
+	const uploadToggle =
+		uploadMode === "upload" ? "Use Camera Instead" : "Upload Existing Image";
+
 	return (
 		<div className="flex h-full flex-col items-center">
-			<Uploader
-				onScan={onImageUpload}
-				sides={sides}
-				errorDialog={errorDialog}
-			/>
+			{uploadMode === "upload" ? (
+				<Uploader
+					onScan={onImageUpload}
+					sides={sides}
+					errorDialog={errorDialog}
+				/>
+			) : (
+				<CameraCapture onScan={onImageUpload} />
+			)}
 			<div className="w-full border-t-4 border-dashed border-black p-5 text-center">
-				<Button onClick={handleCamera}>Use Camera Instead</Button>
+				<Button onClick={toggleUploadMode}>{uploadToggle}</Button>
 			</div>
 			{loading ? (
 				<div className="rounded-1xl absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center bg-[rgba(0,_0,_0,_0.5)]">
@@ -160,6 +172,50 @@ export function Uploader(props: UploaderProps) {
 				Photograph a picture of your cube on a flat surface, where 3 sides
 				are clearly visible.
 			</p>
+		</div>
+	);
+}
+
+function CameraCapture(props: { onScan: (file: Blob) => void }) {
+	const videoRef = useRef<HTMLVideoElement | undefined>(undefined);
+
+	useEffect(() => {
+		navigator.mediaDevices
+			.getUserMedia({
+				video: true,
+			})
+			.then((stream) => {
+				const video = videoRef.current!;
+				video.srcObject = stream;
+				video.play();
+			});
+	}, []);
+
+	function takePhoto() {
+		const video = videoRef.current!;
+
+		const canvas = new OffscreenCanvas(video.videoWidth, video.videoHeight);
+		const ctx = canvas.getContext("2d")!;
+		ctx.drawImage(video, 0, 0);
+
+		canvas.convertToBlob().then((blob) => {
+			if (blob === null) {
+				console.error("blob was null");
+				return;
+			}
+			props.onScan(blob!);
+		});
+	}
+
+	return (
+		<div className="flex w-full flex-1 justify-center rounded-xl bg-gray-500">
+			<div className="absolute left-14 top-10">
+				<Button onClick={takePhoto} className="flex items-center">
+					<CameraIcon width={48} />
+					<p className="text-lg">Take Photo</p>
+				</Button>
+			</div>
+			<video ref={videoRef} className="h-full"></video>
 		</div>
 	);
 }
