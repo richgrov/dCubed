@@ -32,6 +32,13 @@ public class MathUtil {
         return numerator / denominator;
     }
 
+    /**
+     * Gets the point where two lines intersect.
+     * See <a href="https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line">Wikipedia</a>
+     * @param a Line A
+     * @param b Line B
+     * @return The point where the two lines intersect
+     */
     public static Point lineIntersection(TwoPointLine a, TwoPointLine b) {
         var x1 = a.a().x;
         var y1 = a.a().y;
@@ -65,10 +72,13 @@ public class MathUtil {
     }
 
     /**
+     * Converts a polar line to two points on that line. The exact distances
+     * and positions have no guarantees, only that they lie somewhere on the
+     * line.
      * See <a href="https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html">OpenCV</a>
-     * @param rho
-     * @param theta
-     * @return
+     * @param rho The line's rho component
+     * @param theta The line's theta component
+     * @return An object holding both points on the line.
      */
     public static TwoPointLine polarToTwoPointLine(double rho, double theta) {
         var a = Math.cos(theta);
