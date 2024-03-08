@@ -1,10 +1,12 @@
 package sh.grover.dcubed.util;
 
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import sh.grover.dcubed.model.vision.segment.CubeSegmentation;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,10 +27,6 @@ public class DrawUtil {
         Imgproc.circle(image, point, 4, color, -1);
     }
 
-    public static void point(Mat image, Point point) {
-        Imgproc.circle(image, point, 4, RED, -1);
-    }
-
     public static void line(Mat image, double rho, double theta, Scalar color) {
         var twoPointLine = MathUtil.polarToTwoPointLine(rho, theta);
         Imgproc.line(image, twoPointLine.a(), twoPointLine.b(), color, 1, Imgproc.LINE_AA, 0);
@@ -40,6 +38,25 @@ public class DrawUtil {
             var theta = lines.get(index, 0)[1];
             line(image, rho, theta, color);
         }
+    }
+
+    public static void segmentation(Mat image, CubeSegmentation segmentation) {
+        var points = new MatOfPoint(
+                segmentation.top(),
+                segmentation.topLeft(),
+                segmentation.bottomLeft(),
+                segmentation.bottom(),
+                segmentation.bottomRight(),
+                segmentation.topRight()
+        );
+        Imgproc.polylines(image, List.of(points), true, GREEN);
+
+        point(image, segmentation.top(), MAGENTA);
+        point(image, segmentation.topLeft(), RED);
+        point(image, segmentation.bottomLeft(), YELLOW);
+        point(image, segmentation.bottom(), GREEN);
+        point(image, segmentation.bottomRight(), CYAN);
+        point(image, segmentation.topRight(), BLUE);
     }
 
     public static void debugWrite(Mat image, String label) {

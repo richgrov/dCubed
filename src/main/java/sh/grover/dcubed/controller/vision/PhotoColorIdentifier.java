@@ -48,13 +48,8 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         if (this.debug) {
             var annotated = new Mat();
             image.copyTo(annotated);
-            DrawUtil.point(annotated, segmentation.top());
-            DrawUtil.point(annotated, segmentation.topLeft());
-            DrawUtil.point(annotated, segmentation.bottomLeft());
-            DrawUtil.point(annotated, segmentation.bottom());
-            DrawUtil.point(annotated, segmentation.bottomRight());
-            DrawUtil.point(annotated, segmentation.topRight());
 
+            DrawUtil.segmentation(annotated, segmentation);
             Imgproc.rectangle(annotated, cropFrom, cropTo, new Scalar(255, 255, 255));
             DrawUtil.debugWrite(annotated, "points");
         }
@@ -67,12 +62,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
             var annotatedCrop = new Mat();
             cropped.copyTo(annotatedCrop);
 
-            DrawUtil.point(annotatedCrop, croppedSegmentation.top());
-            DrawUtil.point(annotatedCrop, croppedSegmentation.topLeft());
-            DrawUtil.point(annotatedCrop, croppedSegmentation.bottomLeft());
-            DrawUtil.point(annotatedCrop, croppedSegmentation.bottom());
-            DrawUtil.point(annotatedCrop, croppedSegmentation.bottomRight());
-            DrawUtil.point(annotatedCrop, croppedSegmentation.topRight());
+            DrawUtil.segmentation(annotatedCrop, croppedSegmentation);
             DrawUtil.debugWrite(annotatedCrop, "cropped");
         }
 
