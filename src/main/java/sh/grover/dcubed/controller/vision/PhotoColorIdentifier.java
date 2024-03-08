@@ -120,15 +120,15 @@ public class PhotoColorIdentifier implements IColorIdentifier {
             DrawUtil.line(annotatedCrop, slopeUp.rho(), slopeUp.theta(), DrawUtil.RED);
 
             if (verticalDownIntersect != null) {
-                DrawUtil.point(annotatedCrop, verticalDownIntersect, new Scalar(255, 255, 0));
+                DrawUtil.point(annotatedCrop, verticalDownIntersect, DrawUtil.CYAN);
             }
 
             if (verticalUpIntersect != null) {
-                DrawUtil.point(annotatedCrop, verticalUpIntersect, new Scalar(0, 255, 255));
+                DrawUtil.point(annotatedCrop, verticalUpIntersect, DrawUtil.YELLOW);
             }
 
             if (upDownIntersect != null) {
-                DrawUtil.point(annotatedCrop, upDownIntersect, new Scalar(255, 0, 255));
+                DrawUtil.point(annotatedCrop, upDownIntersect, DrawUtil.MAGENTA);
             }
 
             DrawUtil.debugWrite(annotatedCrop, "filtered");

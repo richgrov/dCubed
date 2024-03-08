@@ -15,8 +15,11 @@ public class DrawUtil {
     private static final SimpleDateFormat DEBUG_IMAGE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 
     public static final Scalar RED = new Scalar(0, 0, 255);
+    public static final Scalar YELLOW = new Scalar(0, 255, 255);
     public static final Scalar GREEN = new Scalar(0, 255, 0);
+    public static final Scalar CYAN = new Scalar(255, 255, 0);
     public static final Scalar BLUE = new Scalar(255, 0, 0);
+    public static final Scalar MAGENTA = new Scalar(255, 0, 255);
 
     public static void point(Mat image, Point point, Scalar color) {
         Imgproc.circle(image, point, 4, color, -1);
