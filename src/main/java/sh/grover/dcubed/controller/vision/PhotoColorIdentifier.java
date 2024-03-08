@@ -225,13 +225,8 @@ public class PhotoColorIdentifier implements IColorIdentifier {
     }
 
     private static Mat warpedCrop(Mat image, Point tl, Point tr, Point br, Point bl) {
-        var width1 = Math.sqrt(Math.pow(br.x - bl.x, 2) + Math.pow(br.y - bl.y, 2));
-        var width2 = Math.sqrt(Math.pow(tr.x - tl.x, 2) + Math.pow(tr.y - tl.y, 2));
-        var width = Math.max((int) width1, (int) width2);
-
-        var height1 = Math.sqrt(Math.pow(tr.x - br.x, 2) + Math.pow(tr.y - br.y, 2));
-        var height2 = Math.sqrt(Math.pow(tl.x - bl.x, 2) + Math.pow(tl.y - bl.y, 2));
-        var height = Math.max((int) height1, (int) height2);
+        var width = MathUtil.greatestLength(br, bl, tr, tl);
+        var height = MathUtil.greatestLength(tr, br, tl, bl);
 
         var perspectiveSrc = new MatOfPoint2f(tl, tr, br, bl);
         var perspectiveDst = new MatOfPoint2f(
