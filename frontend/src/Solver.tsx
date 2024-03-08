@@ -16,7 +16,7 @@ export default function Solver() {
 
   return (
     <div className="flex flex-col items-center gap-20 py-20">
-      <h1 className="text-5xl">Click or Drop File Below to Get Started</h1>
+      <h1 className="text-5xl">Drop File or Click Below to Get Started</h1>
       <div className="relative h-[80vh] w-4/5 rounded-2xl border-4 border-black">
         {typeof appState !== "undefined" ? (
           <Visual appState={appState} />

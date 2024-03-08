@@ -23,7 +23,7 @@ type ScanResponse = {
 };
 
 async function scan(
-	file: File,
+	file: Blob,
 	sessionId: string | undefined
 ): Promise<ScanResponse> {
 	const formData = new FormData();
@@ -62,15 +62,22 @@ async function scan(
 	};
 }
 
-export default function Uploader(props: { onComplete: CompletionCallback }) {
+export default function Scanner(props: { onComplete: CompletionCallback }) {
 	const [loading, setLoading] = useState(false);
 	const [sides, setSides] = useState<Partial<Cube>>({});
 	const sessionId = useRef<string | undefined>();
-	const [errorMessage, setErrorMessage] = useState("");
+	const [errorDialog, setErrorDialog] = useState<JSX.Element>();
 
-	const onDrop = useCallback(async (accepted: File[]) => {
+	useEffect(() => {
+		if (Object.keys(sides).length === 6) {
+			props.onComplete(sides as Cube, sessionId.current!);
+		}
+	}, [sides]);
+
+	function handleCamera() {}
+
+	async function onImageUpload(file: Blob) {
 		setLoading(true);
-		const file = accepted[0];
 
 		try {
 			const result = await scan(file, sessionId.current);
@@ -80,19 +87,49 @@ export default function Uploader(props: { onComplete: CompletionCallback }) {
 				return { ...sides, ...result.cube };
 			});
 		} catch (e: any) {
-			setErrorMessage(e.message);
+			setErrorDialog(
+				<div className="mb-5 max-w-3xl rounded-xl bg-red-600 p-5 text-2xl text-white shadow-[black_10px_10px]">
+					{e.message}
+				</div>
+			);
 		} finally {
 			setLoading(false);
 		}
+	}
+
+	return (
+		<div className="flex h-full flex-col items-center">
+			<Uploader
+				onScan={onImageUpload}
+				sides={sides}
+				errorDialog={errorDialog}
+			/>
+			<div className="w-full border-t-4 border-dashed border-black p-5 text-center">
+				<Button onClick={handleCamera}>Use Camera Instead</Button>
+			</div>
+			{loading ? (
+				<div className="rounded-1xl absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center bg-[rgba(0,_0,_0,_0.5)]">
+					<img src={loadingAnimation} alt="Loading Animation" />
+				</div>
+			) : (
+				""
+			)}
+		</div>
+	);
+}
+
+type UploaderProps = {
+	onScan: (file: Blob) => void;
+	sides: Partial<Cube>;
+	errorDialog: JSX.Element | undefined;
+};
+
+export function Uploader(props: UploaderProps) {
+	const onDrop = useCallback(async (accepted: File[]) => {
+		const file = accepted[0];
+		props.onScan(file);
 	}, []);
 
-	useEffect(() => {
-		if (Object.keys(sides).length === 6) {
-			props.onComplete(sides as Cube, sessionId.current!);
-		}
-	}, [sides]);
-
-	const handleCamera = () => {};
 	const { getRootProps, getInputProps } = useDropzone({
 		accept: {
 			"image/png": [".png"],
@@ -103,42 +140,26 @@ export default function Uploader(props: { onComplete: CompletionCallback }) {
 	});
 
 	return (
-		<div className="flex h-full flex-col items-center">
-			<div
-				{...getRootProps()}
-				className="flex w-full flex-1 cursor-pointer flex-col items-center justify-center gap-5 border-b-4 border-dashed border-black text-center"
-			>
-				<input {...getInputProps()} />
+		<div
+			{...getRootProps()}
+			className="flex w-full flex-1 cursor-pointer flex-col items-center justify-center gap-5 text-center"
+		>
+			<input {...getInputProps()} />
 
-				{errorMessage !== "" && (
-					<div className="mb-5 max-w-3xl rounded-xl bg-red-600 p-5 text-2xl text-white shadow-[black_10px_10px]">
-						{errorMessage}
-					</div>
-				)}
+			{typeof props.errorDialog !== undefined && props.errorDialog}
 
-				<img
-					src={phone}
-					alt="A picture of a Rubik's cube on a flat surface"
-					className="rounded-xl border-4 border-dashed border-black"
-				/>
+			<img
+				src={phone}
+				alt="A picture of a Rubik's cube on a flat surface"
+				className="rounded-xl border-4 border-dashed border-black"
+			/>
 
-				<ScannedColors cube={sides} />
+			<ScannedColors cube={props.sides} />
 
-				<p className="max-w-lg text-2xl">
-					Photograph a picture of your cube on a flat surface, where 3
-					sides are clearly visible.
-				</p>
-			</div>
-			<div className="p-5">
-				<Button onClick={handleCamera}>Use Camera Instead</Button>
-			</div>
-			{loading ? (
-				<div className="rounded-1xl absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center bg-[rgba(0,_0,_0,_0.5)]">
-					<img src={loadingAnimation} alt="Loading Animation" />
-				</div>
-			) : (
-				""
-			)}
+			<p className="max-w-lg text-2xl">
+				Photograph a picture of your cube on a flat surface, where 3 sides
+				are clearly visible.
+			</p>
 		</div>
 	);
 }
