@@ -48,13 +48,8 @@ public class PhotoColorIdentifier implements IColorIdentifier {
         if (this.debug) {
             var annotated = new Mat();
             image.copyTo(annotated);
-            DrawUtil.point(annotated, segmentation.top());
-            DrawUtil.point(annotated, segmentation.topLeft());
-            DrawUtil.point(annotated, segmentation.bottomLeft());
-            DrawUtil.point(annotated, segmentation.bottom());
-            DrawUtil.point(annotated, segmentation.bottomRight());
-            DrawUtil.point(annotated, segmentation.topRight());
 
+            DrawUtil.segmentation(annotated, segmentation);
             Imgproc.rectangle(annotated, cropFrom, cropTo, new Scalar(255, 255, 255));
             DrawUtil.debugWrite(annotated, "points");
         }
@@ -67,12 +62,7 @@ public class PhotoColorIdentifier implements IColorIdentifier {
             var annotatedCrop = new Mat();
             cropped.copyTo(annotatedCrop);
 
-            DrawUtil.point(annotatedCrop, croppedSegmentation.top());
-            DrawUtil.point(annotatedCrop, croppedSegmentation.topLeft());
-            DrawUtil.point(annotatedCrop, croppedSegmentation.bottomLeft());
-            DrawUtil.point(annotatedCrop, croppedSegmentation.bottom());
-            DrawUtil.point(annotatedCrop, croppedSegmentation.bottomRight());
-            DrawUtil.point(annotatedCrop, croppedSegmentation.topRight());
+            DrawUtil.segmentation(annotatedCrop, croppedSegmentation);
             DrawUtil.debugWrite(annotatedCrop, "cropped");
         }
 
@@ -120,15 +110,15 @@ public class PhotoColorIdentifier implements IColorIdentifier {
             DrawUtil.line(annotatedCrop, slopeUp.rho(), slopeUp.theta(), DrawUtil.RED);
 
             if (verticalDownIntersect != null) {
-                DrawUtil.point(annotatedCrop, verticalDownIntersect, new Scalar(255, 255, 0));
+                DrawUtil.point(annotatedCrop, verticalDownIntersect, DrawUtil.CYAN);
             }
 
             if (verticalUpIntersect != null) {
-                DrawUtil.point(annotatedCrop, verticalUpIntersect, new Scalar(0, 255, 255));
+                DrawUtil.point(annotatedCrop, verticalUpIntersect, DrawUtil.YELLOW);
             }
 
             if (upDownIntersect != null) {
-                DrawUtil.point(annotatedCrop, upDownIntersect, new Scalar(255, 0, 255));
+                DrawUtil.point(annotatedCrop, upDownIntersect, DrawUtil.MAGENTA);
             }
 
             DrawUtil.debugWrite(annotatedCrop, "filtered");
@@ -225,13 +215,8 @@ public class PhotoColorIdentifier implements IColorIdentifier {
     }
 
     private static Mat warpedCrop(Mat image, Point tl, Point tr, Point br, Point bl) {
-        var width1 = Math.sqrt(Math.pow(br.x - bl.x, 2) + Math.pow(br.y - bl.y, 2));
-        var width2 = Math.sqrt(Math.pow(tr.x - tl.x, 2) + Math.pow(tr.y - tl.y, 2));
-        var width = Math.max((int) width1, (int) width2);
-
-        var height1 = Math.sqrt(Math.pow(tr.x - br.x, 2) + Math.pow(tr.y - br.y, 2));
-        var height2 = Math.sqrt(Math.pow(tl.x - bl.x, 2) + Math.pow(tl.y - bl.y, 2));
-        var height = Math.max((int) height1, (int) height2);
+        var width = MathUtil.greatestLength(br, bl, tr, tl);
+        var height = MathUtil.greatestLength(tr, br, tl, bl);
 
         var perspectiveSrc = new MatOfPoint2f(tl, tr, br, bl);
         var perspectiveDst = new MatOfPoint2f(

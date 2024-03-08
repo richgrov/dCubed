@@ -32,6 +32,13 @@ public class MathUtil {
         return numerator / denominator;
     }
 
+    /**
+     * Gets the point where two lines intersect.
+     * See <a href="https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line">Wikipedia</a>
+     * @param a Line A
+     * @param b Line B
+     * @return The point where the two lines intersect
+     */
     public static Point lineIntersection(TwoPointLine a, TwoPointLine b) {
         var x1 = a.a().x;
         var y1 = a.a().y;
@@ -65,10 +72,13 @@ public class MathUtil {
     }
 
     /**
+     * Converts a polar line to two points on that line. The exact distances
+     * and positions have no guarantees, only that they lie somewhere on the
+     * line.
      * See <a href="https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html">OpenCV</a>
-     * @param rho
-     * @param theta
-     * @return
+     * @param rho The line's rho component
+     * @param theta The line's theta component
+     * @return An object holding both points on the line.
      */
     public static TwoPointLine polarToTwoPointLine(double rho, double theta) {
         var a = Math.cos(theta);
@@ -80,6 +90,22 @@ public class MathUtil {
                 new Point(Math.round(x0 + 1000*(-b)), Math.round(y0 + 1000*(a))),
                 new Point(Math.round(x0 - 1000*(-b)), Math.round(y0 - 1000*(a)))
         );
+    }
+
+    /**
+     * Finds which line, A or B, has the longest length. The terms "starting"
+     * and "ending" purely refer to opposite ends on the line. Order does not
+     * matter.
+     * @param a1 Starting point of line A
+     * @param a2 Ending point of line A
+     * @param b1 Starting point of line B
+     * @param b2 Ending point of line B
+     * @return The length of whichever line is longer
+     */
+    public static int greatestLength(Point a1, Point a2, Point b1, Point b2) {
+        var len1 = Math.sqrt(Math.pow(a1.x - a2.x, 2) + Math.pow(a1.y - a2.y, 2));
+        var len2 = Math.sqrt(Math.pow(b1.x - b2.x, 2) + Math.pow(b1.y - b2.y, 2));
+        return Math.max((int) len1, (int) len2);
     }
 
     public static Point subtract(Point a, Point b) {

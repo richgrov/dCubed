@@ -9,7 +9,7 @@ public class Main {
     public static void main(String[] args) {
         OpenCV.loadLocally();
         var solverSessions = new SolverSessions();
-        var colorIdentifier = new PhotoColorIdentifier(true);
+        var colorIdentifier = new PhotoColorIdentifier(false);
         new WebServer(solverSessions, colorIdentifier);
     }
 }
