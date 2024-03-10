@@ -69,7 +69,7 @@ export default function Scanner(props: { onComplete: CompletionCallback }) {
 	const [sides, setSides] = useState<Partial<Cube>>({});
 	const sessionId = useRef<string | undefined>();
 	const [errorDialog, setErrorDialog] = useState<JSX.Element>();
-	const [uploadMode, setUploadMode] = useState<UploadMode>("upload");
+	const [uploadMode, setUploadMode] = useState<UploadMode>("camera");
 
 	useEffect(() => {
 		if (Object.keys(sides).length === 6) {
