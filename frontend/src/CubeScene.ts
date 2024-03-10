@@ -86,7 +86,7 @@ export default class CubeScene {
   );
 
   constructor(private sides: Record<string, string[]>) {
-    this.camera.position.set(0, 5, 0);
+    this.camera.position.set(4, 4, 4);
     this.rotationCollision.matrixAutoUpdate = false;
 
     this.addSide("GREEN", axisY, 0);
