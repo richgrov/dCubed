@@ -114,7 +114,7 @@ export default function Scanner(props: { onComplete: CompletionCallback }) {
 					errorDialog={errorDialog}
 				/>
 			) : (
-				<CameraCapture onScan={onImageUpload} />
+				<CameraCapture onScan={onImageUpload} sides={sides} />
 			)}
 			<div className="w-full border-t-4 border-dashed border-black p-5 text-center">
 				<Button onClick={toggleUploadMode}>{uploadToggle}</Button>
@@ -176,7 +176,10 @@ export function Uploader(props: UploaderProps) {
 	);
 }
 
-function CameraCapture(props: { onScan: (file: Blob) => void }) {
+function CameraCapture(props: {
+	onScan: (file: Blob) => void;
+	sides: Partial<Cube>;
+}) {
 	const videoRef = useRef<HTMLVideoElement | undefined>(undefined);
 
 	useEffect(() => {
@@ -210,7 +213,8 @@ function CameraCapture(props: { onScan: (file: Blob) => void }) {
 	return (
 		<div className="flex w-full flex-1 justify-center rounded-xl bg-gray-500">
 			<div className="absolute left-14 top-10">
-				<Button onClick={takePhoto} className="flex items-center">
+				<ScannedColors cube={props.sides} />
+				<Button onClick={takePhoto} className="mt-5 flex items-center">
 					<CameraIcon width={48} />
 					<p className="text-lg">Take Photo</p>
 				</Button>
