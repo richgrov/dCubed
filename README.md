@@ -1,6 +1,10 @@
 # dCubed
 
-The world's first Rubik's Cube solver that scans with only two photos.
+An app that teaches you to solve a Rubik's Cube- powered by computer vision.
+
+- Scan an entire Rubik's cube with only two photos
+- Play, pause, rewind, and fast-forward through instructions
+- Learn the human way of solving, not the absolute fastest
 
 **Scanning**
 
