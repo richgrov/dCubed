@@ -13,3 +13,7 @@ https://github.com/richgrov/dCubed/assets/38992201/fd9965af-5c07-4d9f-bbba-24d27
 **All Sides Correctly Scanned**
 
 https://github.com/richgrov/dCubed/assets/38992201/849dcb31-76b3-49c9-9dbf-b1e7174bfad8
+
+**Home**
+
+![Home Page](.github/home.png)
