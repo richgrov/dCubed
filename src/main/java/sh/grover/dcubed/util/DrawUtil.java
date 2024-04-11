@@ -22,6 +22,7 @@ public class DrawUtil {
     public static final Scalar CYAN = new Scalar(255, 255, 0);
     public static final Scalar BLUE = new Scalar(255, 0, 0);
     public static final Scalar MAGENTA = new Scalar(255, 0, 255);
+    public static final Scalar WHITE = new Scalar(255, 255, 255);
 
     public static void point(Mat image, Point point, Scalar color) {
         Imgproc.circle(image, point, 4, color, -1);
@@ -44,6 +45,7 @@ public class DrawUtil {
         point(image, segmentation.bottom(), GREEN);
         point(image, segmentation.bottomRight(), CYAN);
         point(image, segmentation.topRight(), BLUE);
+        point(image, segmentation.center(), WHITE);
     }
 
     public static void debugWrite(Mat image, String label) {
