@@ -38,7 +38,12 @@ def rescale_point(point, current_img, new_img) -> tuple[float, float]:
     x, y = point
     return x / current_width * new_width, y / current_height * new_height
 
+def find_center(img, mask) -> tuple[int, int]:
+    depth = models.predict_depth(img)
+    cv2_depth = np.array(depth)
 
+    _, _, _, maxLoc = cv2.minMaxLoc(cv2_depth, mask)
+    return maxLoc[0], maxLoc[1]
 
 class VisionError(RuntimeError):
     def __init__(self, *args: object) -> None:
@@ -90,6 +95,14 @@ def find_points(img, debug):
 
     highest = index_of_lowest_y(contour_points) # "highest" is lowest y because top of image is y=0
 
+    mask = np.zeros((scaled.shape[0], scaled.shape[1]), np.uint8)
+    cv2.drawContours(mask, [contour_points], -1, (255, 255, 255), -1)
+
+    cropped = scaled[bounds[1]:bounds[3], bounds[0]:bounds[2]].copy()
+    cropped_mask = mask[bounds[1]:bounds[3], bounds[0]:bounds[2]].copy()
+    center = find_center(cropped, cropped_mask)
+    center = center[0] + bounds[0], center[1] + bounds[1]
+
     # Point needs to be rescaled to match dimensions of input image
     rescaled = [rescale_point(p, scaled, img) for p in contour_points.tolist()]
     keys = ["top", "topLeft", "bottomLeft", "bottom", "bottomRight", "topRight"]
@@ -99,6 +112,8 @@ def find_points(img, debug):
         key = keys[offset]
         value = rescaled[(highest + offset) % len(contour_points)]
         response[key] = value
+
+    response["center"] = center[0] + bounds[0], center[1] + bounds[1]
 
     return response
 
@@ -122,3 +137,4 @@ def segment():
     return SCAN_ERROR_RESPONSE
 
 app.run(debug=True)
+

@@ -2,11 +2,15 @@ from inference.models.yolo_world import YOLOWorld
 import numpy as np
 from ultralytics import FastSAM
 from ultralytics.models.fastsam import FastSAMPrompt
+from transformers import pipeline
+from PIL import Image
 
 object_model = YOLOWorld(model_id="yolo_world/l")
 object_model.set_classes(["rubik's cube"])
 
 segment_model = FastSAM(model="FastSAM-x.pt")
+
+pipe = pipeline(task="depth-estimation", model="LiheYoung/depth-anything-small-hf")
 
 BoundingBox = tuple[int, int, int, int]
 
@@ -36,3 +40,7 @@ def predict_segmentation(img, bounds: BoundingBox):
     if len(results) > 0:
         contour_points = results[0].masks.xy[0]
         return np.array(contour_points, np.int32)
+
+def predict_depth(img):
+    pil_img = Image.fromarray(img)
+    return pipe(pil_img)["depth"]
