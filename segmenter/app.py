@@ -113,7 +113,7 @@ def find_points(img, debug):
         value = rescaled[(highest + offset) % len(contour_points)]
         response[key] = value
 
-    response["center"] = center[0] + bounds[0], center[1] + bounds[1]
+    response["center"] = center
 
     return response
 
