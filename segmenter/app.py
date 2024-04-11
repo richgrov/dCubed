@@ -38,28 +38,25 @@ def rescale_point(point, current_img, new_img) -> tuple[float, float]:
     x, y = point
     return x / current_width * new_width, y / current_height * new_height
 
-app = Flask("Segmenter")
 
-@app.route("/segment", methods=["POST"])
-def segment():
-    img = stream_to_img(request.stream)
 
-    if img is None:
-        return Response("missing or invalid photo", status=400)
+class VisionError(RuntimeError):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
+def find_points(img, debug):
     # Rescale to constant size so the epsilon value of approxPolyDP can give
     # consistent results.
     scaled = img_util.scale_smaller_axis(img, 480)
 
     bounds = models.predict_bounds(scaled)
     if bounds is None:
-        app.logger.info("bounds were not found on image")
-        if app.debug:
+        if debug:
             img_util.debug_write(scaled, "bounds")
 
-        return SCAN_ERROR_RESPONSE
+        raise VisionError("bounds were not found on image")
 
-    if app.debug:
+    if debug:
         debug_img = scaled.copy()
         cv2.rectangle(debug_img, (bounds[0], bounds[1]), (bounds[2], bounds[3]), color=(255, 255, 255))
 
@@ -72,40 +69,56 @@ def segment():
     )
     contour_points = models.predict_segmentation(scaled, segmentation_bounds)
     if contour_points is None:
-        app.logger.info("segmentation was not found on image")
-        if app.debug:
+        if debug:
             img_util.debug_write(debug_img, "segmentation") # pyright: ignore
 
-        return SCAN_ERROR_RESPONSE
+        raise VisionError("segmentation was not found on image")
 
-    if app.debug:
+    if debug:
         cv2.polylines(debug_img, [contour_points], -1, color=(0, 255, 0)) # pyright: ignore
 
     contour_points = reduce_segmentation(contour_points)
-    if app.debug:
+    if debug:
         for point in contour_points:
             cv2.circle(debug_img, point, radius=4, color=(255, 0, 0), thickness=-1) # pyright: ignore
 
     if len(contour_points) != 6:
-        app.logger.info("contour not reduced")
-        if app.debug:
+        if debug:
             img_util.debug_write(debug_img, "reduce") # pyright: ignore
 
-        return SCAN_ERROR_RESPONSE
+        raise VisionError("contour not reduced")
 
     highest = index_of_lowest_y(contour_points) # "highest" is lowest y because top of image is y=0
 
     # Point needs to be rescaled to match dimensions of input image
     rescaled = [rescale_point(p, scaled, img) for p in contour_points.tolist()]
-    encoded = [{"x": p[0], "y": p[1]} for p in rescaled]
     keys = ["top", "topLeft", "bottomLeft", "bottom", "bottomRight", "topRight"]
 
     response = {}
     for offset in range(6):
         key = keys[offset]
-        value = encoded[(highest + offset) % len(contour_points)]
+        value = rescaled[(highest + offset) % len(contour_points)]
         response[key] = value
 
-    return jsonify(response)
+    return response
+
+app = Flask("Segmenter")
+
+@app.route("/segment", methods=["POST"])
+def segment():
+    img = stream_to_img(request.stream)
+
+    if img is None:
+        return Response("missing or invalid photo", status=400)
+
+    try:
+        points = find_points(img, app.debug)
+        points_dict = { key: {"x": p[0], "y": p[1]} for key, p in points.items() }
+        return jsonify(points_dict)
+
+    except VisionError as e:
+        app.logger.info(e)
+
+    return SCAN_ERROR_RESPONSE
 
 app.run(debug=True)
