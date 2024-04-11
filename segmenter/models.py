@@ -3,7 +3,7 @@ import numpy as np
 from ultralytics import FastSAM
 from ultralytics.models.fastsam import FastSAMPrompt
 
-object_model = YOLOWorld(model_id="yolo_world/s")
+object_model = YOLOWorld(model_id="yolo_world/l")
 object_model.set_classes(["rubik's cube"])
 
 segment_model = FastSAM(model="FastSAM-x.pt")
