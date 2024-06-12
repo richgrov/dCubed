@@ -6,3 +6,4 @@ frontend/**/*.png filter=lfs diff=lfs merge=lfs -text
 frontend/**/*.woff filter=lfs diff=lfs merge=lfs -text
 frontend/**/*.woff2 filter=lfs diff=lfs merge=lfs -text
 .github/*.mp4 filter=lfs diff=lfs merge=lfs -text
+segmenter/best.onnx filter=lfs diff=lfs merge=lfs -text

@@ -1,15 +1,12 @@
-from inference.models.yolo_world import YOLOWorld
 import numpy as np
-from ultralytics import FastSAM
+from ultralytics import FastSAM, YOLO
 from ultralytics.models.fastsam import FastSAMPrompt
 from transformers import pipeline
 from PIL import Image
+import cv2
 
-object_model = YOLOWorld(model_id="yolo_world/l")
-object_model.set_classes(["rubik's cube"])
-
+object_model = YOLO("best.onnx")
 segment_model = FastSAM(model="FastSAM-x.pt")
-
 pipe = pipeline(task="depth-estimation", model="LiheYoung/depth-anything-small-hf")
 
 BoundingBox = tuple[int, int, int, int]
@@ -20,14 +17,15 @@ def predict_bounds(img) -> BoundingBox | None:
     Predicts the (minx, miny, maxx, maxy) boundary of a Rubik's cube in the
     image. Returns None if nothing was found.
     """
-    results = object_model.infer(img, confidence=0.01)
-    if len(results.predictions) > 0:
-        bounds = results.predictions[0]
-        x1 = int(bounds.x - bounds.width / 2)
-        x2 = int(bounds.x + bounds.width / 2)
-        y1 = int(bounds.y - bounds.height / 2)
-        y2 = int(bounds.y + bounds.height / 2)
-        return x1, y1, x2, y2
+    results = object_model(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    if len(results) == 0:
+        return
+
+    if len(results[0].boxes) == 0:
+        return
+
+    bounds = results[0].boxes[0].xyxy[0]
+    return bounds.cpu().numpy().astype(np.int32).tolist()
 
 
 def predict_segmentation(img, bounds: BoundingBox):
