@@ -14,10 +14,11 @@ pipe = pipeline(task="depth-estimation", model="LiheYoung/depth-anything-small-h
 
 BoundingBox = tuple[int, int, int, int]
 
+
 def predict_bounds(img) -> BoundingBox | None:
     """
-        Predicts the (minx, miny, maxx, maxy) boundary of a Rubik's cube in the
-        image. Returns None if nothing was found.
+    Predicts the (minx, miny, maxx, maxy) boundary of a Rubik's cube in the
+    image. Returns None if nothing was found.
     """
     results = object_model.infer(img, confidence=0.01)
     if len(results.predictions) > 0:
@@ -28,11 +29,12 @@ def predict_bounds(img) -> BoundingBox | None:
         y2 = int(bounds.y + bounds.height / 2)
         return x1, y1, x2, y2
 
+
 def predict_segmentation(img, bounds: BoundingBox):
     """
-        Returns a 2xN array of points that make up a contour of the object
-        identified with the bounding box of an image. Returns None if nothing
-        was found.
+    Returns a 2xN array of points that make up a contour of the object
+    identified with the bounding box of an image. Returns None if nothing
+    was found.
     """
     results = segment_model(img)
     process = FastSAMPrompt(img, results)
@@ -40,6 +42,7 @@ def predict_segmentation(img, bounds: BoundingBox):
     if len(results) > 0:
         contour_points = results[0].masks.xy[0]
         return np.array(contour_points, np.int32)
+
 
 def predict_depth(img):
     pil_img = Image.fromarray(img)

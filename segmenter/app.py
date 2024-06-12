@@ -11,14 +11,17 @@ import models
 SCAN_ERROR_RESPONSE = Response("cube not found", status=422)
 SEGMENTATION_BOUND_PADDING = 15
 
+
 def stream_to_img(stream: typing.IO[bytes]):
     buf = bytearray(stream.read())
     npbuf = np.asarray(buf, np.uint8)
     return cv2.imdecode(npbuf, cv2.IMREAD_COLOR)
 
+
 def reduce_segmentation(contour_points):
     approx = cv2.approxPolyDP(contour_points, epsilon=15, closed=True)
     return np.squeeze(approx, axis=1)
+
 
 def index_of_lowest_y(points):
     lowest_index = -1
@@ -31,12 +34,14 @@ def index_of_lowest_y(points):
 
     return lowest_index
 
+
 def rescale_point(point, current_img, new_img) -> tuple[float, float]:
     current_height, current_width, _ = current_img.shape
     new_height, new_width, _ = new_img.shape
 
     x, y = point
     return x / current_width * new_width, y / current_height * new_height
+
 
 def find_center(img, mask) -> tuple[int, int]:
     depth = models.predict_depth(img)
@@ -45,9 +50,11 @@ def find_center(img, mask) -> tuple[int, int]:
     _, _, _, maxLoc = cv2.minMaxLoc(cv2_depth, mask)
     return maxLoc[0], maxLoc[1]
 
+
 class VisionError(RuntimeError):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
+
 
 def find_points(img, debug):
     # Rescale to constant size so the epsilon value of approxPolyDP can give
@@ -63,7 +70,12 @@ def find_points(img, debug):
 
     if debug:
         debug_img = scaled.copy()
-        cv2.rectangle(debug_img, (bounds[0], bounds[1]), (bounds[2], bounds[3]), color=(255, 255, 255))
+        cv2.rectangle(
+            debug_img,
+            (bounds[0], bounds[1]),
+            (bounds[2], bounds[3]),
+            color=(255, 255, 255),
+        )
 
     # Increasing bounding box size slightly increases segmentation accuracy
     segmentation_bounds = (
@@ -75,31 +87,41 @@ def find_points(img, debug):
     contour_points = models.predict_segmentation(scaled, segmentation_bounds)
     if contour_points is None:
         if debug:
-            img_util.debug_write(debug_img, "segmentation") # pyright: ignore
+            img_util.debug_write(debug_img, "segmentation")  # pyright: ignore
 
         raise VisionError("segmentation was not found on image")
 
     if debug:
-        cv2.polylines(debug_img, [contour_points], -1, color=(0, 255, 0)) # pyright: ignore
+        cv2.polylines(
+            debug_img, [contour_points], -1, color=(0, 255, 0)  # pyright: ignore
+        )
 
     contour_points = reduce_segmentation(contour_points)
     if debug:
         for point in contour_points:
-            cv2.circle(debug_img, point, radius=4, color=(255, 0, 0), thickness=-1) # pyright: ignore
+            cv2.circle(
+                debug_img,  # pyright: ignore
+                point,
+                radius=4,
+                color=(255, 0, 0),
+                thickness=-1,
+            )
 
     if len(contour_points) != 6:
         if debug:
-            img_util.debug_write(debug_img, "reduce") # pyright: ignore
+            img_util.debug_write(debug_img, "reduce")  # pyright: ignore
 
         raise VisionError("contour not reduced")
 
-    highest = index_of_lowest_y(contour_points) # "highest" is lowest y because top of image is y=0
+    highest = index_of_lowest_y(
+        contour_points
+    )  # "highest" is lowest y because top of image is y=0
 
     mask = np.zeros((scaled.shape[0], scaled.shape[1]), np.uint8)
     cv2.drawContours(mask, [contour_points], -1, (255, 255, 255), -1)
 
-    cropped = scaled[bounds[1]:bounds[3], bounds[0]:bounds[2]].copy()
-    cropped_mask = mask[bounds[1]:bounds[3], bounds[0]:bounds[2]].copy()
+    cropped = scaled[bounds[1] : bounds[3], bounds[0] : bounds[2]].copy()
+    cropped_mask = mask[bounds[1] : bounds[3], bounds[0] : bounds[2]].copy()
     center = find_center(cropped, cropped_mask)
     center = center[0] + bounds[0], center[1] + bounds[1]
 
@@ -117,7 +139,9 @@ def find_points(img, debug):
 
     return response
 
+
 app = Flask("Segmenter")
+
 
 @app.route("/segment", methods=["POST"])
 def segment():
@@ -128,7 +152,7 @@ def segment():
 
     try:
         points = find_points(img, app.debug)
-        points_dict = { key: {"x": p[0], "y": p[1]} for key, p in points.items() }
+        points_dict = {key: {"x": p[0], "y": p[1]} for key, p in points.items()}
         return jsonify(points_dict)
 
     except VisionError as e:
@@ -136,5 +160,5 @@ def segment():
 
     return SCAN_ERROR_RESPONSE
 
-app.run(debug=True)
 
+app.run(debug=True)
