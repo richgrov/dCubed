@@ -1,5 +1,5 @@
 add_executable(inference
-	"main.cc"
+	"main.c"
 )
 
-set_property(TARGET inference PROPERTY CXX_STANDARD 20)
+set_property(TARGET inference PROPERTY C_STANDARD 11)
