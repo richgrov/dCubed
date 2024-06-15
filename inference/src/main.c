@@ -17,7 +17,7 @@ typedef struct {
     double *outputs;
 } Linear;
 
-void init_linear(Linear *linear, int num_in, int num_out) {
+void linear_init(Linear *linear, int num_in, int num_out) {
     linear->num_in = num_in;
     linear->num_out = num_out;
     linear->weights = malloc(sizeof(double) * num_in * num_out);
@@ -25,7 +25,7 @@ void init_linear(Linear *linear, int num_in, int num_out) {
     linear->outputs = malloc(sizeof(double) * num_out);
 }
 
-void deinit_linear(Linear *linear) {
+void linear_deinit(Linear *linear) {
     free(linear->weights);
     linear->weights = NULL;
     free(linear->outputs);
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
     }
 
     Linear linear;
-    init_linear(&linear, 2, 1);
+    linear_init(&linear, 2, 1);
     linear_randinit(&linear, 0.0, 1.0);
     linear.biases[0] = 0.0;
 
@@ -106,5 +106,5 @@ int main(int argc, char **argv) {
         printf("avg(%f, %f) is about %f (cost %f)\n", entry->input[0], entry->input[1], out, cost);
     }
 
-    deinit_linear(&linear);
+    linear_deinit(&linear);
 }
