@@ -2,17 +2,9 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "activation.h"
 #include "linear.h"
 #include "rand.h"
-
-double mse(double activation, double expected) {
-    double diff = activation - expected;
-    return diff * diff;
-}
-
-double mse_derivative(double activation, double expected) {
-    return 2 * (activation - expected);
-}
 
 #define ARRAY_LEN(x) (sizeof(x) / sizeof(x[0]))
 
