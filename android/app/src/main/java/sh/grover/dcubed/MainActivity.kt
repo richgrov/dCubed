@@ -1,5 +1,6 @@
 package sh.grover.dcubed
 
+import ai.onnxruntime.OrtEnvironment
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -34,8 +35,23 @@ import java.util.concurrent.Executors
 
 class MainActivity : ComponentActivity() {
 
+    private lateinit var imageAnalysis: ImageAnalysis
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val ortEnv = OrtEnvironment.getEnvironment()
+        val session = ortEnv.createSession(resources.openRawResource(R.raw.detector).readBytes())
+
+        imageAnalysis = ImageAnalysis.Builder()
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
+            .build()
+
+        imageAnalysis.clearAnalyzer()
+        imageAnalysis.setAnalyzer(Executors.newSingleThreadExecutor(), CubeImageAnalyzer(session))
+
+
         setContent {
             DCubedTheme {
                 // A surface container using the 'background' color from the theme
@@ -67,7 +83,7 @@ class MainActivity : ComponentActivity() {
             return
         }
 
-        Camera()
+        Camera(imageAnalysis)
     }
 
     private fun hasPermission(permission: String): Boolean {
@@ -76,7 +92,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Camera() {
+fun Camera(analysis: ImageAnalysis) {
     val lifecycle = LocalLifecycleOwner.current
 
     AndroidView(modifier = Modifier.fillMaxSize(), factory = { context ->
@@ -92,16 +108,8 @@ fun Camera() {
             val preview = Preview.Builder().build()
             preview.setSurfaceProvider(previewView.surfaceProvider)
 
-            val imageAnalysis = ImageAnalysis.Builder()
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
-                .build()
-
-            imageAnalysis.clearAnalyzer()
-            imageAnalysis.setAnalyzer(Executors .newSingleThreadExecutor(), CubeImageAnalyzer())
-
             camera.unbind()
-            camera.bindToLifecycle(lifecycle, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageAnalysis)
+            camera.bindToLifecycle(lifecycle, CameraSelector.DEFAULT_BACK_CAMERA, preview, analysis)
         }, ContextCompat.getMainExecutor(context))
 
         previewView
