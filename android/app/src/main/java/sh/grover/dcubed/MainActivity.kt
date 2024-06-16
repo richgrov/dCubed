@@ -9,7 +9,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.view.LifecycleCameraController
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,11 +26,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import sh.grover.dcubed.ui.theme.DCubedTheme
+import java.util.concurrent.Executors
 
 class MainActivity : ComponentActivity() {
 
@@ -75,13 +78,32 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Camera() {
     val lifecycle = LocalLifecycleOwner.current
-    val camera = LifecycleCameraController(LocalContext.current)
-    AndroidView(factory = { context ->
-        PreviewView(context).also {
+
+    AndroidView(modifier = Modifier.fillMaxSize(), factory = { context ->
+        val previewView = PreviewView(context).also {
             it.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             it.scaleType = PreviewView.ScaleType.FILL_START
-            it.controller = camera
-            camera.bindToLifecycle(lifecycle)
+            it.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
         }
+
+        val cameraFuture = ProcessCameraProvider.getInstance(context)
+        cameraFuture.addListener({
+            val camera = cameraFuture.get()
+            val preview = Preview.Builder().build()
+            preview.setSurfaceProvider(previewView.surfaceProvider)
+
+            val imageAnalysis = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
+                .build()
+
+            imageAnalysis.clearAnalyzer()
+            imageAnalysis.setAnalyzer(Executors .newSingleThreadExecutor(), CubeImageAnalyzer())
+
+            camera.unbind()
+            camera.bindToLifecycle(lifecycle, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageAnalysis)
+        }, ContextCompat.getMainExecutor(context))
+
+        previewView
     })
 }
