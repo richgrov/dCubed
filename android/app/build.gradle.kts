@@ -69,5 +69,6 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
+    implementation(project(mapOf("path" to ":OpenCV")))
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.18.0")
 }

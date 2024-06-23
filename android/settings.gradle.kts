@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "dCubed"
 include(":app")
+include(":OpenCV")

@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import org.opencv.android.OpenCVLoader
 import sh.grover.dcubed.ui.theme.DCubedTheme
 import java.util.concurrent.Executors
 
@@ -39,6 +40,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!OpenCVLoader.initLocal()) {
+            throw UnsatisfiedLinkError();
+        }
 
         val ortEnv = OrtEnvironment.getEnvironment()
         val session = ortEnv.createSession(resources.openRawResource(R.raw.detector).readBytes())
