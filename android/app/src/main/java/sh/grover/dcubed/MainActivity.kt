@@ -56,7 +56,6 @@ class MainActivity : ComponentActivity() {
         imageAnalysis.clearAnalyzer()
         imageAnalysis.setAnalyzer(Executors.newSingleThreadExecutor(), CubeImageAnalyzer(session))
 
-
         setContent {
             DCubedTheme {
                 // A surface container using the 'background' color from the theme
