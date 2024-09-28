@@ -1,20 +1,19 @@
 package sh.grover.dcubed
 
 import ai.onnxruntime.OrtEnvironment
+import ai.onnxruntime.OrtSession
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
@@ -22,13 +21,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import org.opencv.android.OpenCVLoader
 import sh.grover.dcubed.ui.theme.DCubedTheme
@@ -36,7 +37,7 @@ import java.util.concurrent.Executors
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var imageAnalysis: ImageAnalysis
+    private lateinit var ortSession: OrtSession;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,15 +47,7 @@ class MainActivity : ComponentActivity() {
         }
 
         val ortEnv = OrtEnvironment.getEnvironment()
-        val session = ortEnv.createSession(resources.openRawResource(R.raw.detector).readBytes())
-
-        imageAnalysis = ImageAnalysis.Builder()
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
-            .build()
-
-        imageAnalysis.clearAnalyzer()
-        imageAnalysis.setAnalyzer(Executors.newSingleThreadExecutor(), CubeImageAnalyzer(session))
+        ortSession = ortEnv.createSession(resources.openRawResource(R.raw.detector).readBytes())
 
         setContent {
             DCubedTheme {
@@ -87,7 +80,7 @@ class MainActivity : ComponentActivity() {
             return
         }
 
-        Camera(imageAnalysis)
+        Camera(ortSession)
     }
 
     private fun hasPermission(permission: String): Boolean {
@@ -96,26 +89,37 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Camera(analysis: ImageAnalysis) {
+fun Camera(session: OrtSession) {
     val lifecycle = LocalLifecycleOwner.current
+    val context = LocalContext.current
 
-    AndroidView(modifier = Modifier.fillMaxSize(), factory = { context ->
-        val previewView = PreviewView(context).also {
-            it.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-            it.scaleType = PreviewView.ScaleType.FILL_START
-            it.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
-        }
+    var latestImage by remember {
+        mutableStateOf(Bitmap.createBitmap(640, 640, Bitmap.Config.ARGB_8888))
+    }
 
+    LaunchedEffect(Unit) {
         val cameraFuture = ProcessCameraProvider.getInstance(context)
         cameraFuture.addListener({
             val camera = cameraFuture.get()
-            val preview = Preview.Builder().build()
-            preview.setSurfaceProvider(previewView.surfaceProvider)
+            val analyzer = CubeImageAnalyzer(session)
+
+            val analysis = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
+                .build()
+                .also {
+                    it.clearAnalyzer()
+                    it.setAnalyzer(Executors.newSingleThreadExecutor()) { image ->
+                        val annotatedImage = analyzer.findBoxes(image.toBitmap())
+                        latestImage = annotatedImage
+                        image.close()
+                    }
+                }
 
             camera.unbind()
-            camera.bindToLifecycle(lifecycle, CameraSelector.DEFAULT_BACK_CAMERA, preview, analysis)
+            camera.bindToLifecycle(lifecycle, CameraSelector.DEFAULT_BACK_CAMERA, analysis)
         }, ContextCompat.getMainExecutor(context))
+    }
 
-        previewView
-    })
+    Image(bitmap = latestImage.asImageBitmap(), contentDescription = "Camera View")
 }
