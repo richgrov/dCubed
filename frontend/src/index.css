@@ -24,3 +24,11 @@
 .text-stroke-none {
   -webkit-text-stroke: 0;
 }
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background-color: #000;
+}
